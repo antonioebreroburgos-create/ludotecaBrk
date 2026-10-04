@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F3E6CC">
+<title>Ludoteca Brooklyn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --papel: #F3E6CC;
+    --papel-claro: #FBF4E4;
+    --tinta: #1F1A17;
+    --tinta-suave: #6B5E52;
+    --rojo: #C4262E;
+    --mostaza: #EFA91B;
+    --verde: #6BBE45;
+    --borde: #1F1A17;
+    --slab: 'Alfa Slab One', 'Rockwell', Georgia, serif;
+    --cond: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    --texto: 'Barlow', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    background: var(--papel);
+    color: var(--tinta);
+    font: 400 17px/1.45 var(--texto);
+    padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+  }
+  button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
+  button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--mostaza); outline-offset: 2px; }
+  .pantalla { display: none; min-height: 100%; max-width: 480px; margin: 0 auto; padding: 24px 20px 32px; }
+  .pantalla.activa { display: flex; flex-direction: column; }
+
+  /* ---------- Marca ---------- */
+  .marca { text-align: center; margin: 12px 0 28px; }
+  .marca h1 { font: 400 44px/0.95 var(--slab); letter-spacing: 1px; color: var(--tinta); }
+  .marca p { font: 700 22px/1 var(--cond); color: var(--rojo); margin-top: 6px; letter-spacing: 3px; }
+
+  /* ---------- PIN: el "ticket" ---------- */
+  .ticket {
+    background: #E9CD95;
+    border: 2px dashed var(--tinta);
+    border-radius: 6px;
+    padding: 18px 16px 14px;
+    text-align: center;
+    margin: 0 8px 22px;
+    position: relative;
+  }
+  .ticket::before, .ticket::after {
+    content: ''; position: absolute; top: 50%; width: 18px; height: 18px;
+    background: var(--papel); border-radius: 50%; transform: translateY(-50%);
+  }
+  .ticket::before { left: -11px; } .ticket::after { right: -11px; }
+  .ticket label { font: 600 18px var(--cond); color: var(--tinta-suave); display: block; margin-bottom: 10px; }
+  .puntos { display: flex; justify-content: center; gap: 14px; height: 22px; }
+  .puntos span { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--tinta); transition: background .12s; }
+  .puntos span.lleno { background: var(--tinta); }
+  .ticket.error { animation: temblor .35s; border-color: var(--rojo); }
+  @keyframes temblor { 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+
+  .teclado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 0 8px; }
+  .tecla {
+    height: 64px; border-radius: 14px;
+    background: var(--papel-claro); border: 2px solid var(--borde);
+    box-shadow: 0 4px 0 var(--borde);
+    font: 600 30px var(--cond);
+    transition: transform .06s, box-shadow .06s;
+  }
+  .tecla:active { transform: translateY(4px); box-shadow: 0 0 0 var(--borde); }
+  .tecla.sec { font-size: 18px; background: transparent; border-color: transparent; box-shadow: none; color: var(--tinta-suave); }
+  .tecla.ok { background: var(--rojo); color: #fff; font-size: 22px; }
+
+  .mensaje { min-height: 24px; text-align: center; font: 600 16px var(--cond); color: var(--rojo); margin: 14px 0 0; }
+  .nota { text-align: center; font-size: 14px; color: var(--tinta-suave); margin-top: auto; padding-top: 24px; }
+
+  /* ---------- Formularios ---------- */
+  .campo { margin-bottom: 16px; }
+  .campo label { display: block; font: 600 17px var(--cond); margin-bottom: 6px; }
+  .campo input, .campo select {
+    width: 100%; height: 52px; padding: 0 14px;
+    background: var(--papel-claro); border: 2px solid var(--borde); border-radius: 10px;
+    font: 500 18px var(--texto); color: var(--tinta);
+  }
+  .campo small { display: block; font-size: 14px; color: var(--tinta-suave); margin-top: 4px; }
+  .btn {
+    display: block; width: 100%; height: 56px; border-radius: 12px;
+    background: var(--rojo); color: #fff; border: 2px solid var(--borde);
+    box-shadow: 0 4px 0 var(--borde);
+    font: 700 21px var(--cond); letter-spacing: .5px;
+  }
+  .btn:active { transform: translateY(4px); box-shadow: none; }
+  .btn.secundario { background: var(--papel-claro); color: var(--tinta); }
+  .btn:disabled { opacity: .5; }
+  h2 { font: 400 28px/1.1 var(--slab); margin-bottom: 6px; }
+  .intro { color: var(--tinta-suave); margin-bottom: 22px; }
+
+  /* ---------- Inicio ---------- */
+  .cabecera { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+  .cabecera .logo { font: 400 22px var(--slab); }
+  .cabecera button { font: 600 16px var(--cond); color: var(--tinta-suave); padding: 8px 4px; }
+  .saludo { font: 400 30px/1.1 var(--slab); }
+  .rol { display: inline-block; margin: 8px 0 26px; padding: 3px 10px; border-radius: 20px; font: 600 15px var(--cond); background: var(--verde); border: 2px solid var(--borde); }
+  .rol.ADMIN { background: var(--mostaza); }
+  .menu { display: grid; gap: 12px; }
+  .opcion {
+    display: flex; align-items: center; gap: 14px; text-align: left;
+    padding: 16px; background: var(--papel-claro); border: 2px solid var(--borde); border-radius: 14px;
+    box-shadow: 0 4px 0 var(--borde);
+  }
+  .opcion:active { transform: translateY(4px); box-shadow: none; }
+  .opcion .ico { font-size: 30px; width: 40px; text-align: center; }
+  .opcion b { display: block; font: 700 21px var(--cond); }
+  .opcion span { font-size: 14px; color: var(--tinta-suave); }
+  .opcion.pronto { opacity: .45; box-shadow: none; border-style: dashed; }
+
+  /* ---------- Usuarios ---------- */
+  .volver { font: 600 17px var(--cond); color: var(--tinta-suave); padding: 6px 0; margin-bottom: 12px; align-self: flex-start; }
+  .lista { display: grid; gap: 10px; margin: 18px 0; }
+  .fila { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: var(--papel-claro); border: 2px solid var(--borde); border-radius: 12px; text-align: left; width: 100%; }
+  .fila b { font: 700 20px var(--cond); }
+  .fila.inactivo { opacity: .5; }
+  .fila .rol { margin: 0; }
+
+  /* ---------- Hoja inferior ---------- */
+  .fondo { position: fixed; inset: 0; background: rgba(31,26,23,.45); display: none; z-index: 10; }
+  .fondo.abierto { display: block; }
+  .hoja {
+    position: fixed; left: 0; right: 0; bottom: 0; max-width: 480px; margin: 0 auto;
+    background: var(--papel); border-top: 2px solid var(--borde); border-radius: 18px 18px 0 0;
+    padding: 22px 20px calc(24px + env(safe-area-inset-bottom));
+    transform: translateY(105%); transition: transform .22s ease-out; z-index: 11;
+    max-height: 92vh; overflow-y: auto;
+  }
+  .hoja.abierta { transform: translateY(0); }
+  .fila-botones { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
+  .interruptor { display: flex; align-items: center; gap: 10px; font: 600 18px var(--cond); margin-bottom: 18px; }
+  .interruptor input { width: 24px; height: 24px; accent-color: var(--rojo); }
+
+  .aviso { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translate(-50%, 140%);
+    background: var(--tinta); color: var(--papel); padding: 12px 18px; border-radius: 10px; font: 600 17px var(--cond);
+    transition: transform .2s; z-index: 20; max-width: 90%; text-align: center; }
+  .aviso.visible { transform: translate(-50%, 0); }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+
+<!-- Cargando -->
+<section class="pantalla activa" id="p-cargando">
+  <div class="marca" style="margin-top:30vh"><h1>BROOKLYN</h1><p>LUDOTECA</p></div>
+</section>
+
+<!-- Primer administrador -->
+<section class="pantalla" id="p-setup">
+  <div class="marca"><h1>BROOKLYN</h1><p>LUDOTECA</p></div>
+  <h2>Crea el administrador</h2>
+  <p class="intro">Es la primera vez que se abre la app. Este usuario podrá dar de alta a las monitoras y cambiar los precios.</p>
+  <div class="campo"><label for="s-nombre">Tu nombre</label><input id="s-nombre" autocomplete="off"></div>
+  <div class="campo"><label for="s-pin">PIN</label><input id="s-pin" type="password" inputmode="numeric" maxlength="6" autocomplete="off"><small>Entre 4 y 6 números. Mejor 6.</small></div>
+  <div class="campo"><label for="s-pin2">Repite el PIN</label><input id="s-pin2" type="password" inputmode="numeric" maxlength="6" autocomplete="off"></div>
+  <button class="btn" id="s-crear">Crear administrador</button>
+  <p class="mensaje" id="s-msg"></p>
+</section>
+
+<!-- Login -->
+<section class="pantalla" id="p-login">
+  <div class="marca"><h1>BROOKLYN</h1><p>LUDOTECA</p></div>
+  <div class="ticket" id="ticket">
+    <label>Escribe tu PIN</label>
+    <div class="puntos" id="puntos"></div>
+  </div>
+  <div class="teclado" id="teclado"></div>
+  <p class="mensaje" id="l-msg"></p>
+  <p class="nota">Si no recuerdas tu PIN, pídeselo al administrador.</p>
+</section>
+
+<!-- Inicio -->
+<section class="pantalla" id="p-inicio">
+  <div class="cabecera"><span class="logo">BROOKLYN</span><button id="salir">Salir</button></div>
+  <p class="saludo" id="saludo"></p>
+  <span class="rol" id="rol"></span>
+  <div class="menu" id="menu"></div>
+</section>
+
+<!-- Usuarios -->
+<section class="pantalla" id="p-usuarios">
+  <button class="volver" data-ir="inicio">‹ Inicio</button>
+  <h2>Usuarios</h2>
+  <p class="intro">Cada persona entra con su propio PIN, así cada cobro queda a su nombre.</p>
+  <button class="btn" id="u-nuevo">Añadir usuario</button>
+  <div class="lista" id="u-lista"></div>
+</section>
+
+<div class="fondo" id="fondo"></div>
+<div class="hoja" id="hoja">
+  <h2 id="h-titulo">Nuevo usuario</h2>
+  <div class="campo"><label for="h-nombre">Nombre</label><input id="h-nombre" autocomplete="off"></div>
+  <div class="campo"><label for="h-rol">Permisos</label>
+    <select id="h-rol"><option value="MONITORA">Monitora: cobrar y ver la caja del día</option><option value="ADMIN">Administrador: todo, incluidos precios y usuarios</option></select>
+  </div>
+  <div class="campo"><label for="h-pin" id="h-pin-label">PIN</label><input id="h-pin" type="password" inputmode="numeric" maxlength="6" autocomplete="off"><small id="h-pin-ayuda">Entre 4 y 6 números.</small></div>
+  <label class="interruptor" id="h-activo-wrap"><input type="checkbox" id="h-activo"> Puede entrar en la app</label>
+  <div class="fila-botones">
+    <button class="btn secundario" id="h-cancelar">Cancelar</button>
+    <button class="btn" id="h-guardar">Guardar</button>
+  </div>
+  <p class="mensaje" id="h-msg"></p>
+</div>
+
+<div class="aviso" id="aviso"></div>
+
+<script>
+const API = '/.netlify/functions';
+let sesion = null;          // { token, usuario }
+let pin = '';
+let editandoId = null;
+
+// ---------- Utilidades ----------
+const $ = id => document.getElementById(id);
+function mostrar(nombre) {
+  document.querySelectorAll('.pantalla').forEach(p => p.classList.remove('activa'));
+  $('p-' + nombre).classList.add('activa');
+  window.scrollTo(0, 0);
+}
+function aviso(texto) {
+  const a = $('aviso'); a.textContent = texto; a.classList.add('visible');
+  clearTimeout(a._t); a._t = setTimeout(() => a.classList.remove('visible'), 2600);
+}
+async function api(ruta, { metodo = 'POST', datos } = {}) {
+  const res = await fetch(`${API}/${ruta}`, {
+    method: metodo,
+    headers: { 'Content-Type': 'application/json', ...(sesion ? { Authorization: 'Bearer ' + sesion.token } : {}) },
+    body: datos ? JSON.stringify(datos) : undefined
+  });
+  const json = await res.json().catch(() => ({ error: 'Respuesta no válida del servidor.' }));
+  if (res.status === 401 && sesion) { cerrarSesion(); throw new Error(json.error); }
+  if (!res.ok) throw new Error(json.error || 'Error inesperado.');
+  return json;
+}
+function guardarSesion(s) {
+  sesion = s;
+  try { localStorage.setItem('ludo_sesion', JSON.stringify(s)); } catch {}
+}
+function cerrarSesion() {
+  sesion = null;
+  try { localStorage.removeItem('ludo_sesion'); } catch {}
+  pin = ''; pintarPuntos(); mostrar('login');
+}
+
+// ---------- Arranque ----------
+async function arrancar() {
+  try {
+    const guardada = JSON.parse(localStorage.getItem('ludo_sesion') || 'null');
+    if (guardada) {
+      sesion = guardada;
+      const { usuario } = await api('auth', { datos: { accion: 'yo' } });
+      guardarSesion({ ...sesion, usuario });
+      return irInicio();
+    }
+  } catch { sesion = null; }
+  try {
+    const { necesitaSetup } = await api('auth', { datos: { accion: 'estado' } });
+    mostrar(necesitaSetup ? 'setup' : 'login');
+  } catch (e) {
+    mostrar('login'); $('l-msg').textContent = 'No hay conexión con el servidor.';
+  }
+}
+
+// ---------- Primer administrador ----------
+$('s-crear').onclick = async () => {
+  const nombre = $('s-nombre').value.trim(), p1 = $('s-pin').value, p2 = $('s-pin2').value;
+  $('s-msg').textContent = '';
+  if (p1 !== p2) return $('s-msg').textContent = 'Los dos PIN no coinciden.';
+  $('s-crear').disabled = true;
+  try {
+    const r = await api('auth', { datos: { accion: 'setup', nombre, pin: p1 } });
+    guardarSesion(r); irInicio();
+  } catch (e) { $('s-msg').textContent = e.message; }
+  $('s-crear').disabled = false;
+};
+
+// ---------- Login con teclado ----------
+const MAX_PIN = 6;
+function pintarPuntos() {
+  $('puntos').innerHTML = Array.from({ length: Math.max(4, pin.length) },
+    (_, i) => `<span class="${i < pin.length ? 'lleno' : ''}"></span>`).join('');
+}
+function construirTeclado() {
+  const teclas = ['1','2','3','4','5','6','7','8','9','borrar','0','entrar'];
+  $('teclado').innerHTML = teclas.map(t =>
+    t === 'borrar' ? `<button class="tecla sec" data-t="b" aria-label="Borrar">Borrar</button>` :
+    t === 'entrar' ? `<button class="tecla ok" data-t="ok">Entrar</button>` :
+    `<button class="tecla" data-t="${t}">${t}</button>`).join('');
+  $('teclado').onclick = e => {
+    const t = e.target.closest('button')?.dataset.t; if (!t) return;
+    $('l-msg').textContent = '';
+    if (t === 'b') pin = pin.slice(0, -1);
+    else if (t === 'ok') return entrar();
+    else if (pin.length < MAX_PIN) pin += t;
+    pintarPuntos();
+  };
+}
+async function entrar() {
+  if (pin.length < 4) { $('l-msg').textContent = 'El PIN tiene al menos 4 números.'; return; }
+  try {
+    const r = await api('auth', { datos: { accion: 'login', pin } });
+    guardarSesion(r); pin = ''; pintarPuntos(); irInicio();
+  } catch (e) {
+    $('l-msg').textContent = e.message;
+    $('ticket').classList.remove('error'); void $('ticket').offsetWidth; $('ticket').classList.add('error');
+    pin = ''; pintarPuntos();
+  }
+}
+
+// ---------- Inicio ----------
+function irInicio() {
+  const u = sesion.usuario;
+  $('saludo').textContent = `Hola, ${u.nombre}`;
+  $('rol').textContent = u.rol === 'ADMIN' ? 'Administrador' : 'Monitora';
+  $('rol').className = 'rol ' + u.rol;
+  const opciones = [
+    { ico: '🎟️', t: 'Nueva entrada', d: 'Disponible en la etapa 3', pronto: true },
+    { ico: '💶', t: 'Caja de hoy', d: 'Disponible en la etapa 6', pronto: true },
+  ];
+  if (u.rol === 'ADMIN') opciones.push(
+    { ico: '👥', t: 'Usuarios', d: 'Monitoras y administradores', ir: 'usuarios' },
+    { ico: '⚙️', t: 'Precios y festivos', d: 'Disponible en la etapa 7', pronto: true }
+  );
+  $('menu').innerHTML = opciones.map(o =>
+    `<button class="opcion ${o.pronto ? 'pronto' : ''}" ${o.ir ? `data-ir="${o.ir}"` : 'disabled'}>
+      <span class="ico">${o.ico}</span><div><b>${o.t}</b><span>${o.d}</span></div></button>`).join('');
+  mostrar('inicio');
+}
+$('salir').onclick = cerrarSesion;
+document.addEventListener('click', e => {
+  const ir = e.target.closest('[data-ir]')?.dataset.ir;
+  if (ir === 'inicio') irInicio();
+  if (ir === 'usuarios') abrirUsuarios();
+});
+
+// ---------- Usuarios ----------
+async function abrirUsuarios() {
+  mostrar('usuarios');
+  $('u-lista').innerHTML = '<p class="intro">Cargando…</p>';
+  try {
+    const { usuarios } = await api('usuarios', { metodo: 'GET' });
+    $('u-lista').innerHTML = usuarios.map(u =>
+      `<button class="fila ${u.activo ? '' : 'inactivo'}" data-u='${JSON.stringify(u).replace(/'/g, '&#39;')}'>
+        <b>${u.nombre}${u.activo ? '' : ' (sin acceso)'}</b>
+        <span class="rol ${u.rol}">${u.rol === 'ADMIN' ? 'Administrador' : 'Monitora'}</span></button>`).join('');
+  } catch (e) { $('u-lista').innerHTML = `<p class="mensaje">${e.message}</p>`; }
+}
+$('u-lista').onclick = e => {
+  const f = e.target.closest('.fila'); if (f) abrirHoja(JSON.parse(f.dataset.u));
+};
+$('u-nuevo').onclick = () => abrirHoja(null);
+
+function abrirHoja(u) {
+  editandoId = u ? u.id : null;
+  $('h-titulo').textContent = u ? 'Editar usuario' : 'Nuevo usuario';
+  $('h-nombre').value = u ? u.nombre : '';
+  $('h-rol').value = u ? u.rol : 'MONITORA';
+  $('h-pin').value = '';
+  $('h-pin-label').textContent = u ? 'PIN nuevo' : 'PIN';
+  $('h-pin-ayuda').textContent = u ? 'Déjalo vacío para mantener el PIN actual.' : 'Entre 4 y 6 números.';
+  $('h-activo-wrap').style.display = u ? 'flex' : 'none';
+  $('h-activo').checked = u ? u.activo : true;
+  $('h-msg').textContent = '';
+  $('fondo').classList.add('abierto'); $('hoja').classList.add('abierta');
+}
+function cerrarHoja() { $('fondo').classList.remove('abierto'); $('hoja').classList.remove('abierta'); }
+$('fondo').onclick = cerrarHoja;
+$('h-cancelar').onclick = cerrarHoja;
+$('h-guardar').onclick = async () => {
+  const datos = { nombre: $('h-nombre').value, rol: $('h-rol').value, pin: $('h-pin').value };
+  if (editandoId) { datos.id = editandoId; datos.activo = $('h-activo').checked; }
+  $('h-guardar').disabled = true; $('h-msg').textContent = '';
+  try {
+    await api('usuarios', { metodo: editandoId ? 'PUT' : 'POST', datos });
+    cerrarHoja(); aviso(editandoId ? 'Usuario guardado' : 'Usuario añadido'); abrirUsuarios();
+  } catch (e) { $('h-msg').textContent = e.message; }
+  $('h-guardar').disabled = false;
+};
+
+construirTeclado(); pintarPuntos(); arrancar();
+</script>
+</body>
+</html>
