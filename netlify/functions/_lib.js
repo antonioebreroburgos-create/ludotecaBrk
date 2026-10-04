@@ -94,8 +94,48 @@ function ipCliente(event) {
   return event.headers['x-nf-client-connection-ip'] || event.headers['client-ip'] || 'desconocida';
 }
 
+// ---------- Datos ----------
+// Fecha de hoy en España, formato YYYY-MM-DD
+function hoyMadrid() {
+  return new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Madrid' });
+}
+
+// '617 79 62 60' → '+34617796260'. Devuelve null si no es válido.
+function normalizarTelefono(t) {
+  let d = String(t || '').replace(/[^\d+]/g, '');
+  if (d.startsWith('00')) d = '+' + d.slice(2);
+  if (/^[6789]\d{8}$/.test(d)) d = '+34' + d;
+  return /^\+\d{9,15}$/.test(d) ? d : null;
+}
+
+// Fecha YYYY-MM-DD real, no futura y posterior a 1900
+function fechaValida(s) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(s || ''))) return false;
+  const d = new Date(s + 'T00:00:00Z');
+  if (isNaN(d) || d.toISOString().slice(0, 10) !== s) return false;
+  return s >= '1900-01-01' && s <= hoyMadrid();
+}
+
+function texto(s, max = 80) {
+  const t = String(s ?? '').trim();
+  return t ? t.slice(0, max) : null;
+}
+
+// Error con código HTTP para lanzar desde la lógica y responder en el catch
+function errorHttp(status, mensaje, extra = {}) {
+  const e = new Error(mensaje); e.status = status; e.extra = extra; return e;
+}
+
+function responderError(e, contexto) {
+  if (e.status) return respuesta(e.status, { error: e.message, ...e.extra });
+  if (e.code === '23505') return respuesta(409, { error: 'Ese dato ya está registrado.' });
+  console.error(contexto, e);
+  return respuesta(500, { error: 'Error del servidor. Inténtalo de nuevo.' });
+}
+
 module.exports = {
   supabase, respuesta, leerBody,
   pinValido, hashPin, verificarPin, pinEnUso,
-  crearToken, requerirUsuario, ipCliente
+  crearToken, requerirUsuario, ipCliente,
+  hoyMadrid, normalizarTelefono, fechaValida, texto, errorHttp, responderError
 };
