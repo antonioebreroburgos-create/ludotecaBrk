@@ -287,7 +287,7 @@
   </div>
   <div class="teclado" id="teclado"></div>
   <p class="mensaje" id="l-msg"></p>
-  <p class="nota">Si no recuerdas tu PIN, pídeselo al administrador.</p>
+  <p class="nota">Si no recuerdas tu PIN, pídeselo al administrador.<br><a href="guia.html" target="_blank" style="color:var(--rojo)">Ver la guía de uso</a></p>
 </section>
 
 <!-- Inicio -->
@@ -596,6 +596,7 @@ function irInicio() {
     { ico: '👥', t: 'Usuarios', d: 'Monitoras y administradores', ir: 'usuarios' },
     { ico: '⚙️', t: 'Precios y festivos', d: 'Disponible en la etapa 7', pronto: true }
   );
+  opciones.push({ ico: '📖', t: 'Guía de uso', d: 'Cómo funciona cada pantalla', ir: 'guia' });
   $('menu').innerHTML = opciones.map(o =>
     `<button class="opcion ${o.pronto ? 'pronto' : ''}" ${o.ir ? `data-ir="${o.ir}"` : 'disabled'}>
       <span class="ico">${o.ico}</span><div><b>${o.t}</b><span>${o.d}</span></div></button>`).join('');
@@ -609,6 +610,7 @@ document.addEventListener('click', e => {
   if (ir === 'entrada') abrirEntrada();
   if (ir === 'buscar') { mostrar('entrada'); pintarResultados($('e-q').value.trim()); pintarBarra(); }
   if (ir === 'hoy') abrirHoy();
+  if (ir === 'guia') window.open('guia.html', '_blank');
 });
 
 // ---------- Usuarios ----------
