@@ -132,18 +132,19 @@
     position: fixed; left: 0; right: 0; bottom: 0; max-width: 480px; margin: 0 auto;
     background: var(--papel); border-top: 2px solid var(--borde); border-radius: 18px 18px 0 0;
     padding: 22px 20px calc(24px + env(safe-area-inset-bottom));
-    transform: translateY(105%); transition: transform .22s ease-out; z-index: 11;
+    transform: translateY(105%); transition: transform .22s ease-out, visibility .22s; z-index: 11;
+    visibility: hidden;
     max-height: 92vh; overflow-y: auto;
   }
-  .hoja.abierta { transform: translateY(0); }
+  .hoja.abierta { transform: translateY(0); visibility: visible; }
   .fila-botones { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
   .interruptor { display: flex; align-items: center; gap: 10px; font: 600 18px var(--cond); margin-bottom: 18px; }
   .interruptor input { width: 24px; height: 24px; accent-color: var(--rojo); }
 
-  .aviso { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translate(-50%, 140%);
+  .aviso { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translate(-50%, calc(100% + 60px)); visibility: hidden;
     background: var(--tinta); color: var(--papel); padding: 12px 18px; border-radius: 10px; font: 600 17px var(--cond);
     transition: transform .2s; z-index: 20; max-width: 90%; text-align: center; }
-  .aviso.visible { transform: translate(-50%, 0); }
+  .aviso.visible { transform: translate(-50%, 0); visibility: visible; }
 
   /* ---------- Etapa 3: entradas ---------- */
   .campo textarea {
@@ -221,6 +222,39 @@
   .fila.tk small { display: block; font-size: 14px; color: var(--tinta-suave); }
   .fila.tk.anulado b, .fila.tk.anulado .precio { text-decoration: line-through; }
   .fila.tk.anulado { opacity: .55; }
+
+  /* ---------- Etapa 4: WhatsApp ---------- */
+  .btn.whatsapp { background: #25D366; color: var(--tinta); }
+  a.btn { display: flex; align-items: center; justify-content: center; text-decoration: none; }
+  .acciones { display: grid; gap: 10px; margin-top: 16px; }
+  .enviado { color: #1E7A3C; font-weight: 600; }
+
+  /* ---------- Etapa 5: ficha y Kids Club ---------- */
+  .nino { cursor: pointer; }
+  .nino-lado { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+  .ver-ficha { font: 600 15px var(--cond); padding: 4px 10px; border: 1.5px solid var(--borde); border-radius: 8px; background: var(--papel); }
+  .chip.aviso-chip { background: var(--mostaza); }
+  .chip.alerta { background: var(--rojo); color: #fff; }
+  .chip.neutro { background: var(--papel); }
+  .club {
+    margin: 4px 0 8px; padding: 16px; border: 2px solid var(--borde); border-radius: 14px;
+    background: var(--papel-claro); box-shadow: 0 4px 0 var(--borde);
+  }
+  .club-cab { font: 400 20px var(--slab); margin-bottom: 8px; }
+  .club-cab span { color: var(--rojo); }
+  .club-estado { font: 700 22px var(--cond); }
+  .club-estado.si { color: #1E7A3C; }
+  .club-estado.no { color: var(--tinta-suave); }
+  .club-estado.caducado { color: var(--rojo); }
+  .club p { font-size: 15px; color: var(--tinta-suave); margin: 4px 0 0; }
+  .club .acciones { margin-top: 14px; }
+  .adulto { padding: 12px 14px; margin-bottom: 10px; border: 2px solid var(--borde); border-radius: 12px; background: var(--papel-claro); }
+  .adulto b { display: block; font: 700 20px var(--cond); }
+  .adulto span { font-size: 14px; color: var(--tinta-suave); }
+  .adulto .botones { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+  .adulto .botones .btn { height: 44px; font-size: 18px; box-shadow: 0 3px 0 var(--borde); }
+  .visita { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px dashed var(--tinta-suave); font-size: 15px; }
+  .visita span:first-child { color: var(--tinta-suave); white-space: nowrap; }
 
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
@@ -301,8 +335,10 @@
 <section class="pantalla" id="p-hecho">
   <p class="hecho-titulo" id="k-titulo"></p>
   <div class="ticket grande" id="k-ticket"></div>
-  <button class="btn" disabled>Enviar por WhatsApp (etapa 4)</button>
-  <button class="btn secundario" style="margin-top:12px" id="k-nueva">Nueva entrada</button>
+  <button class="btn whatsapp" id="k-wa">Enviar por WhatsApp</button>
+  <button class="enlace" id="k-img">Compartir como imagen</button>
+  <button class="btn secundario" style="margin-top:8px" id="k-nueva">Nueva entrada</button>
+  <button class="btn secundario" style="margin-top:12px;display:none" id="k-ficha">Volver a la ficha</button>
   <button class="enlace" id="k-anular">Anular este ticket</button>
 </section>
 
@@ -335,7 +371,64 @@
   <div class="lista" id="h-lista"></div>
 </section>
 
+<!-- Ficha del niño -->
+<section class="pantalla" id="p-ficha">
+  <button class="volver" id="f-volver">‹ Volver a la búsqueda</button>
+  <h2 id="f-nombre"></h2>
+  <p class="intro" id="f-edad"></p>
+  <div class="club" id="f-club"></div>
+
+  <h3 class="seccion">Datos del niño</h3>
+  <div class="campo"><label for="fn-nombre">Nombre</label><input id="fn-nombre" autocomplete="off"></div>
+  <div class="campo"><label for="fn-apellidos">Apellidos</label><input id="fn-apellidos" autocomplete="off"></div>
+  <div class="campo"><label for="fn-fecha">Fecha de nacimiento</label><input id="fn-fecha" type="date"></div>
+  <div class="campo"><label for="fn-pulsera">Número de pulsera</label><input id="fn-pulsera" autocomplete="off">
+    <small>Aquí solo para corregir un error. Si la ha perdido, usa «Reponer pulsera».</small></div>
+  <div class="campo"><label for="fn-obs">Avisos</label><textarea id="fn-obs" placeholder="Alergias, quién no puede recogerlo…"></textarea></div>
+  <button class="btn secundario" id="fn-guardar">Guardar cambios</button>
+  <p class="mensaje" id="fn-msg"></p>
+
+  <h3 class="seccion">Adultos</h3>
+  <div id="f-adultos"></div>
+  <button class="enlace" id="f-otro">Añadir otro adulto</button>
+
+  <h3 class="seccion">Últimas visitas</h3>
+  <div id="f-visitas"></div>
+</section>
+
 <div class="fondo" id="fondo"></div>
+
+<!-- Hoja: cuota de socio / reposición de pulsera -->
+<div class="hoja" id="hoja-servicio">
+  <h2 id="sv-titulo"></h2>
+  <p class="intro" id="sv-texto"></p>
+  <div class="campo"><label for="sv-pulsera" id="sv-pulsera-label">Número de pulsera</label><input id="sv-pulsera" autocomplete="off">
+    <small>La pulsera es personal e intransferible.</small></div>
+  <h3 class="seccion">¿Quién paga?</h3>
+  <div id="sv-tutores"></div>
+  <div class="total"><span>Total</span><span id="sv-total"></span></div>
+  <div id="sv-pago"></div>
+  <button class="enlace" data-cerrar>Cancelar</button>
+  <p class="mensaje" id="sv-msg"></p>
+</div>
+
+<!-- Hoja: editar adulto -->
+<div class="hoja" id="hoja-tutor">
+  <h2>Editar adulto</h2>
+  <div class="campo"><label for="et-nombre">Nombre</label><input id="et-nombre" autocomplete="off"></div>
+  <div class="campo"><label for="et-apellidos">Apellidos</label><input id="et-apellidos" autocomplete="off"></div>
+  <div class="campo"><label for="et-telefono">Teléfono</label><input id="et-telefono" type="tel" inputmode="tel" autocomplete="off"></div>
+  <div class="campo"><label for="et-parentesco">Es su…</label><select id="et-parentesco" class="sel-parentesco"></select></div>
+  <div class="campo"><label for="et-nacimiento">Fecha de nacimiento</label><input id="et-nacimiento" type="date"><small>Opcional.</small></div>
+  <div class="campo"><label for="et-email">Email</label><input id="et-email" type="email" autocomplete="off"><small>Opcional.</small></div>
+  <label class="consent"><input type="checkbox" id="et-marketing"><span>Quiere recibir por WhatsApp promociones y felicitaciones de cumpleaños del restaurante.</span></label>
+  <div class="fila-botones">
+    <button class="btn secundario" data-cerrar>Cancelar</button>
+    <button class="btn" id="et-guardar">Guardar</button>
+  </div>
+  <button class="enlace" id="et-quitar">Quitar a este adulto de la ficha</button>
+  <p class="mensaje" id="et-msg"></p>
+</div>
 
 <!-- Hoja: otro adulto -->
 <div class="hoja" id="hoja-adulto">
@@ -357,6 +450,7 @@
 <!-- Hoja: detalle de ticket y anulación -->
 <div class="hoja" id="hoja-ticket">
   <div id="t-cont"></div>
+  <div class="acciones" id="t-acciones"></div>
   <div id="t-anular">
     <div class="campo" style="margin-top:16px"><label for="t-motivo">Motivo de la anulación</label><textarea id="t-motivo" placeholder="Por ejemplo: cobrado dos veces"></textarea></div>
     <div class="fila-botones">
@@ -624,6 +718,7 @@ async function buscar() {
     const r = await api('familias?q=' + encodeURIComponent(q), { metodo: 'GET' });
     if (q !== $('e-q').value.trim()) return;   // llegó tarde, ya se escribió otra cosa
     resultados = r.ninos;
+    resultados.forEach(n => { if (seleccion.has(n.id)) seleccion.set(n.id, n); });
     pintarResultados(q);
   } catch (e) { $('e-res').innerHTML = `<p class="mensaje">${esc(e.message)}</p>`; }
 }
@@ -640,10 +735,27 @@ function pintarResultados(q = '') {
   $('e-res').innerHTML = lista.map(tarjetaNino).join('');
 }
 
+const hoyLocal = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Madrid' });
+const fechaDMY = s => s ? s.split('-').reverse().join('/') : '';
+const diasEntre = (a, b) => Math.round((new Date(b + 'T00:00:00Z') - new Date(a + 'T00:00:00Z')) / 86400000);
+
+function chipsSocio(n) {
+  const chips = [];
+  if (n.socio_hasta) {
+    const dias = diasEntre(hoyLocal(), n.socio_hasta);
+    chips.push(dias <= 30
+      ? `<span class="chip aviso-chip">Socio: caduca en ${dias} ${dias === 1 ? 'día' : 'días'}</span>`
+      : `<span class="chip socio">Socio hasta ${fechaDMY(n.socio_hasta)}</span>`);
+    if (!n.numero_pulsera) chips.push('<span class="chip alerta">Socio sin pulsera</span>');
+  }
+  if (n.numero_pulsera) chips.push(`<span class="chip neutro">Pulsera ${esc(n.numero_pulsera)}</span>`);
+  return chips.join('');
+}
+
 function tarjetaNino(n) {
   const sel = seleccion.has(n.id);
   const tutores = n.tutores.map(t => `${esc(t.parentesco || 'Adulto')}: ${esc(t.nombre)}, ${esc(telefonoBonito(t.telefono))}`).join('<br>');
-  return `<button class="nino ${sel ? 'sel' : ''}" data-n="${n.id}" aria-pressed="${sel}">
+  return `<div class="nino ${sel ? 'sel' : ''}" data-n="${n.id}" role="button" tabindex="0" aria-pressed="${sel}">
     <span class="check">${sel ? '✓' : ''}</span>
     <div class="nino-datos">
       <b>${esc(nombreCompleto(n))}</b>
@@ -651,15 +763,20 @@ function tarjetaNino(n) {
       ${tutores ? `<small>${tutores}</small>` : ''}
       ${n.observaciones ? `<span class="obs">⚠️ ${esc(n.observaciones)}</span>` : ''}
       <div class="chips">
-        ${n.es_socio ? '<span class="chip socio">Socio Kids Club</span>' : ''}
+        ${chipsSocio(n)}
         ${n.entrada_hoy ? `<span class="chip ya">Ya entró hoy a las ${hora(n.entrada_hoy)}</span>` : ''}
       </div>
     </div>
-    <span class="precio">${n.precio === 0 ? 'Gratis' : euros(n.precio)}</span>
-  </button>`;
+    <div class="nino-lado">
+      <span class="precio">${n.precio === 0 ? 'Gratis' : euros(n.precio)}</span>
+      <button class="ver-ficha" data-ficha="${n.id}">Ficha</button>
+    </div>
+  </div>`;
 }
 
 $('e-res').onclick = e => {
+  const f = e.target.closest('.ver-ficha');
+  if (f) { abrirFicha(Number(f.dataset.ficha)); return; }
   const b = e.target.closest('.nino'); if (!b) return;
   const id = Number(b.dataset.n);
   if (seleccion.has(id)) seleccion.delete(id);
@@ -807,20 +924,23 @@ $('c-pago').onclick = async e => {
 };
 
 // Otro adulto
-$('c-otro').onclick = () => {
+let adultoParaFicha = false;
+$('c-otro').onclick = () => abrirHojaAdulto(false);
+function abrirHojaAdulto(paraFicha) {
+  adultoParaFicha = paraFicha;
   ['d-nombre', 'd-apellidos', 'd-telefono'].forEach(id => $(id).value = '');
   $('d-parentesco').value = 'Abuela';
   $('d-c-servicio').checked = false; $('d-c-marketing').checked = false;
   $('d-msg').textContent = '';
   abrirHojaId('hoja-adulto');
-};
+}
 $('d-guardar').onclick = async () => {
   const tutor = {
     nombre: $('d-nombre').value, apellidos: $('d-apellidos').value, telefono: $('d-telefono').value,
     parentesco: $('d-parentesco').value,
     consentimiento_servicio: $('d-c-servicio').checked, consentimiento_marketing: $('d-c-marketing').checked
   };
-  const nino_ids = [...seleccion.keys()];
+  const nino_ids = adultoParaFicha ? [fichaActual.nino.id] : [...seleccion.keys()];
   $('d-guardar').disabled = true; $('d-msg').textContent = '';
   try {
     let r;
@@ -832,9 +952,14 @@ $('d-guardar').onclick = async () => {
       if (!confirm(`Ese teléfono ya es de ${nombreCompleto(existente)}.\n\n¿Es la misma persona?`)) throw new Error('Revisa el teléfono.');
       r = await api('familias', { datos: { accion: 'vincular', nino_ids, tutor: { id: existente.id, parentesco: tutor.parentesco } } });
     }
-    r.ninos.forEach(n => seleccion.set(n.id, n));
-    tutorElegido = r.tutor_id;
-    cerrarHoja(); pintarCobro(); aviso('Adulto añadido');
+    cerrarHoja(); aviso('Adulto añadido');
+    if (adultoParaFicha) {
+      abrirFicha(fichaActual.nino.id);
+    } else {
+      r.ninos.forEach(n => seleccion.set(n.id, n));
+      tutorElegido = r.tutor_id;
+      pintarCobro();
+    }
   } catch (e) { $('d-msg').textContent = e.message; }
   $('d-guardar').disabled = false;
 };
@@ -847,22 +972,39 @@ function htmlTicket(t) {
       <span class="precio">${l.precio === 0 ? 'Gratis' : euros(l.precio)}</span></div>`).join('')}</div>
     <div class="total"><span>Total</span><span>${euros(t.total)}</span></div>
     <p class="tk-pie">${METODOS[t.metodo_pago] || t.metodo_pago}. Trae: ${esc(t.tutor ? nombreCompleto(t.tutor) : '')}. Cobra: ${esc(t.usuario || '')}.</p>
-    ${t.anulado ? `<p class="tk-pie" style="color:var(--rojo);font-weight:600">Anulado: ${esc(t.anulado_motivo)}</p>` : ''}`;
+    ${t.anulado ? `<p class="tk-pie" style="color:var(--rojo);font-weight:600">Anulado: ${esc(t.anulado_motivo)}</p>` : ''}
+    ${t.socio_hasta && !t.anulado ? `<p class="tk-pie"><b>Socio Kids Club del ${fechaDMY(t.socio_desde)} al ${fechaDMY(t.socio_hasta)}.</b></p>` : ''}
+    ${t.enviado_whatsapp && !t.anulado ? '<p class="tk-pie enviado">✓ Enviado por WhatsApp</p>' : ''}`;
 }
 
 function pintarHecho() {
   const t = ultimoTicket;
-  $('k-titulo').textContent = t.anulado ? 'Ticket anulado' : 'Entrada registrada';
+  const codigos = t.lineas.map(l => l.tarifa_codigo);
+  $('k-titulo').textContent = t.anulado ? 'Ticket anulado'
+    : codigos.includes('CUOTA_SOCIO') ? '¡Ya es socio del Kids Club!'
+    : codigos.includes('REPOSICION_PULSERA') ? 'Pulsera repuesta'
+    : 'Entrada registrada';
+  const esServicio = codigos.some(c => c === 'CUOTA_SOCIO' || c === 'REPOSICION_PULSERA');
+  $('k-ficha').style.display = esServicio && fichaActual ? '' : 'none';
   $('k-titulo').classList.toggle('anulado', t.anulado);
   $('k-ticket').innerHTML = htmlTicket(t);
   $('k-anular').style.display = t.anulado ? 'none' : '';
+  $('k-wa').style.display = t.anulado ? 'none' : '';
+  $('k-img').style.display = t.anulado ? 'none' : '';
+  $('k-wa').textContent = t.enviado_whatsapp ? 'Volver a enviar por WhatsApp' : 'Enviar por WhatsApp';
+  if (!t.anulado) prepararImagen(t);
 }
+$('k-wa').onclick = () => enviarWhatsApp(ultimoTicket);
+$('k-img').onclick = () => compartirImagen(ultimoTicket);
 $('k-nueva').onclick = abrirEntrada;
+$('k-ficha').onclick = () => abrirFicha(fichaActual.nino.id);
 $('k-anular').onclick = () => abrirTicket(ultimoTicket);
 
 function abrirTicket(t) {
   ticketEnHoja = t;
   $('t-cont').innerHTML = `<div class="ticket grande">${htmlTicket(t)}</div>`;
+  pintarAccionesTicket(t);
+  if (!t.anulado) prepararImagen(t);
   $('t-anular').style.display = t.anulado ? 'none' : '';
   $('t-cerrar-solo').style.display = t.anulado ? '' : 'none';
   $('t-motivo').value = ''; $('t-msg').textContent = '';
@@ -873,7 +1015,7 @@ $('t-confirmar').onclick = async () => {
   try {
     const r = await api('entradas', { datos: { accion: 'anular', ticket_id: ticketEnHoja.id, motivo: $('t-motivo').value } });
     cerrarHoja(); aviso('Ticket anulado');
-    if (ultimoTicket && ultimoTicket.id === r.ticket.id) { ultimoTicket = r.ticket; pintarHecho(); }
+    actualizarTicket(r.ticket);
     if ($('p-hoy').classList.contains('activa')) abrirHoy();
   } catch (e) { $('t-msg').textContent = e.message; }
   $('t-confirmar').disabled = false;
@@ -901,6 +1043,397 @@ $('h-lista').onclick = e => {
   const b = e.target.closest('.fila'); if (!b) return;
   abrirTicket(ticketsHoy.find(t => t.id === Number(b.dataset.t)));
 };
+
+// =====================================================================
+//  ETAPA 4 · WHATSAPP, LLAMAR E IMAGEN DEL TICKET
+// =====================================================================
+const fechaLarga = iso => new Date(iso).toLocaleDateString('es-ES',
+  { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Europe/Madrid' });
+const fechaCorta = iso => new Date(iso).toLocaleDateString('es-ES',
+  { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'Europe/Madrid' });
+const soloDigitos = t => String(t || '').replace(/\D/g, '');
+
+function textoWhatsApp(t) {
+  const lineas = t.lineas.map(l =>
+    `🧒 ${l.nino ? nombreCompleto(l.nino) : ''}\n     ${l.descripcion}: ${l.precio === 0 ? 'gratis' : euros(l.precio)}`);
+  const esSocio = t.lineas.some(l => (l.tarifa_codigo || '').startsWith('SOCIO_'));
+  const conEntrada = esEntrada(t);
+  const pulsera = t.lineas.find(l => l.nino?.numero_pulsera)?.nino.numero_pulsera;
+  const extraSocio = [];
+  if (t.socio_hasta) {
+    extraSocio.push('', `⭐ *Socio Brooklyn Kids Club* hasta el ${fechaDMY(t.socio_hasta)}.`);
+  }
+  if (t.socio_hasta || t.lineas.some(l => l.tarifa_codigo === 'REPOSICION_PULSERA')) {
+    if (pulsera) extraSocio.push(`Pulsera nº ${pulsera}. Es personal y obligatoria para entrar.`);
+  }
+  const partes = [
+    '🎈 *Ludoteca Brooklyn*',
+    `Ticket nº ${numTicket(t.numero)}`,
+    `📅 ${fechaLarga(t.creado_at)}, ${hora(t.creado_at)}`,
+    '',
+    ...lineas,
+    '',
+    `*Total: ${euros(t.total)}* (${METODOS[t.metodo_pago] || t.metodo_pago})`,
+    ...(conEntrada ? ['Tiempo ilimitado.'] : []),
+    ...extraSocio,
+    '',
+    'Guarda este número: es el de la ludoteca. Si necesitamos algo durante la estancia, te escribiremos o llamaremos desde aquí.'
+  ];
+  // Mensaje comercial solo si el adulto aceptó recibir promociones
+  if (t.tutor?.consentimiento_marketing) {
+    partes.push('', '🎂 ¿Se acerca un cumpleaños? Celébralo en Restaurante Brooklyn con precios especiales.');
+    if (!esSocio && !t.socio_hasta) partes.push('⭐ Pregunta a la monitora por el Brooklyn Kids Club.');
+  }
+  return partes.join('\n');
+}
+
+function enviarWhatsApp(t) {
+  const tel = soloDigitos(t?.tutor?.telefono);
+  if (!tel) { aviso('Este ticket no tiene teléfono'); return; }
+  const url = `https://wa.me/${tel}?text=${encodeURIComponent(textoWhatsApp(t))}`;
+  // Se abre dentro del clic para que el móvil no lo bloquee
+  const ventana = window.open(url, '_blank');
+  if (!ventana) location.href = url;
+  api('entradas', { datos: { accion: 'marcar_enviado', ticket_id: t.id } })
+    .then(r => actualizarTicket(r.ticket)).catch(() => {});
+}
+
+function actualizarTicket(nuevo) {
+  if (ultimoTicket && ultimoTicket.id === nuevo.id) { ultimoTicket = nuevo; pintarHecho(); }
+  const i = ticketsHoy.findIndex(x => x.id === nuevo.id);
+  if (i >= 0) ticketsHoy[i] = nuevo;
+  if (ticketEnHoja && ticketEnHoja.id === nuevo.id && $('hoja-ticket').classList.contains('abierta')) {
+    ticketEnHoja = nuevo;
+    $('t-cont').innerHTML = `<div class="ticket grande">${htmlTicket(nuevo)}</div>`;
+    pintarAccionesTicket(nuevo);
+  }
+}
+
+function pintarAccionesTicket(t) {
+  const tutor = t.tutor;
+  const botones = [];
+  if (!t.anulado && tutor?.telefono) {
+    botones.push(`<button class="btn whatsapp" data-acc="wa">${t.enviado_whatsapp ? 'Volver a enviar por WhatsApp' : 'Enviar por WhatsApp'}</button>`);
+  }
+  if (tutor?.telefono) {
+    botones.push(`<a class="btn secundario" href="tel:${esc(tutor.telefono)}">Llamar a ${esc(tutor.nombre)} (${esc(telefonoBonito(tutor.telefono))})</a>`);
+  }
+  if (!t.anulado) botones.push('<button class="enlace" data-acc="img">Compartir como imagen</button>');
+  $('t-acciones').innerHTML = botones.join('');
+}
+$('t-acciones').onclick = e => {
+  const acc = e.target.closest('[data-acc]')?.dataset.acc;
+  if (acc === 'wa') enviarWhatsApp(ticketEnHoja);
+  if (acc === 'img') compartirImagen(ticketEnHoja);
+};
+
+// ---------- Imagen del ticket ----------
+// Se prepara al mostrar el ticket, para que al pulsar "Compartir" el móvil
+// abra el menú al instante (si se tarda, Safari bloquea el compartir).
+let imagenPreparada = null;   // { id, file }
+
+function recortar(g, s, max) {
+  if (g.measureText(s).width <= max) return s;
+  while (s.length && g.measureText(s + '…').width > max) s = s.slice(0, -1);
+  return s + '…';
+}
+function rectRedondo(g, x, y, w, h, r) {
+  g.beginPath();
+  g.moveTo(x + r, y); g.lineTo(x + w - r, y); g.quadraticCurveTo(x + w, y, x + w, y + r);
+  g.lineTo(x + w, y + h - r); g.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  g.lineTo(x + r, y + h); g.quadraticCurveTo(x, y + h, x, y + h - r);
+  g.lineTo(x, y + r); g.quadraticCurveTo(x, y, x + r, y);
+  g.closePath();
+}
+
+async function dibujarTicket(t) {
+  try {
+    await Promise.all([
+      document.fonts.load('100px "Alfa Slab One"'),
+      document.fonts.load('700 40px "Barlow Condensed"'),
+      document.fonts.load('600 40px "Barlow Condensed"'),
+      document.fonts.load('500 32px "Barlow"')
+    ]);
+  } catch {}
+  const SLAB = '"Alfa Slab One", Georgia, serif', COND = '"Barlow Condensed", "Arial Narrow", sans-serif', TXT = '"Barlow", Arial, sans-serif';
+  const W = 1080, X = 110, ANCHO = W - 2 * X;
+  const ALTO_LINEA = 120, CAJA_TOP = 360;
+  const cajaAlto = 175 + t.lineas.length * ALTO_LINEA + 150;
+  const H = CAJA_TOP + cajaAlto + 180;
+
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const g = c.getContext('2d');
+
+  // Fondo y doble marco, como el cartel
+  g.fillStyle = '#F3E6CC'; g.fillRect(0, 0, W, H);
+  g.strokeStyle = '#1F1A17'; g.lineWidth = 6; g.strokeRect(26, 26, W - 52, H - 52);
+  g.lineWidth = 2; g.strokeRect(44, 44, W - 88, H - 88);
+
+  // Cabecera
+  g.textAlign = 'center'; g.fillStyle = '#1F1A17';
+  g.font = `108px ${SLAB}`; g.fillText('BROOKLYN', W / 2, 205);
+  g.fillStyle = '#C4262E'; g.font = `700 54px ${COND}`;
+  if ('letterSpacing' in g) g.letterSpacing = '12px';
+  g.fillText('LUDOTECA', W / 2, 285);
+  if ('letterSpacing' in g) g.letterSpacing = '0px';
+
+  // Caja del ticket
+  rectRedondo(g, X - 30, CAJA_TOP, ANCHO + 60, cajaAlto, 14);
+  g.fillStyle = '#E9CD95'; g.fill();
+  g.setLineDash([18, 12]); g.lineWidth = 4; g.strokeStyle = '#1F1A17'; g.stroke(); g.setLineDash([]);
+  g.fillStyle = '#F3E6CC';
+  [X - 30, X + ANCHO + 30].forEach(cx => { g.beginPath(); g.arc(cx, CAJA_TOP + cajaAlto / 2, 22, 0, Math.PI * 2); g.fill(); });
+
+  g.fillStyle = '#6B5E52'; g.font = `600 40px ${COND}`;
+  g.textAlign = 'left'; g.fillText(`TICKET ${numTicket(t.numero)}`, X, CAJA_TOP + 75);
+  g.textAlign = 'right'; g.fillText(`${fechaCorta(t.creado_at)}  ${hora(t.creado_at)}`, X + ANCHO, CAJA_TOP + 75);
+
+  // Líneas
+  let y = CAJA_TOP + 175;
+  t.lineas.forEach(l => {
+    const precio = l.precio === 0 ? 'Gratis' : euros(l.precio);
+    g.fillStyle = '#1F1A17'; g.font = `700 50px ${COND}`;
+    g.textAlign = 'right'; g.fillText(precio, X + ANCHO, y);
+    const anchoPrecio = g.measureText(precio).width + 30;
+    g.textAlign = 'left'; g.fillText(recortar(g, l.nino ? nombreCompleto(l.nino) : '', ANCHO - anchoPrecio), X, y);
+    g.fillStyle = '#6B5E52'; g.font = `500 32px ${TXT}`;
+    g.fillText(recortar(g, l.descripcion, ANCHO), X, y + 44);
+    g.strokeStyle = '#6B5E52'; g.lineWidth = 2; g.setLineDash([8, 8]);
+    g.beginPath(); g.moveTo(X, y + 74); g.lineTo(X + ANCHO, y + 74); g.stroke(); g.setLineDash([]);
+    y += ALTO_LINEA;
+  });
+
+  // Total y forma de pago
+  y += 40;
+  g.fillStyle = '#1F1A17'; g.font = `62px ${SLAB}`;
+  g.textAlign = 'left'; g.fillText('TOTAL', X, y);
+  g.textAlign = 'right'; g.fillText(euros(t.total), X + ANCHO, y);
+  g.fillStyle = '#6B5E52'; g.font = `500 34px ${TXT}`; g.textAlign = 'left';
+  const pie = esEntrada(t) ? 'Tiempo ilimitado.' : t.socio_hasta ? `Socio hasta el ${fechaDMY(t.socio_hasta)}.` : '';
+  g.fillText(`${METODOS[t.metodo_pago] || t.metodo_pago}. ${pie}`.trim(), X, y + 62);
+
+  // Pie
+  g.textAlign = 'center'; g.fillStyle = '#1F1A17'; g.font = `600 38px ${COND}`;
+  g.fillText('Juega más, paga menos', W / 2, H - 110);
+  return c;
+}
+
+async function prepararImagen(t) {
+  if (imagenPreparada?.id === t.id) return;
+  try {
+    const canvas = await dibujarTicket(t);
+    const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+    imagenPreparada = { id: t.id, file: new File([blob], `ticket-ludoteca-${numTicket(t.numero)}.png`, { type: 'image/png' }) };
+  } catch { imagenPreparada = null; }
+}
+
+async function compartirImagen(t) {
+  if (imagenPreparada?.id !== t.id) {
+    aviso('Preparando la imagen…');
+    await prepararImagen(t);
+    if (imagenPreparada?.id !== t.id) { aviso('No se pudo crear la imagen'); return; }
+  }
+  const file = imagenPreparada.file;
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file] }); }
+    catch (e) { if (e.name !== 'AbortError') aviso('Pulsa otra vez para compartir'); }
+  } else {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(file); a.download = file.name; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    aviso('Imagen descargada');
+  }
+}
+
+// =====================================================================
+//  ETAPA 5 · FICHA DEL NIÑO Y BROOKLYN KIDS CLUB
+// =====================================================================
+let fichaActual = null;      // respuesta completa de familias?id=
+let servicioActual = null;   // 'CUOTA_SOCIO' | 'REPOSICION_PULSERA'
+let pagadorServicio = null;
+let tutorEditando = null;
+
+function esEntrada(t) {
+  return t.lineas.some(l => /^(ENTRADA_|SOCIO_)/.test(l.tarifa_codigo || ''));
+}
+
+async function abrirFicha(id) {
+  mostrar('ficha');
+  $('f-nombre').textContent = 'Cargando…';
+  ['f-edad', 'fn-msg'].forEach(x => $(x).textContent = '');
+  $('f-club').innerHTML = ''; $('f-adultos').innerHTML = ''; $('f-visitas').innerHTML = '';
+  try {
+    fichaActual = await api('familias?id=' + id, { metodo: 'GET' });
+    pintarFicha();
+  } catch (e) { $('f-nombre').textContent = ''; $('fn-msg').textContent = e.message; }
+}
+
+function pintarFicha() {
+  const { nino, tutores, socio, visitas } = fichaActual;
+  $('f-nombre').textContent = nombreCompleto(nino);
+  $('f-edad').textContent = textoEdad(nino.fecha_nacimiento);
+  $('fn-nombre').value = nino.nombre;
+  $('fn-apellidos').value = nino.apellidos || '';
+  $('fn-fecha').value = nino.fecha_nacimiento;
+  $('fn-pulsera').value = nino.numero_pulsera || '';
+  $('fn-obs').value = nino.observaciones || '';
+
+  // Kids Club
+  let estado, detalle = '';
+  if (socio.es_socio || socio.hasta) {
+    const dias = diasEntre(fichaActual.hoy, socio.hasta);
+    estado = `<p class="club-estado si">✓ Socio hasta el ${fechaDMY(socio.hasta)}</p>`;
+    if (dias <= 30) detalle += `<p>Caduca en ${dias} ${dias === 1 ? 'día' : 'días'}.</p>`;
+  } else if (socio.caducado_el) {
+    estado = `<p class="club-estado caducado">Socio caducado el ${fechaDMY(socio.caducado_el)}</p>`;
+  } else {
+    estado = '<p class="club-estado no">No es socio</p>';
+    detalle = '<p>Con la cuota anual entra gratis de lunes a jueves y paga menos los fines de semana y festivos.</p>';
+  }
+  detalle += nino.numero_pulsera
+    ? `<p>Pulsera nº <b>${esc(nino.numero_pulsera)}</b></p>`
+    : (socio.es_socio ? '<p style="color:var(--rojo);font-weight:600">No tiene pulsera asignada.</p>' : '');
+  const yaSocio = socio.es_socio || !!socio.hasta;
+  const botones = [
+    `<button class="btn ${yaSocio ? 'secundario' : ''}" data-serv="CUOTA_SOCIO">${yaSocio ? 'Renovar cuota' : socio.caducado_el ? 'Renovar cuota' : 'Hacer socio'} (${euros(socio.precio_cuota)})</button>`
+  ];
+  if (nino.numero_pulsera) botones.push(`<button class="btn secundario" data-serv="REPOSICION_PULSERA">Reponer pulsera (${euros(socio.precio_reposicion)})</button>`);
+  $('f-club').innerHTML = `<p class="club-cab">BROOKLYN <span>KIDS CLUB</span></p>${estado}${detalle}<div class="acciones">${botones.join('')}</div>`;
+
+  // Adultos
+  $('f-adultos').innerHTML = tutores.map(t => `<div class="adulto">
+      <b>${esc(nombreCompleto(t))}</b>
+      <span>${esc(t.parentesco || 'Adulto')}, ${esc(telefonoBonito(t.telefono))}${t.consentimiento_marketing ? '. Acepta promociones' : ''}</span>
+      <div class="botones">
+        <button class="btn secundario" data-editar="${t.id}">Editar</button>
+        <a class="btn secundario" href="tel:${esc(t.telefono)}">Llamar</a>
+      </div></div>`).join('') || '<p class="intro">Sin adultos guardados.</p>';
+
+  // Visitas
+  $('f-visitas').innerHTML = visitas.length
+    ? visitas.map(v => `<div class="visita"><span>${fechaDMY(v.fecha)} ${hora(v.creado_at)}</span><span>${esc(v.descripcion)}</span><span>${v.precio === 0 ? 'Gratis' : euros(v.precio)}</span></div>`).join('')
+    : '<p class="intro">Todavía no ha venido ninguna vez.</p>';
+}
+
+$('f-volver').onclick = () => {
+  mostrar('entrada');
+  if ($('e-q').value.trim().length >= 2) buscar(); else pintarResultados();
+  pintarBarra();
+};
+
+// Guardar datos del niño
+$('fn-guardar').onclick = async () => {
+  $('fn-guardar').disabled = true; $('fn-msg').textContent = '';
+  try {
+    fichaActual = await api('familias', { datos: {
+      accion: 'editar_nino', id: fichaActual.nino.id,
+      nombre: $('fn-nombre').value, apellidos: $('fn-apellidos').value,
+      fecha_nacimiento: $('fn-fecha').value, numero_pulsera: $('fn-pulsera').value,
+      observaciones: $('fn-obs').value
+    } });
+    pintarFicha(); aviso('Ficha guardada');
+  } catch (e) { $('fn-msg').textContent = e.message; }
+  $('fn-guardar').disabled = false;
+};
+
+// ---------- Cuota de socio y reposición ----------
+$('f-club').onclick = e => {
+  const b = e.target.closest('[data-serv]'); if (b) abrirServicio(b.dataset.serv);
+};
+
+function abrirServicio(codigo) {
+  servicioActual = codigo;
+  const { nino, tutores, socio } = fichaActual;
+  const cuota = codigo === 'CUOTA_SOCIO';
+  const p = socio.proxima_cuota || {};
+  $('sv-titulo').textContent = cuota ? (socio.es_socio || socio.hasta || socio.caducado_el ? 'Renovar cuota' : 'Hacer socio') : 'Reponer pulsera';
+  $('sv-texto').innerHTML = cuota
+    ? (socio.hasta
+        ? `Ya es socio hasta el ${fechaDMY(socio.hasta)}. La nueva cuota empieza al día siguiente y vale <b>del ${fechaDMY(p.desde)} al ${fechaDMY(p.hasta)}</b>, sin perder días.`
+        : `La cuota vale un año desde hoy: <b>del ${fechaDMY(p.desde)} al ${fechaDMY(p.hasta)}</b>.`)
+    : `Pulsera actual: <b>${esc(nino.numero_pulsera || '')}</b>. Escribe el número de la pulsera nueva.`;
+  $('sv-pulsera-label').textContent = cuota ? 'Número de pulsera' : 'Número de la pulsera nueva';
+  $('sv-pulsera').value = cuota ? (nino.numero_pulsera || '') : '';
+  $('sv-total').textContent = euros(cuota ? socio.precio_cuota : socio.precio_reposicion);
+  pagadorServicio = (tutores.find(t => t.principal) || tutores[0])?.id ?? null;
+  pintarPagadores();
+  const precio = cuota ? socio.precio_cuota : socio.precio_reposicion;
+  $('sv-pago').innerHTML = precio > 0
+    ? '<div class="pago"><button class="btn efectivo" data-pago="EFECTIVO">Efectivo</button><button class="btn tarjeta" data-pago="TARJETA">Tarjeta</button></div>'
+    : '<button class="btn" data-pago="EFECTIVO">Registrar sin coste</button>';
+  $('sv-msg').textContent = '';
+  abrirHojaId('hoja-servicio');
+}
+
+function pintarPagadores() {
+  $('sv-tutores').innerHTML = fichaActual.tutores.map(t =>
+    `<button class="tutor-op ${t.id === pagadorServicio ? 'sel' : ''}" data-t="${t.id}"><span class="radio"></span>
+      <div><b>${esc(nombreCompleto(t))}</b><span>${esc(t.parentesco || 'Adulto')}, ${esc(telefonoBonito(t.telefono))}</span></div></button>`).join('');
+}
+$('sv-tutores').onclick = e => {
+  const b = e.target.closest('.tutor-op'); if (!b) return;
+  pagadorServicio = Number(b.dataset.t); pintarPagadores();
+};
+
+$('sv-pago').onclick = async e => {
+  const b = e.target.closest('[data-pago]'); if (!b) return;
+  if (!pagadorServicio) { $('sv-msg').textContent = 'Elige quién paga.'; return; }
+  if (!$('sv-pulsera').value.trim()) { $('sv-msg').textContent = 'Escribe el número de la pulsera.'; return; }
+  $('sv-pago').querySelectorAll('button').forEach(x => x.disabled = true);
+  $('sv-msg').textContent = '';
+  try {
+    const r = await api('entradas', { datos: {
+      accion: 'servicio', codigo: servicioActual, nino_id: fichaActual.nino.id,
+      tutor_id: pagadorServicio, metodo_pago: b.dataset.pago, numero_pulsera: $('sv-pulsera').value
+    } });
+    cerrarHoja();
+    ultimoTicket = r.ticket;
+    pintarHecho();
+    mostrar('hecho');
+  } catch (err) { $('sv-msg').textContent = err.message; }
+  $('sv-pago').querySelectorAll('button').forEach(x => x.disabled = false);
+};
+
+// ---------- Editar / quitar adulto ----------
+$('f-adultos').onclick = e => {
+  const b = e.target.closest('[data-editar]'); if (!b) return;
+  const t = fichaActual.tutores.find(x => x.id === Number(b.dataset.editar));
+  tutorEditando = t;
+  $('et-nombre').value = t.nombre; $('et-apellidos').value = t.apellidos || '';
+  $('et-telefono').value = telefonoBonito(t.telefono);
+  const sel = $('et-parentesco');
+  if (t.parentesco && ![...sel.options].some(o => o.value === t.parentesco)) sel.add(new Option(t.parentesco));
+  sel.value = t.parentesco || 'Otro';
+  $('et-nacimiento').value = t.fecha_nacimiento || ''; $('et-email').value = t.email || '';
+  $('et-marketing').checked = !!t.consentimiento_marketing;
+  $('et-quitar').style.display = fichaActual.tutores.length > 1 ? '' : 'none';
+  $('et-msg').textContent = '';
+  abrirHojaId('hoja-tutor');
+};
+
+$('et-guardar').onclick = async () => {
+  $('et-guardar').disabled = true; $('et-msg').textContent = '';
+  try {
+    fichaActual = await api('familias', { datos: {
+      accion: 'editar_tutor', id: tutorEditando.id, nino_id: fichaActual.nino.id,
+      nombre: $('et-nombre').value, apellidos: $('et-apellidos').value, telefono: $('et-telefono').value,
+      parentesco: $('et-parentesco').value, fecha_nacimiento: $('et-nacimiento').value || null,
+      email: $('et-email').value, consentimiento_marketing: $('et-marketing').checked
+    } });
+    cerrarHoja(); pintarFicha(); aviso('Adulto guardado');
+  } catch (e) { $('et-msg').textContent = e.message; }
+  $('et-guardar').disabled = false;
+};
+
+$('et-quitar').onclick = async () => {
+  if (!confirm(`¿Quitar a ${nombreCompleto(tutorEditando)} de la ficha de ${fichaActual.nino.nombre}?`)) return;
+  try {
+    fichaActual = await api('familias', { datos: { accion: 'desvincular', nino_id: fichaActual.nino.id, tutor_id: tutorEditando.id } });
+    cerrarHoja(); pintarFicha(); aviso('Adulto quitado');
+  } catch (e) { $('et-msg').textContent = e.message; }
+};
+
+$('f-otro').onclick = () => abrirHojaAdulto(true);
 
 construirTeclado(); pintarPuntos(); arrancar();
 </script>

@@ -2,9 +2,13 @@
 // GET  ?q=texto                       → niños encontrados con tutores, tarifa de hoy y si ya entraron
 // POST { accion:'alta', tutor, ninos } → alta de familia nueva (o niños nuevos para un tutor existente)
 // POST { accion:'vincular', nino_ids, tutor } → añade otro adulto (abuela, tío...) a esos niños
+// GET  ?id=N                                  → ficha completa del niño (datos, adultos, socio, visitas)
+// POST { accion:'editar_nino', id, ... }       → corrige datos del niño
+// POST { accion:'editar_tutor', id, nino_id, ... } → corrige datos de un adulto
+// POST { accion:'desvincular', nino_id, tutor_id } → quita un adulto de un niño
 const {
   supabase, respuesta, leerBody, requerirUsuario,
-  normalizarTelefono, fechaValida, texto, errorHttp, responderError
+  normalizarTelefono, fechaValida, texto, errorHttp, responderError, hoyMadrid
 } = require('./_lib');
 
 // Ficha completa de cada niño, lista para pintar en el móvil
@@ -27,6 +31,8 @@ async function fichas(ids) {
       tarifa_nombre: i.tarifa_nombre,
       precio: Number(i.precio ?? 0),
       entrada_hoy: i.entrada_hoy || null,
+      numero_pulsera: i.numero_pulsera || null,
+      socio_hasta: i.socio_hasta || null,
       tutores: rL.data
         .filter(l => l.nino_id === n.id && l.tutores)
         .map(l => ({ ...l.tutores, parentesco: l.parentesco, principal: l.principal }))
@@ -77,11 +83,58 @@ async function obtenerOCrearTutor(t = {}) {
   return { id: data.id, creado: true };
 }
 
+// Todo lo que muestra la pantalla de ficha
+async function fichaCompleta(id) {
+  if (!id) throw errorHttp(400, 'Falta el niño.');
+  const [rN, rL, rM, rP, rT, rV] = await Promise.all([
+    supabase.from('ninos').select('id, nombre, apellidos, fecha_nacimiento, observaciones, numero_pulsera').eq('id', id).maybeSingle(),
+    supabase.from('nino_tutor').select('parentesco, principal, tutores(id, nombre, apellidos, telefono, email, fecha_nacimiento, consentimiento_marketing)').eq('nino_id', id),
+    supabase.from('membresias').select('id, fecha_alta, fecha_caducidad, activo').eq('nino_id', id).order('fecha_alta', { ascending: false }),
+    supabase.rpc('periodo_cuota', { p_nino_id: id }),
+    supabase.from('tarifas').select('codigo, nombre, precio').in('codigo', ['CUOTA_SOCIO', 'REPOSICION_PULSERA']),
+    supabase.from('ticket_lineas').select('descripcion, precio, tickets!inner(fecha, creado_at, anulado)')
+      .eq('nino_id', id).eq('tickets.anulado', false).order('id', { ascending: false }).limit(8)
+  ]);
+  for (const r of [rN, rL, rM, rP, rT, rV]) if (r.error) throw r.error;
+  if (!rN.data) throw errorHttp(404, 'Ese niño ya no existe.');
+
+  const hoy = hoyMadrid();
+  const activas = rM.data.filter(m => m.activo);
+  const vigente = activas.find(m => m.fecha_alta <= hoy && m.fecha_caducidad >= hoy);
+  const futuras = activas.filter(m => m.fecha_caducidad >= hoy);
+  const pasadas = activas.filter(m => m.fecha_caducidad < hoy);
+  const periodo = Array.isArray(rP.data) ? rP.data[0] : rP.data;
+  const precio = c => Number(rT.data.find(t => t.codigo === c)?.precio ?? 0);
+
+  return {
+    hoy,
+    nino: rN.data,
+    tutores: rL.data.filter(l => l.tutores)
+      .map(l => ({ ...l.tutores, parentesco: l.parentesco, principal: l.principal }))
+      .sort((a, b) => b.principal - a.principal),
+    socio: {
+      es_socio: !!vigente,
+      hasta: futuras.length ? futuras.map(m => m.fecha_caducidad).sort().pop() : null,
+      caducado_el: !futuras.length && pasadas.length ? pasadas.map(m => m.fecha_caducidad).sort().pop() : null,
+      periodos: rM.data,
+      proxima_cuota: periodo,
+      precio_cuota: precio('CUOTA_SOCIO'),
+      precio_reposicion: precio('REPOSICION_PULSERA')
+    },
+    visitas: rV.data.map(v => ({ fecha: v.tickets.fecha, creado_at: v.tickets.creado_at, descripcion: v.descripcion, precio: Number(v.precio) }))
+  };
+}
+
 exports.handler = async (event) => {
   const { error: errAuth } = await requerirUsuario(event);
   if (errAuth) return errAuth;
 
   try {
+    // ---------- Ficha completa ----------
+    if (event.httpMethod === 'GET' && event.queryStringParameters?.id) {
+      return respuesta(200, await fichaCompleta(Number(event.queryStringParameters.id)));
+    }
+
     // ---------- Buscar ----------
     if (event.httpMethod === 'GET') {
       const q = String(event.queryStringParameters?.q || '').trim();
@@ -140,6 +193,81 @@ exports.handler = async (event) => {
       );
       if (error) throw error;
       return respuesta(200, { tutor_id: tutor.id, ninos: await fichas(ids) });
+    }
+
+    // ---------- Editar niño ----------
+    if (body.accion === 'editar_nino') {
+      const id = Number(body.id);
+      const nombre = texto(body.nombre);
+      if (!id) throw errorHttp(400, 'Falta el niño.');
+      if (!nombre) throw errorHttp(400, 'El nombre no puede quedar vacío.');
+      if (!fechaValida(body.fecha_nacimiento)) throw errorHttp(400, 'La fecha de nacimiento no es válida.');
+      const pulsera = texto(body.numero_pulsera, 30);
+      if (pulsera) {
+        const { data: otro } = await supabase.from('ninos').select('id, nombre')
+          .ilike('numero_pulsera', pulsera).neq('id', id).maybeSingle();
+        if (otro) throw errorHttp(409, `Esa pulsera ya es de ${otro.nombre}.`);
+      }
+      const { error } = await supabase.from('ninos').update({
+        nombre, apellidos: texto(body.apellidos), fecha_nacimiento: body.fecha_nacimiento,
+        observaciones: texto(body.observaciones, 300), numero_pulsera: pulsera
+      }).eq('id', id);
+      if (error) throw error;
+      return respuesta(200, await fichaCompleta(id));
+    }
+
+    // ---------- Editar adulto ----------
+    if (body.accion === 'editar_tutor') {
+      const id = Number(body.id), ninoId = Number(body.nino_id);
+      const nombre = texto(body.nombre);
+      const telefono = normalizarTelefono(body.telefono);
+      if (!id) throw errorHttp(400, 'Falta el adulto.');
+      if (!nombre) throw errorHttp(400, 'El nombre no puede quedar vacío.');
+      if (!telefono) throw errorHttp(400, 'El teléfono no es válido. Escribe los 9 números.');
+      if (body.fecha_nacimiento && !fechaValida(body.fecha_nacimiento)) {
+        throw errorHttp(400, 'La fecha de nacimiento del adulto no es válida.');
+      }
+      const { data: otro } = await supabase.from('tutores').select('id, nombre, apellidos')
+        .eq('telefono', telefono).neq('id', id).maybeSingle();
+      if (otro) throw errorHttp(409, `Ese teléfono ya es de ${`${otro.nombre} ${otro.apellidos || ''}`.trim()}.`);
+
+      const { data: actual } = await supabase.from('tutores').select('consentimiento_marketing').eq('id', id).maybeSingle();
+      if (!actual) throw errorHttp(404, 'Ese adulto ya no existe.');
+      const marketing = !!body.consentimiento_marketing;
+      const cambios = {
+        nombre, apellidos: texto(body.apellidos), telefono,
+        email: texto(body.email, 120), fecha_nacimiento: body.fecha_nacimiento || null,
+        consentimiento_marketing: marketing
+      };
+      // La fecha del consentimiento solo cambia cuando cambia la decisión
+      if (marketing !== actual.consentimiento_marketing) {
+        cambios.consentimiento_marketing_at = new Date().toISOString();
+      }
+      const { error } = await supabase.from('tutores').update(cambios).eq('id', id);
+      if (error) throw error;
+      if (ninoId && body.parentesco !== undefined) {
+        const { error: e2 } = await supabase.from('nino_tutor')
+          .update({ parentesco: texto(body.parentesco, 30) }).eq('nino_id', ninoId).eq('tutor_id', id);
+        if (e2) throw e2;
+      }
+      return respuesta(200, ninoId ? await fichaCompleta(ninoId) : { ok: true });
+    }
+
+    // ---------- Quitar un adulto de un niño ----------
+    if (body.accion === 'desvincular') {
+      const ninoId = Number(body.nino_id), tutorId = Number(body.tutor_id);
+      const { data: enlaces } = await supabase.from('nino_tutor').select('tutor_id, principal').eq('nino_id', ninoId);
+      if (!enlaces || enlaces.length < 2) throw errorHttp(400, 'Un niño tiene que tener al menos un adulto.');
+      const quitado = enlaces.find(e => e.tutor_id === tutorId);
+      if (!quitado) throw errorHttp(404, 'Ese adulto no está en esta ficha.');
+      const { error } = await supabase.from('nino_tutor').delete().eq('nino_id', ninoId).eq('tutor_id', tutorId);
+      if (error) throw error;
+      // Si era el principal, pasa a serlo otro (para los listados de cumpleaños)
+      if (quitado.principal) {
+        const otro = enlaces.find(e => e.tutor_id !== tutorId);
+        await supabase.from('nino_tutor').update({ principal: true }).eq('nino_id', ninoId).eq('tutor_id', otro.tutor_id);
+      }
+      return respuesta(200, await fichaCompleta(ninoId));
     }
 
     throw errorHttp(400, 'Acción desconocida.');
