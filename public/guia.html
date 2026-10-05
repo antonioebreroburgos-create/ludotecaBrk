@@ -101,7 +101,7 @@
     <h1>BROOKLYN</h1>
     <p class="sub">LUDOTECA</p>
     <span class="lema">Guía de la app para monitoras y administración</span>
-    <p class="version">Versión 5 · Actualizada el 5 de octubre de 2026</p>
+    <p class="version">Versión 6 · Actualizada el 5 de octubre de 2026</p>
   </div>
 
   <nav class="indice">
@@ -114,6 +114,7 @@
       <li><a href="#adulto">Viene otro adulto</a></li>
       <li><a href="#whatsapp">Ticket por WhatsApp y llamar</a></li>
       <li><a href="#hoy">Entradas de hoy y anular</a></li>
+      <li><a href="#caja">Caja del día y cierre</a></li>
       <li><a href="#ficha">Ficha del niño</a></li>
       <li><a href="#club">Brooklyn Kids Club</a></li>
       <li><a href="#datos">Datos y consentimientos</a></li>
@@ -193,7 +194,7 @@
       <li>Pulsa <span class="boton">Dar de alta una familia nueva</span>. Si habías buscado un teléfono, ya aparece escrito.</li>
       <li>Rellena los datos del <b>adulto que los trae</b>: nombre, teléfono y qué es del niño. La fecha de nacimiento y el email son opcionales.</li>
       <li>Rellena cada <b>niño</b>: nombre, apellidos y fecha de nacimiento. En <b>Avisos</b> apunta alergias o cualquier cosa importante. Con <b>Añadir otro niño</b> metes a los hermanos.</li>
-      <li>Pregunta al adulto por los <b>consentimientos</b> y márcalos (<a href="#datos">ver punto 10</a>).</li>
+      <li>Pregunta al adulto por los <b>consentimientos</b> y márcalos (<a href="#datos">ver punto 11</a>).</li>
       <li>Pulsa <span class="boton rojo">Guardar y cobrar</span>. Pasas directamente al cobro con todo ya seleccionado.</li>
     </ol>
     <div class="nota"><b>«Ese teléfono ya es de…»</b> Si el teléfono ya estaba guardado, la app pregunta si quieres añadir estos niños a esa familia. Si es la misma persona, di que sí. Si no, revisa el número.</div>
@@ -209,7 +210,7 @@
       <li>Rellena nombre, teléfono, qué es del niño y los consentimientos.</li>
       <li>Pulsa <span class="boton rojo">Guardar</span>. Queda seleccionado para el cobro y guardado para próximas veces.</li>
     </ol>
-    <p>También se puede añadir desde la ficha del niño (<a href="#ficha">punto 8</a>).</p>
+    <p>También se puede añadir desde la ficha del niño (<a href="#ficha">punto 9</a>).</p>
     <a class="arriba" href="#inicio">↑ Volver al índice</a>
   </section>
 
@@ -245,12 +246,32 @@
     <a class="arriba" href="#inicio">↑ Volver al índice</a>
   </section>
 
+  <!-- Caja -->
+  <section id="caja">
+    <h2 class="titulo"><span class="n">8.</span> Caja del día y cierre</h2>
+    <p>En el inicio, <b>💶 Caja de hoy</b>. Arriba ves lo cobrado en <span class="boton verde">Efectivo</span> y en <span class="boton mostaza">Tarjeta</span>, el total, cuántos niños han entrado y el <b>desglose</b> por concepto (entradas de cada tipo, cuotas, pulseras). Los tickets anulados no cuentan.</p>
+    <h3>Cerrar la caja al final del día</h3>
+    <ol class="pasos">
+      <li>En <b>Fondo de cambio</b>, escribe el dinero suelto con el que empezaste el día. Si no había, déjalo vacío.</li>
+      <li>Cuenta <b>todo</b> el efectivo de la caja (fondo incluido) y escríbelo en <b>Efectivo contado en caja</b>.</li>
+      <li>Si quieres comprobar la tarjeta, escribe el total de la ludoteca que marque el datáfono en <b>Total del datáfono</b>.</li>
+      <li>Mira el recuadro de cálculo: dice <b style="color:#1E7A3C">Cuadra</b>, o <b style="color:var(--rojo)">Sobran</b> / <b style="color:var(--rojo)">Faltan</b> y cuánto.</li>
+      <li>Si no cuadra, explica el motivo en <b>Observaciones</b> si lo sabes.</li>
+      <li>Pulsa <span class="boton rojo">Cerrar caja</span>.</li>
+    </ol>
+    <div class="nota"><b>Ejemplo.</b> Empiezas con 20 € de cambio y has cobrado 43,50 € en efectivo. En la caja debería haber 63,50 €. Si cuentas 61,50 €, faltan 2 €.</div>
+    <h3>Si se cobra algo después de cerrar</h3>
+    <p>Se puede seguir cobrando. La caja avisará de que <b>ha habido cambios después del cierre</b>. Pulsa <span class="boton rojo">Volver a cerrar</span>, vuelve a contar y guarda. También sirve si te equivocaste al escribir lo contado.</p>
+    <div class="admin"><b>Administrador.</b> Puede ver la caja de cualquier día con <b>Ver otro día</b>, y en <b>Últimos días</b> tiene la lista de los últimos 45 días con el total y si se cerró y cuadró. Puede rehacer el cierre de cualquier día. Una monitora solo ve y cierra la caja de hoy.</div>
+    <a class="arriba" href="#inicio">↑ Volver al índice</a>
+  </section>
+
   <!-- 8 -->
   <section id="ficha">
-    <h2 class="titulo"><span class="n">8.</span> Ficha del niño</h2>
+    <h2 class="titulo"><span class="n">9.</span> Ficha del niño</h2>
     <p>En el buscador, cada niño tiene el botón <span class="boton">Ficha</span>. La ficha tiene cuatro partes:</p>
     <ul>
-      <li><b>Brooklyn Kids Club</b>: si es socio, hasta cuándo, su pulsera y los botones para hacer socio, renovar o reponer pulsera (<a href="#club">punto 9</a>).</li>
+      <li><b>Brooklyn Kids Club</b>: si es socio, hasta cuándo, su pulsera y los botones para hacer socio, renovar o reponer pulsera (<a href="#club">punto 10</a>).</li>
       <li><b>Datos del niño</b>: corrige nombre, apellidos, fecha de nacimiento, número de pulsera o avisos y pulsa <span class="boton">Guardar cambios</span>.</li>
       <li><b>Adultos</b>: con <b>Editar</b> corriges sus datos o si acepta promociones; con <b>Llamar</b> le llamas. Dentro de Editar está <b>Quitar a este adulto de la ficha</b> (el niño siempre tiene que tener al menos uno). Con <b>Añadir otro adulto</b> sumas uno nuevo.</li>
       <li><b>Últimas visitas</b>: las 8 más recientes.</li>
@@ -261,7 +282,7 @@
 
   <!-- 9 -->
   <section id="club">
-    <h2 class="titulo"><span class="n">9.</span> Brooklyn Kids Club</h2>
+    <h2 class="titulo"><span class="n">10.</span> Brooklyn Kids Club</h2>
     <p>Por <b>25 € al año</b>, el socio entra gratis de lunes a jueves y paga 1,50 € los fines de semana y festivos. Además tiene un 5 % de descuento en cumpleaños infantiles y promociones especiales. La pulsera es <b>personal, intransferible y obligatoria</b> para entrar.</p>
 
     <h3>Hacer socio</h3>
@@ -288,7 +309,7 @@
 
   <!-- 10 -->
   <section id="datos">
-    <h2 class="titulo"><span class="n">10.</span> Datos y consentimientos</h2>
+    <h2 class="titulo"><span class="n">11.</span> Datos y consentimientos</h2>
     <p>La app guarda datos de niños, así que hay que hacerlo bien. Al dar de alta a un adulto hay dos casillas:</p>
     <ul>
       <li><b>Guardar los datos para la ludoteca</b> (obligatoria). Sin ella no se puede dar de alta. Explica al adulto que es para gestionar la estancia y poder llamarle si hace falta.</li>
@@ -301,10 +322,10 @@
 
   <!-- 11 -->
   <section id="usuarios">
-    <h2 class="titulo"><span class="n">11.</span> Usuarios <span class="etiqueta e-admin">Solo administrador</span></h2>
+    <h2 class="titulo"><span class="n">12.</span> Usuarios <span class="etiqueta e-admin">Solo administrador</span></h2>
     <p>En el inicio, <b>👥 Usuarios</b>.</p>
     <ul>
-      <li><b>Añadir usuario</b>: nombre, permisos y PIN. «Monitora» puede cobrar y ver las entradas del día. «Administrador» puede además gestionar usuarios y, más adelante, precios.</li>
+      <li><b>Añadir usuario</b>: nombre, permisos y PIN. «Monitora» puede cobrar, ver las entradas del día y cerrar la caja de hoy. «Administrador» puede además gestionar usuarios y, más adelante, precios.</li>
       <li>Tocando un usuario puedes cambiarle el nombre, los permisos o el PIN (déjalo vacío para no cambiarlo).</li>
       <li>Para que alguien deje de entrar, desmarca <b>Puede entrar en la app</b>. Los usuarios no se borran, porque sus cobros tienen que seguir a su nombre.</li>
     </ul>
@@ -314,7 +335,7 @@
 
   <!-- 12 -->
   <section id="problemas">
-    <h2 class="titulo"><span class="n">12.</span> Problemas y dudas</h2>
+    <h2 class="titulo"><span class="n">13.</span> Problemas y dudas</h2>
     <details><summary>«La sesión ha caducado. Vuelve a entrar con tu PIN.»</summary>
       <div><p>Es normal al empezar una nueva jornada. Escribe tu PIN otra vez.</p></div></details>
     <details><summary>«Demasiados intentos. Espera 15 minutos.»</summary>
@@ -324,9 +345,11 @@
     <details><summary>Me he equivocado al cobrar</summary>
       <div><p>Anula el ticket con su motivo (<a href="#hoy">punto 7</a>) y vuelve a cobrar bien.</p></div></details>
     <details><summary>He escrito mal un nombre, una fecha o una alergia</summary>
-      <div><p>Abre la ficha del niño y corrígelo (<a href="#ficha">punto 8</a>).</p></div></details>
+      <div><p>Abre la ficha del niño y corrígelo (<a href="#ficha">punto 9</a>).</p></div></details>
     <details><summary>Al pulsar WhatsApp no pasa nada</summary>
       <div><p>Comprueba que WhatsApp está instalado en el móvil y que el teléfono del adulto es correcto en su ficha. Vuelve a pulsar el botón.</p></div></details>
+    <details><summary>La caja no cuadra</summary>
+      <div><p>Vuelve a contar el efectivo. Revisa en <a href="#hoy">Entradas de hoy</a> si algún ticket se cobró con el método equivocado (efectivo en vez de tarjeta o al revés): anúlalo, vuelve a cobrarlo bien y pulsa <b>Volver a cerrar</b>. Si sigue sin cuadrar, apunta el motivo en Observaciones.</p></div></details>
     <details><summary>«Esa pulsera ya está asignada a otro niño.»</summary>
       <div><p>Cada pulsera solo puede ser de un niño. Revisa el número; si es correcto, busca ese número en el buscador para ver de quién es.</p></div></details>
     <details><summary>La app no carga o dice «No hay conexión con el servidor»</summary>
@@ -336,9 +359,8 @@
 
   <!-- 13 -->
   <section id="proximamente">
-    <h2 class="titulo"><span class="n">13.</span> Próximamente</h2>
+    <h2 class="titulo"><span class="n">14.</span> Próximamente</h2>
     <ul>
-      <li><b>Caja de hoy</b>: total del día separado en efectivo y tarjeta, y cierre de caja.</li>
       <li><b>Precios y festivos</b> <span class="etiqueta e-admin">Solo administrador</span>: cambiar las tarifas y marcar los festivos desde la app.</li>
       <li><b>Cumpleaños</b>: listado de cumpleaños de niños y adultos que aceptaron promociones, para invitarles a celebrarlo en el restaurante.</li>
     </ul>
@@ -347,8 +369,16 @@
 
   <!-- 14 -->
   <section id="cambios">
-    <h2 class="titulo"><span class="n">14.</span> Historial de cambios</h2>
+    <h2 class="titulo"><span class="n">15.</span> Historial de cambios</h2>
     <div class="cambios">
+      <div class="cambio">
+        <p class="fecha">Versión 6 <span>· 5 de octubre de 2026</span></p>
+        <ul>
+          <li>Caja del día: efectivo, tarjeta, desglose por concepto y número de niños.</li>
+          <li>Cierre de caja con fondo de cambio, efectivo contado y datáfono, y aviso si se cobra después de cerrar.</li>
+          <li>Administrador: caja de cualquier día e historial de los últimos 45 días.</li>
+        </ul>
+      </div>
       <div class="cambio">
         <p class="fecha">Versión 5 <span>· 5 de octubre de 2026</span></p>
         <ul>

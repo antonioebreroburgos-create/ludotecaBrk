@@ -256,6 +256,25 @@
   .visita { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px dashed var(--tinta-suave); font-size: 15px; }
   .visita span:first-child { color: var(--tinta-suave); white-space: nowrap; }
 
+  /* ---------- Etapa 6: caja ---------- */
+  .totales { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px; }
+  .caja-tot { border: 2px solid var(--borde); border-radius: 12px; padding: 12px 14px; box-shadow: 0 4px 0 var(--borde); }
+  .caja-tot span { display: block; font: 600 16px var(--cond); }
+  .caja-tot b { font: 700 30px var(--cond); }
+  .caja-tot.efectivo { background: var(--verde); }
+  .caja-tot.tarjeta { background: var(--mostaza); }
+  .desglose-fila { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px dashed var(--tinta-suave); }
+  .desglose-fila b { font: 700 18px var(--cond); }
+  .desglose-fila small { display: block; color: var(--tinta-suave); font-size: 14px; }
+  .calculo { background: var(--papel-claro); border: 2px solid var(--borde); border-radius: 12px; padding: 10px 14px; margin: 6px 0 16px; }
+  .calculo div { display: flex; justify-content: space-between; gap: 10px; padding: 4px 0; }
+  .calculo .sep { border-top: 1px dashed var(--tinta-suave); margin-top: 4px; padding-top: 8px; }
+  .dif-ok { color: #1E7A3C; font-weight: 700; }
+  .dif-mal { color: var(--rojo); font-weight: 700; }
+  .aviso-caja { background: #FCE3D9; border: 2px solid var(--rojo); border-radius: 10px; padding: 10px 12px; margin: 10px 0; font-size: 15px; font-weight: 600; }
+  .fila.dia { align-items: center; }
+  .fila.dia small { display: block; font-size: 14px; color: var(--tinta-suave); }
+
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 </head>
@@ -394,6 +413,39 @@
 
   <h3 class="seccion">Últimas visitas</h3>
   <div id="f-visitas"></div>
+</section>
+
+<!-- Caja -->
+<section class="pantalla" id="p-caja">
+  <button class="volver" data-ir="inicio">‹ Inicio</button>
+  <h2 id="cj-titulo">Caja de hoy</h2>
+  <div class="campo" id="cj-fecha-wrap" style="display:none;margin-top:8px"><label for="cj-fecha">Ver otro día</label><input type="date" id="cj-fecha"></div>
+  <div class="totales">
+    <div class="caja-tot efectivo"><span>Efectivo</span><b id="cj-efectivo">…</b></div>
+    <div class="caja-tot tarjeta"><span>Tarjeta</span><b id="cj-tarjeta">…</b></div>
+  </div>
+  <div class="total"><span>Total</span><span id="cj-total"></span></div>
+  <p class="resumen-hoy" id="cj-resumen"></p>
+  <h3 class="seccion">Desglose</h3>
+  <div id="cj-desglose"></div>
+  <h3 class="seccion">Cierre de caja</h3>
+  <div id="cj-cierre"></div>
+  <div id="cj-form">
+    <div class="campo"><label for="cj-fondo">Fondo de cambio</label><input id="cj-fondo" inputmode="decimal" autocomplete="off" placeholder="0,00">
+      <small>El dinero suelto con el que se empezó el día. Déjalo vacío si no había.</small></div>
+    <div class="campo"><label for="cj-contado">Efectivo contado en caja</label><input id="cj-contado" inputmode="decimal" autocomplete="off" placeholder="0,00">
+      <small>Todo el efectivo que hay ahora, incluido el fondo.</small></div>
+    <div class="campo"><label for="cj-datafono">Total del datáfono</label><input id="cj-datafono" inputmode="decimal" autocomplete="off" placeholder="0,00">
+      <small>Opcional. El total de la ludoteca que marque el datáfono.</small></div>
+    <div class="calculo" id="cj-calculo"></div>
+    <div class="campo"><label for="cj-obs">Observaciones</label><textarea id="cj-obs" placeholder="Por ejemplo: faltan 2 € porque se dio mal un cambio"></textarea></div>
+    <button class="btn" id="cj-cerrar">Cerrar caja</button>
+    <p class="mensaje" id="cj-msg"></p>
+  </div>
+  <div id="cj-historial-wrap" style="display:none">
+    <h3 class="seccion">Últimos días</h3>
+    <div class="lista" id="cj-historial"></div>
+  </div>
 </section>
 
 <div class="fondo" id="fondo"></div>
@@ -590,7 +642,7 @@ function irInicio() {
   const opciones = [
     { ico: '🎟️', t: 'Nueva entrada', d: 'Buscar al niño y cobrar', ir: 'entrada' },
     { ico: '📋', t: 'Entradas de hoy', d: 'Quién ha entrado y anulaciones', ir: 'hoy' },
-    { ico: '💶', t: 'Caja de hoy', d: 'Disponible en la etapa 6', pronto: true },
+    { ico: '💶', t: 'Caja de hoy', d: 'Efectivo, tarjeta y cierre del día', ir: 'caja' },
   ];
   if (u.rol === 'ADMIN') opciones.push(
     { ico: '👥', t: 'Usuarios', d: 'Monitoras y administradores', ir: 'usuarios' },
@@ -611,6 +663,7 @@ document.addEventListener('click', e => {
   if (ir === 'buscar') { mostrar('entrada'); pintarResultados($('e-q').value.trim()); pintarBarra(); }
   if (ir === 'hoy') abrirHoy();
   if (ir === 'guia') window.open('guia.html', '_blank');
+  if (ir === 'caja') abrirCaja();
 });
 
 // ---------- Usuarios ----------
@@ -1436,6 +1489,164 @@ $('et-quitar').onclick = async () => {
 };
 
 $('f-otro').onclick = () => abrirHojaAdulto(true);
+
+// =====================================================================
+//  ETAPA 6 · CAJA DIARIA Y CIERRE
+// =====================================================================
+let cajaActual = null;
+let rehaciendoCierre = false;
+
+const leerEuros = v => {
+  const s = String(v || '').replace(/\s|€/g, '').replace(',', '.');
+  if (!s) return null;
+  const n = Number(s);
+  return isFinite(n) && n >= 0 ? Math.round(n * 100) / 100 : NaN;
+};
+const r2c = n => Math.round(n * 100) / 100;
+function textoDiferencia(d) {
+  if (d === null || d === undefined) return '';
+  if (Math.abs(d) < 0.005) return '<span class="dif-ok">Cuadra</span>';
+  return d > 0 ? `<span class="dif-mal">Sobran ${euros(d)}</span>` : `<span class="dif-mal">Faltan ${euros(-d)}</span>`;
+}
+const diaSemana = f => new Date(f + 'T12:00:00Z').toLocaleDateString('es-ES', { weekday: 'short', timeZone: 'UTC' });
+
+async function abrirCaja(fecha) {
+  mostrar('caja');
+  const admin = sesion.usuario.rol === 'ADMIN';
+  $('cj-fecha-wrap').style.display = admin ? '' : 'none';
+  $('cj-historial-wrap').style.display = admin ? '' : 'none';
+  rehaciendoCierre = false;
+  $('cj-msg').textContent = '';
+  $('cj-efectivo').textContent = '…'; $('cj-tarjeta').textContent = '…';
+  try {
+    cajaActual = await api('caja' + (fecha ? '?fecha=' + fecha : ''), { metodo: 'GET' });
+    pintarCaja();
+    if (admin) cargarHistorialCaja();
+  } catch (e) { $('cj-resumen').textContent = e.message; }
+}
+
+function pintarCaja() {
+  const c = cajaActual, hoy = hoyLocal(), admin = sesion.usuario.rol === 'ADMIN';
+  $('cj-titulo').textContent = c.fecha === hoy ? 'Caja de hoy' : `Caja del ${diaSemana(c.fecha)} ${fechaDMY(c.fecha)}`;
+  $('cj-fecha').value = c.fecha; $('cj-fecha').max = hoy;
+  $('cj-efectivo').textContent = euros(c.efectivo);
+  $('cj-tarjeta').textContent = euros(c.tarjeta);
+  $('cj-total').textContent = euros(c.total);
+
+  const partes = [];
+  partes.push(c.num_tickets
+    ? `${c.ninos} ${c.ninos === 1 ? 'niño' : 'niños'}, ${c.entradas} ${c.entradas === 1 ? 'entrada' : 'entradas'} en ${c.num_tickets} ${c.num_tickets === 1 ? 'ticket' : 'tickets'}.`
+    : 'No hay cobros este día.');
+  if (c.anulados) partes.push(`${c.anulados} ${c.anulados === 1 ? 'ticket anulado' : 'tickets anulados'} (${euros(c.importe_anulado)}), no cuentan.`);
+  $('cj-resumen').textContent = partes.join(' ');
+
+  $('cj-desglose').innerHTML = c.desglose.length
+    ? c.desglose.map(g => `<div class="desglose-fila">
+        <div><b>${esc(g.nombre)}</b><small>${g.cantidad} × ${g.importe === 0 ? 'sin coste' : `efectivo ${euros(g.efectivo)}, tarjeta ${euros(g.tarjeta)}`}</small></div>
+        <span class="precio">${euros(g.importe)}</span></div>`).join('')
+    : '<p class="intro">Sin movimientos.</p>';
+
+  // Cierre
+  const puedeCerrar = c.fecha === hoy || admin;
+  const cierre = c.cierre;
+  if (cierre && !rehaciendoCierre) {
+    const esperado = r2c(cierre.fondo_caja + cierre.total_efectivo);
+    $('cj-cierre').innerHTML = `<div class="club">
+        <p class="club-estado ${c.cambios_desde_cierre ? 'caducado' : 'si'}">${c.cambios_desde_cierre ? 'Caja cerrada, con cambios después' : '✓ Caja cerrada'}</p>
+        <p>Por ${esc(cierre.usuario || '')} a las ${hora(cierre.cerrado_at)}${cierre.actualizado_at ? `, rehecha a las ${hora(cierre.actualizado_at)}` : ''}.</p>
+        <div class="calculo" style="margin-top:12px">
+          <div><span>Fondo de cambio</span><span>${euros(cierre.fondo_caja)}</span></div>
+          <div><span>Cobrado en efectivo</span><span>${euros(cierre.total_efectivo)}</span></div>
+          <div><span>Debería haber</span><b>${euros(esperado)}</b></div>
+          <div><span>Contado</span><b>${euros(cierre.efectivo_contado)}</b></div>
+          <div class="sep"><span>Efectivo</span>${textoDiferencia(cierre.diferencia)}</div>
+          <div class="sep"><span>Cobrado con tarjeta</span><span>${euros(cierre.total_tarjeta)}</span></div>
+          ${cierre.tarjeta_datafono !== null ? `<div><span>Datáfono</span><span>${euros(cierre.tarjeta_datafono)}</span></div>
+          <div><span>Tarjeta</span>${textoDiferencia(cierre.diferencia_tarjeta)}</div>` : ''}
+        </div>
+        ${cierre.observaciones ? `<p>${esc(cierre.observaciones)}</p>` : ''}
+        ${c.cambios_desde_cierre ? '<div class="aviso-caja">Después de cerrar se ha cobrado o anulado algo. Vuelve a cerrar la caja para que cuadre.</div>' : ''}
+        ${puedeCerrar ? `<div class="acciones"><button class="btn ${c.cambios_desde_cierre ? '' : 'secundario'}" id="cj-rehacer">Volver a cerrar</button></div>` : ''}
+      </div>`;
+    $('cj-form').style.display = 'none';
+    const b = $('cj-rehacer');
+    if (b) b.onclick = () => {
+      rehaciendoCierre = true;
+      $('cj-fondo').value = cierre.fondo_caja ? String(cierre.fondo_caja).replace('.', ',') : '';
+      $('cj-contado').value = String(cierre.efectivo_contado).replace('.', ',');
+      $('cj-datafono').value = cierre.tarjeta_datafono !== null ? String(cierre.tarjeta_datafono).replace('.', ',') : '';
+      $('cj-obs').value = cierre.observaciones || '';
+      pintarCaja();
+    };
+  } else {
+    $('cj-cierre').innerHTML = puedeCerrar ? '' : '<p class="intro">Esta caja no se cerró.</p>';
+    $('cj-form').style.display = puedeCerrar ? '' : 'none';
+    if (!cierre && !rehaciendoCierre) {
+      ['cj-fondo', 'cj-contado', 'cj-datafono', 'cj-obs'].forEach(id => $(id).value = '');
+    }
+    $('cj-cerrar').textContent = cierre ? 'Guardar el nuevo cierre' : 'Cerrar caja';
+    calcularCierre();
+  }
+}
+
+function calcularCierre() {
+  const c = cajaActual; if (!c) return;
+  const fondo = leerEuros($('cj-fondo').value) ?? 0;
+  const contado = leerEuros($('cj-contado').value);
+  const datafono = leerEuros($('cj-datafono').value);
+  const esperado = r2c((isNaN(fondo) ? 0 : fondo) + c.efectivo);
+  let html = `<div><span>Fondo de cambio</span><span>${isNaN(fondo) ? '—' : euros(fondo)}</span></div>
+    <div><span>Cobrado en efectivo</span><span>${euros(c.efectivo)}</span></div>
+    <div><span>Debería haber</span><b>${euros(esperado)}</b></div>`;
+  if (contado !== null && !isNaN(contado) && !isNaN(fondo)) {
+    html += `<div class="sep"><span>Efectivo</span>${textoDiferencia(r2c(contado - esperado))}</div>`;
+  }
+  html += `<div class="sep"><span>Cobrado con tarjeta</span><span>${euros(c.tarjeta)}</span></div>`;
+  if (datafono !== null && !isNaN(datafono)) {
+    html += `<div><span>Tarjeta</span>${textoDiferencia(r2c(datafono - c.tarjeta))}</div>`;
+  }
+  $('cj-calculo').innerHTML = html;
+}
+['cj-fondo', 'cj-contado', 'cj-datafono'].forEach(id => $(id).addEventListener('input', calcularCierre));
+
+$('cj-cerrar').onclick = async () => {
+  const contado = leerEuros($('cj-contado').value);
+  if (contado === null) { $('cj-msg').textContent = 'Escribe el efectivo contado en caja.'; return; }
+  if ([contado, leerEuros($('cj-fondo').value), leerEuros($('cj-datafono').value)].some(v => Number.isNaN(v))) {
+    $('cj-msg').textContent = 'Algún importe no es válido. Usa solo números y coma, por ejemplo 12,50.'; return;
+  }
+  $('cj-cerrar').disabled = true; $('cj-msg').textContent = '';
+  try {
+    cajaActual = await api('caja', { datos: {
+      fecha: cajaActual.fecha, efectivo_contado: $('cj-contado').value, fondo_caja: $('cj-fondo').value,
+      tarjeta_datafono: $('cj-datafono').value, observaciones: $('cj-obs').value
+    } });
+    rehaciendoCierre = false;
+    pintarCaja(); aviso('Caja cerrada');
+    if (sesion.usuario.rol === 'ADMIN') cargarHistorialCaja();
+  } catch (e) { $('cj-msg').textContent = e.message; }
+  $('cj-cerrar').disabled = false;
+};
+
+$('cj-fecha').onchange = () => { if ($('cj-fecha').value) abrirCaja($('cj-fecha').value); };
+
+async function cargarHistorialCaja() {
+  try {
+    const { dias } = await api('caja?historial=1', { metodo: 'GET' });
+    const hoy = hoyLocal();
+    $('cj-historial').innerHTML = dias.map(d => {
+      let estado;
+      if (!d.cerrada) estado = d.fecha === hoy ? 'Sin cerrar todavía' : '<span class="dif-mal">Sin cerrar</span>';
+      else estado = `Cerrada: ${textoDiferencia(d.diferencia).replace('Cuadra', 'cuadra')}`;
+      return `<button class="fila dia" data-fecha="${d.fecha}">
+        <div><b>${diaSemana(d.fecha)} ${fechaDMY(d.fecha)}</b><small>${estado}</small></div>
+        <span class="precio">${euros(d.total)}</span></button>`;
+    }).join('') || '<p class="intro">Todavía no hay días con cobros.</p>';
+  } catch (e) { $('cj-historial').innerHTML = `<p class="mensaje">${esc(e.message)}</p>`; }
+}
+$('cj-historial').onclick = e => {
+  const b = e.target.closest('[data-fecha]'); if (b) { abrirCaja(b.dataset.fecha); window.scrollTo(0, 0); }
+};
 
 construirTeclado(); pintarPuntos(); arrancar();
 </script>
