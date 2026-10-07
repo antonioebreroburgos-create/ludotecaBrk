@@ -286,6 +286,23 @@
   .festivo .quitar { flex: none; }
   .anadir-festivo { display: grid; grid-template-columns: 1fr; gap: 0; margin-bottom: 8px; }
 
+  /* ---------- Etapa 8: cumpleaños ---------- */
+  .filtros { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin: 4px 0 12px; }
+  .filtro { flex: none; font: 600 17px var(--cond); padding: 7px 14px; border: 2px solid var(--borde); border-radius: 20px; background: var(--papel-claro); }
+  .filtro.sel { background: var(--tinta); color: var(--papel); }
+  .cumple { padding: 14px; margin-bottom: 10px; background: var(--papel-claro); border: 2px solid var(--borde); border-radius: 12px; }
+  .cumple.hecho { opacity: .6; }
+  .cumple-cab { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+  .cumple-cab b { display: block; font: 700 21px/1.15 var(--cond); }
+  .cumple-cab .dia { text-align: right; font: 700 18px/1.1 var(--cond); color: var(--rojo); white-space: nowrap; }
+  .cumple-cab .dia small { display: block; color: var(--tinta-suave); font-weight: 500; font-size: 14px; }
+  .cumple small.quien { display: block; font-size: 14px; color: var(--tinta-suave); margin-top: 4px; }
+  .cumple .btn { height: 46px; font-size: 19px; margin-top: 10px; box-shadow: 0 3px 0 var(--borde); }
+  .invitado { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font-size: 15px; color: #1E7A3C; font-weight: 600; }
+  .interruptor.peq { font-size: 17px; margin: 0 0 12px; }
+  .ayuda-vars { font-size: 14px; color: var(--tinta-suave); margin: -8px 0 14px; }
+  .ayuda-vars code { background: var(--papel-claro); border: 1px solid var(--tinta-suave); border-radius: 4px; padding: 0 4px; }
+
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 </head>
@@ -479,7 +496,42 @@
   <details id="cf-pasados-wrap" style="margin-top:14px"><summary style="font:600 17px var(--cond);cursor:pointer;padding:6px 0">Festivos pasados</summary><div id="cf-pasados"></div></details>
 </section>
 
+<!-- Cumpleaños -->
+<section class="pantalla" id="p-cumple">
+  <button class="volver" data-ir="inicio">‹ Inicio</button>
+  <h2>Cumpleaños</h2>
+  <p class="intro">Solo salen los niños y adultos que aceptaron recibir promociones.</p>
+  <div class="filtros" id="cu-filtros">
+    <button class="filtro sel" data-rango="30">Próximos 30 días</button>
+    <button class="filtro" data-rango="mes">Este mes</button>
+    <button class="filtro" data-rango="mes1">Mes que viene</button>
+    <button class="filtro" data-rango="7">Esta semana</button>
+  </div>
+  <label class="interruptor peq"><input type="checkbox" id="cu-ocultar"> Ocultar los ya invitados</label>
+  <p class="resumen-hoy" id="cu-resumen"></p>
+  <div id="cu-lista"></div>
+  <div id="cu-admin" style="display:none;margin-top:18px">
+    <button class="btn secundario" id="cu-plantillas">Editar los mensajes</button>
+    <button class="enlace" id="cu-csv">Descargar este listado (Excel/CSV)</button>
+  </div>
+</section>
+
 <div class="fondo" id="fondo"></div>
+
+<!-- Hoja: plantillas de cumpleaños -->
+<div class="hoja" id="hoja-plantillas">
+  <h2>Mensajes de cumpleaños</h2>
+  <div class="campo"><label for="pl-nino">Cumpleaños de un niño</label><textarea id="pl-nino" style="min-height:140px"></textarea></div>
+  <p class="ayuda-vars">Se rellenan solos: <code>{tutor}</code> nombre del adulto, <code>{nino}</code> nombre del niño, <code>{edad}</code> años que cumple, <code>{fecha}</code> día del cumpleaños, <code>{socio}</code> la frase de socio (si lo es).</p>
+  <div class="campo"><label for="pl-socio">Frase para socios del Kids Club</label><textarea id="pl-socio"></textarea><small>Se pone donde esté <code>{socio}</code>. Si no es socio, no sale nada.</small></div>
+  <div class="campo"><label for="pl-adulto">Cumpleaños de un adulto</label><textarea id="pl-adulto" style="min-height:120px"></textarea></div>
+  <p class="ayuda-vars">Se rellenan solos: <code>{nombre}</code> y <code>{fecha}</code>.</p>
+  <div class="fila-botones">
+    <button class="btn secundario" data-cerrar>Cancelar</button>
+    <button class="btn" id="pl-guardar">Guardar</button>
+  </div>
+  <p class="mensaje" id="pl-msg"></p>
+</div>
 
 <!-- Hoja: editar tarifa -->
 <div class="hoja" id="hoja-tarifa">
@@ -691,6 +743,7 @@ function irInicio() {
     { ico: '👥', t: 'Usuarios', d: 'Monitoras y administradores', ir: 'usuarios' },
     { ico: '⚙️', t: 'Precios y festivos', d: 'Tarifas, cuota y días festivos', ir: 'config' }
   );
+  opciones.push({ ico: '🎂', t: 'Cumpleaños', d: 'Invitar a celebrarlo en el restaurante', ir: 'cumple' });
   opciones.push({ ico: '📖', t: 'Guía de uso', d: 'Cómo funciona cada pantalla', ir: 'guia' });
   $('menu').innerHTML = opciones.map(o =>
     `<button class="opcion ${o.pronto ? 'pronto' : ''}" ${o.ir ? `data-ir="${o.ir}"` : 'disabled'}>
@@ -708,6 +761,7 @@ document.addEventListener('click', e => {
   if (ir === 'guia') window.open('guia.html', '_blank');
   if (ir === 'caja') abrirCaja();
   if (ir === 'config') abrirConfig();
+  if (ir === 'cumple') abrirCumple();
 });
 
 // ---------- Usuarios ----------
@@ -1770,6 +1824,149 @@ document.getElementById('p-config').addEventListener('click', async e => {
     pintarConfig(); aviso('Festivo quitado');
   } catch (err) { aviso(err.message); }
 });
+
+// =====================================================================
+//  ETAPA 8 · CUMPLEAÑOS PARA MARKETING
+// =====================================================================
+let cumpleDatos = null;
+let cumpleRango = '30';
+
+function sumarDiasLocal(f, n) {
+  const d = new Date(f + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+function rangoFechas(r) {
+  const hoy = hoyLocal();
+  const [a, m] = hoy.split('-').map(Number);
+  const finMes = (y, mm) => new Date(Date.UTC(y, mm, 0)).toISOString().slice(0, 10);
+  if (r === 'mes') return [hoy, finMes(a, m)];
+  if (r === 'mes1') {
+    const y = m === 12 ? a + 1 : a, mm = m === 12 ? 1 : m + 1;
+    return [`${y}-${String(mm).padStart(2, '0')}-01`, finMes(y, mm)];
+  }
+  return [hoy, sumarDiasLocal(hoy, Number(r) - 1)];
+}
+const fechaCumple = f => new Date(f + 'T12:00:00Z').toLocaleDateString('es-ES',
+  { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' }).replace(',', '');
+
+async function abrirCumple() {
+  mostrar('cumple');
+  $('cu-admin').style.display = sesion.usuario.rol === 'ADMIN' ? '' : 'none';
+  await cargarCumple();
+}
+async function cargarCumple() {
+  const [desde, hasta] = rangoFechas(cumpleRango);
+  $('cu-lista').innerHTML = '<p class="intro">Cargando…</p>'; $('cu-resumen').textContent = '';
+  try {
+    cumpleDatos = await api(`cumpleanos?desde=${desde}&hasta=${hasta}`, { metodo: 'GET' });
+    pintarCumple();
+  } catch (e) { $('cu-lista').innerHTML = `<p class="mensaje">${esc(e.message)}</p>`; }
+}
+
+function pintarCumple() {
+  const lista = cumpleDatos.cumpleanos;
+  const ocultar = $('cu-ocultar').checked;
+  const visibles = lista.filter(c => !(ocultar && c.invitado_at));
+  const pendientes = lista.filter(c => !c.invitado_at).length;
+  $('cu-resumen').textContent = lista.length
+    ? `${lista.length} ${lista.length === 1 ? 'cumpleaños' : 'cumpleaños'} del ${fechaDMY(cumpleDatos.desde)} al ${fechaDMY(cumpleDatos.hasta)}. ${pendientes ? (pendientes === 1 ? 'Falta 1 por invitar.' : `Faltan ${pendientes} por invitar.`) : 'Todos invitados.'}`
+    : '';
+  if (!lista.length) { $('cu-lista').innerHTML = '<p class="intro">No hay cumpleaños en estas fechas.</p>'; return; }
+  $('cu-lista').innerHTML = visibles.map((c, i) => {
+    const idx = lista.indexOf(c);
+    const dias = diasEntre(cumpleDatos.hoy, c.cumple);
+    const cuando = dias === 0 ? '¡Hoy!' : dias === 1 ? 'Mañana' : dias > 0 ? `En ${dias} días` : `Hace ${-dias} días`;
+    const esNino = c.tipo === 'NINO';
+    return `<div class="cumple ${c.invitado_at ? 'hecho' : ''}">
+      <div class="cumple-cab">
+        <div><b>${esNino ? '🧒' : '🎉'} ${esc(nombreCompleto(c))}</b>
+          <span class="edad">Cumple ${c.edad} años${esNino ? '' : ' (adulto)'}</span>
+          ${c.es_socio ? '<div class="chips"><span class="chip socio">Socio Kids Club</span></div>' : ''}</div>
+        <div class="dia">${diaSemana(c.cumple)} ${fechaDMY(c.cumple).slice(0, 5)}<small>${cuando}</small></div>
+      </div>
+      <small class="quien">${esNino ? `${esc(c.parentesco || 'Adulto')}: ${esc(c.tutor_nombre)}, ` : ''}${esc(telefonoBonito(c.tutor_telefono))}</small>
+      ${c.invitado_at
+        ? `<div class="invitado"><span>✓ Invitado el ${fechaDMY(c.invitado_at.slice(0, 10))}</span><button class="quitar" data-desmarcar="${idx}">Desmarcar</button></div>`
+        : `<button class="btn whatsapp" data-invitar="${idx}">Invitar por WhatsApp</button>`}
+    </div>`;
+  }).join('') || '<p class="intro">Todos los de estas fechas ya están invitados.</p>';
+}
+
+function rellenar(plantilla, vars) {
+  return plantilla.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? vars[k] : m)).replace(/ {2,}/g, ' ').trim();
+}
+function mensajeCumple(c) {
+  const p = cumpleDatos.plantillas;
+  if (c.tipo === 'NINO') {
+    return rellenar(p.nino, {
+      tutor: c.tutor_nombre, nino: c.nombre, edad: c.edad, fecha: fechaCumple(c.cumple),
+      socio: c.es_socio ? p.socio : ''
+    });
+  }
+  return rellenar(p.adulto, { nombre: c.nombre, fecha: fechaCumple(c.cumple) });
+}
+
+$('cu-lista').onclick = async e => {
+  const inv = e.target.closest('[data-invitar]');
+  const des = e.target.closest('[data-desmarcar]');
+  if (inv) {
+    const c = cumpleDatos.cumpleanos[Number(inv.dataset.invitar)];
+    const url = `https://wa.me/${soloDigitos(c.tutor_telefono)}?text=${encodeURIComponent(mensajeCumple(c))}`;
+    const v = window.open(url, '_blank'); if (!v) location.href = url;
+    const anio = Number(c.cumple.slice(0, 4));
+    c.invitado_at = new Date().toISOString(); pintarCumple();
+    api('cumpleanos', { datos: { accion: 'marcar', tipo: c.tipo, persona_id: c.persona_id, anio, tutor_id: c.tutor_id } })
+      .catch(err => { c.invitado_at = null; pintarCumple(); aviso(err.message); });
+  }
+  if (des) {
+    const c = cumpleDatos.cumpleanos[Number(des.dataset.desmarcar)];
+    try {
+      await api('cumpleanos', { datos: { accion: 'desmarcar', tipo: c.tipo, persona_id: c.persona_id, anio: Number(c.cumple.slice(0, 4)) } });
+      c.invitado_at = null; pintarCumple();
+    } catch (err) { aviso(err.message); }
+  }
+};
+
+$('cu-filtros').onclick = e => {
+  const b = e.target.closest('[data-rango]'); if (!b) return;
+  cumpleRango = b.dataset.rango;
+  $('cu-filtros').querySelectorAll('.filtro').forEach(x => x.classList.toggle('sel', x === b));
+  cargarCumple();
+};
+$('cu-ocultar').onchange = () => cumpleDatos && pintarCumple();
+
+// Plantillas (ADMIN)
+$('cu-plantillas').onclick = () => {
+  const p = cumpleDatos?.plantillas || {};
+  $('pl-nino').value = p.nino || ''; $('pl-adulto').value = p.adulto || ''; $('pl-socio').value = p.socio || '';
+  $('pl-msg').textContent = '';
+  abrirHojaId('hoja-plantillas');
+};
+$('pl-guardar').onclick = async () => {
+  $('pl-guardar').disabled = true; $('pl-msg').textContent = '';
+  try {
+    const r = await api('cumpleanos', { datos: { accion: 'plantillas', nino: $('pl-nino').value, adulto: $('pl-adulto').value, socio: $('pl-socio').value } });
+    if (cumpleDatos) cumpleDatos.plantillas = r.plantillas;
+    cerrarHoja(); aviso('Mensajes guardados');
+  } catch (e) { $('pl-msg').textContent = e.message; }
+  $('pl-guardar').disabled = false;
+};
+
+// Descargar CSV (ADMIN) — se abre bien en Excel
+$('cu-csv').onclick = () => {
+  if (!cumpleDatos?.cumpleanos.length) { aviso('No hay nada que descargar'); return; }
+  const cel = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+  const filas = [['Tipo', 'Nombre', 'Apellidos', 'Cumpleaños', 'Cumple años', 'Socio', 'Contacto', 'Teléfono', 'Invitado']];
+  cumpleDatos.cumpleanos.forEach(c => filas.push([
+    c.tipo === 'NINO' ? 'Niño' : 'Adulto', c.nombre, c.apellidos, fechaDMY(c.cumple), c.edad,
+    c.es_socio ? 'Sí' : 'No', c.tutor_nombre, c.tutor_telefono, c.invitado_at ? fechaDMY(c.invitado_at.slice(0, 10)) : ''
+  ]));
+  const csv = '﻿' + filas.map(f => f.map(cel).join(';')).join('\r\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  a.download = `cumpleanos-${cumpleDatos.desde}-a-${cumpleDatos.hasta}.csv`;
+  a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+};
 
 construirTeclado(); pintarPuntos(); arrancar();
 </script>
