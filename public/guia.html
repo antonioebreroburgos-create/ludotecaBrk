@@ -101,7 +101,7 @@
     <h1>BROOKLYN</h1>
     <p class="sub">LUDOTECA</p>
     <span class="lema">Guía de la app para monitoras y administración</span>
-    <p class="version">Versión 6 · Actualizada el 5 de octubre de 2026</p>
+    <p class="version">Versión 7 · Actualizada el 5 de octubre de 2026</p>
   </div>
 
   <nav class="indice">
@@ -119,6 +119,7 @@
       <li><a href="#club">Brooklyn Kids Club</a></li>
       <li><a href="#datos">Datos y consentimientos</a></li>
       <li><a href="#usuarios">Usuarios</a></li>
+      <li><a href="#config">Precios y festivos</a></li>
       <li><a href="#problemas">Problemas y dudas</a></li>
       <li><a href="#proximamente">Próximamente</a></li>
       <li><a href="#cambios">Historial de cambios</a></li>
@@ -155,6 +156,7 @@
       <tr><td>Reposición de pulsera</td><td class="precio">2,00 €</td></tr>
     </table></div>
     <p>En todas las entradas el <b>tiempo es ilimitado</b>.</p>
+    <div class="nota"><b>Precios de esta versión de la guía.</b> El administrador puede cambiarlos (<a href="#config">punto 13</a>). La app cobra siempre el precio actual, que ves en cada tarjeta al buscar al niño.</div>
     <p>Al abrir «Nueva entrada», arriba aparece qué tarifa se cobra hoy. Los festivos cuentan como fin de semana.</p>
     <a class="arriba" href="#inicio">↑ Volver al índice</a>
   </section>
@@ -325,7 +327,7 @@
     <h2 class="titulo"><span class="n">12.</span> Usuarios <span class="etiqueta e-admin">Solo administrador</span></h2>
     <p>En el inicio, <b>👥 Usuarios</b>.</p>
     <ul>
-      <li><b>Añadir usuario</b>: nombre, permisos y PIN. «Monitora» puede cobrar, ver las entradas del día y cerrar la caja de hoy. «Administrador» puede además gestionar usuarios y, más adelante, precios.</li>
+      <li><b>Añadir usuario</b>: nombre, permisos y PIN. «Monitora» puede cobrar, ver las entradas del día y cerrar la caja de hoy. «Administrador» puede además gestionar usuarios, precios y festivos, y ver la caja de cualquier día.</li>
       <li>Tocando un usuario puedes cambiarle el nombre, los permisos o el PIN (déjalo vacío para no cambiarlo).</li>
       <li>Para que alguien deje de entrar, desmarca <b>Puede entrar en la app</b>. Los usuarios no se borran, porque sus cobros tienen que seguir a su nombre.</li>
     </ul>
@@ -333,9 +335,32 @@
     <a class="arriba" href="#inicio">↑ Volver al índice</a>
   </section>
 
+  <!-- Precios y festivos -->
+  <section id="config">
+    <h2 class="titulo"><span class="n">13.</span> Precios y festivos <span class="etiqueta e-admin">Solo administrador</span></h2>
+    <p>En el inicio, <b>⚙️ Precios y festivos</b>. Arriba indica qué tarifa se está cobrando hoy.</p>
+    <h3>Cambiar un precio</h3>
+    <ol class="pasos">
+      <li>Toca la tarifa que quieres cambiar (entradas, cuota del club o reposición de pulsera).</li>
+      <li>Escribe el precio nuevo con coma, por ejemplo <b>4,00</b>. Un 0 la deja gratis. También puedes cambiar el nombre que sale en el ticket.</li>
+      <li>Pulsa <span class="boton rojo">Guardar</span> y confirma.</li>
+    </ol>
+    <div class="nota"><b>Desde el próximo cobro.</b> Los tickets ya cobrados mantienen el precio que tenían, y la caja de días anteriores no cambia.</div>
+    <h3>Festivos</h3>
+    <p>Un festivo de <b>lunes a jueves</b> se cobra con la tarifa de fin de semana. Si cae en viernes, sábado o domingo no cambia nada, pero puede apuntarse igual.</p>
+    <p>Ya están cargados los festivos oficiales de Andalucía de lo que queda de 2026 y de todo 2027. <b>Faltan las dos fiestas locales de cada año</b>, que fija el ayuntamiento: añádelas tú.</p>
+    <ol class="pasos">
+      <li>Elige la <b>fecha</b> y escribe <b>qué fiesta es</b>.</li>
+      <li>Pulsa <span class="boton">Añadir festivo</span>.</li>
+      <li>Para quitar uno, pulsa <b style="color:var(--rojo)">Quitar</b> a su lado.</li>
+    </ol>
+    <div class="admin"><b>Cada año.</b> La Junta publica en primavera los festivos del año siguiente y el ayuntamiento sus dos fiestas locales. Conviene añadirlos antes de que empiece el año.</div>
+    <a class="arriba" href="#inicio">↑ Volver al índice</a>
+  </section>
+
   <!-- 12 -->
   <section id="problemas">
-    <h2 class="titulo"><span class="n">13.</span> Problemas y dudas</h2>
+    <h2 class="titulo"><span class="n">14.</span> Problemas y dudas</h2>
     <details><summary>«La sesión ha caducado. Vuelve a entrar con tu PIN.»</summary>
       <div><p>Es normal al empezar una nueva jornada. Escribe tu PIN otra vez.</p></div></details>
     <details><summary>«Demasiados intentos. Espera 15 minutos.»</summary>
@@ -359,9 +384,8 @@
 
   <!-- 13 -->
   <section id="proximamente">
-    <h2 class="titulo"><span class="n">14.</span> Próximamente</h2>
+    <h2 class="titulo"><span class="n">15.</span> Próximamente</h2>
     <ul>
-      <li><b>Precios y festivos</b> <span class="etiqueta e-admin">Solo administrador</span>: cambiar las tarifas y marcar los festivos desde la app.</li>
       <li><b>Cumpleaños</b>: listado de cumpleaños de niños y adultos que aceptaron promociones, para invitarles a celebrarlo en el restaurante.</li>
     </ul>
     <a class="arriba" href="#inicio">↑ Volver al índice</a>
@@ -369,8 +393,15 @@
 
   <!-- 14 -->
   <section id="cambios">
-    <h2 class="titulo"><span class="n">15.</span> Historial de cambios</h2>
+    <h2 class="titulo"><span class="n">16.</span> Historial de cambios</h2>
     <div class="cambios">
+      <div class="cambio">
+        <p class="fecha">Versión 7 <span>· 5 de octubre de 2026</span></p>
+        <ul>
+          <li>Precios y festivos editables por el administrador desde la app.</li>
+          <li>Festivos oficiales de Andalucía cargados (resto de 2026 y 2027).</li>
+        </ul>
+      </div>
       <div class="cambio">
         <p class="fecha">Versión 6 <span>· 5 de octubre de 2026</span></p>
         <ul>

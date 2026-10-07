@@ -275,6 +275,17 @@
   .fila.dia { align-items: center; }
   .fila.dia small { display: block; font-size: 14px; color: var(--tinta-suave); }
 
+  /* ---------- Etapa 7: precios y festivos ---------- */
+  .tarifa { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; text-align: left;
+    padding: 12px 14px; margin-bottom: 8px; background: var(--papel-claro); border: 2px solid var(--borde); border-radius: 12px; }
+  .tarifa b { display: block; font: 700 18px/1.2 var(--cond); }
+  .tarifa small { font-size: 13px; color: var(--tinta-suave); }
+  .festivo { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px dashed var(--tinta-suave); }
+  .festivo b { font: 700 18px var(--cond); }
+  .festivo small { display: block; font-size: 14px; color: var(--tinta-suave); }
+  .festivo .quitar { flex: none; }
+  .anadir-festivo { display: grid; grid-template-columns: 1fr; gap: 0; margin-bottom: 8px; }
+
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 </head>
@@ -448,7 +459,39 @@
   </div>
 </section>
 
+<!-- Precios y festivos -->
+<section class="pantalla" id="p-config">
+  <button class="volver" data-ir="inicio">‹ Inicio</button>
+  <h2>Precios y festivos</h2>
+  <p class="intro" id="cf-hoy">&nbsp;</p>
+  <h3 class="seccion">Precios</h3>
+  <p class="intro" style="margin-bottom:12px">Toca un precio para cambiarlo. Los tickets ya cobrados mantienen el precio que tenían.</p>
+  <div id="cf-tarifas"></div>
+  <h3 class="seccion">Festivos</h3>
+  <p class="intro" style="margin-bottom:12px">Un festivo de lunes a jueves se cobra como fin de semana. Si cae en viernes, sábado o domingo no cambia nada.</p>
+  <div class="anadir-festivo">
+    <div class="campo"><label for="cf-fecha">Fecha</label><input type="date" id="cf-fecha"></div>
+    <div class="campo"><label for="cf-desc">Qué fiesta es</label><input id="cf-desc" autocomplete="off" placeholder="Por ejemplo: Feria local"></div>
+    <button class="btn secundario" id="cf-anadir">Añadir festivo</button>
+    <p class="mensaje" id="cf-msg"></p>
+  </div>
+  <div id="cf-festivos"></div>
+  <details id="cf-pasados-wrap" style="margin-top:14px"><summary style="font:600 17px var(--cond);cursor:pointer;padding:6px 0">Festivos pasados</summary><div id="cf-pasados"></div></details>
+</section>
+
 <div class="fondo" id="fondo"></div>
+
+<!-- Hoja: editar tarifa -->
+<div class="hoja" id="hoja-tarifa">
+  <h2>Cambiar precio</h2>
+  <div class="campo"><label for="tf-nombre">Nombre (sale en el ticket)</label><input id="tf-nombre" autocomplete="off"></div>
+  <div class="campo"><label for="tf-precio">Precio</label><input id="tf-precio" inputmode="decimal" autocomplete="off"><small>En euros, con coma. 0 = gratis.</small></div>
+  <div class="fila-botones">
+    <button class="btn secundario" data-cerrar>Cancelar</button>
+    <button class="btn" id="tf-guardar">Guardar</button>
+  </div>
+  <p class="mensaje" id="tf-msg"></p>
+</div>
 
 <!-- Hoja: cuota de socio / reposición de pulsera -->
 <div class="hoja" id="hoja-servicio">
@@ -646,7 +689,7 @@ function irInicio() {
   ];
   if (u.rol === 'ADMIN') opciones.push(
     { ico: '👥', t: 'Usuarios', d: 'Monitoras y administradores', ir: 'usuarios' },
-    { ico: '⚙️', t: 'Precios y festivos', d: 'Disponible en la etapa 7', pronto: true }
+    { ico: '⚙️', t: 'Precios y festivos', d: 'Tarifas, cuota y días festivos', ir: 'config' }
   );
   opciones.push({ ico: '📖', t: 'Guía de uso', d: 'Cómo funciona cada pantalla', ir: 'guia' });
   $('menu').innerHTML = opciones.map(o =>
@@ -664,6 +707,7 @@ document.addEventListener('click', e => {
   if (ir === 'hoy') abrirHoy();
   if (ir === 'guia') window.open('guia.html', '_blank');
   if (ir === 'caja') abrirCaja();
+  if (ir === 'config') abrirConfig();
 });
 
 // ---------- Usuarios ----------
@@ -1647,6 +1691,85 @@ async function cargarHistorialCaja() {
 $('cj-historial').onclick = e => {
   const b = e.target.closest('[data-fecha]'); if (b) { abrirCaja(b.dataset.fecha); window.scrollTo(0, 0); }
 };
+
+// =====================================================================
+//  ETAPA 7 · PRECIOS Y FESTIVOS (solo ADMIN)
+// =====================================================================
+let configActual = null;
+let tarifaEditando = null;
+const fechaLargaDia = f => new Date(f + 'T12:00:00Z').toLocaleDateString('es-ES',
+  { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+const esFinde = f => [0, 5, 6].includes(new Date(f + 'T12:00:00Z').getUTCDay());
+
+async function abrirConfig() {
+  mostrar('config');
+  $('cf-msg').textContent = '';
+  $('cf-tarifas').innerHTML = '<p class="intro">Cargando…</p>';
+  try {
+    configActual = await api('config', { metodo: 'GET' });
+    pintarConfig();
+  } catch (e) { $('cf-tarifas').innerHTML = `<p class="mensaje">${esc(e.message)}</p>`; }
+}
+
+function pintarConfig() {
+  const c = configActual;
+  $('cf-hoy').textContent = c.tipoDia === 'FINDE'
+    ? 'Hoy se cobra la tarifa de fin de semana y festivos.'
+    : 'Hoy se cobra la tarifa de lunes a jueves.';
+  $('cf-tarifas').innerHTML = c.tarifas.map(t => `<button class="tarifa" data-codigo="${esc(t.codigo)}">
+      <div><b>${esc(t.nombre)}</b><small>${t.tipo === 'ENTRADA' ? 'Entrada' : 'Otros cobros'}</small></div>
+      <span class="precio">${t.precio === 0 ? 'Gratis' : euros(t.precio)}</span></button>`).join('');
+
+  const futuros = c.festivos.filter(f => f.fecha >= c.hoy);
+  const pasados = c.festivos.filter(f => f.fecha < c.hoy).reverse();
+  const fila = f => `<div class="festivo">
+      <div><b>${esc(f.descripcion)}</b><small>${fechaLargaDia(f.fecha)}${esFinde(f.fecha) ? '. Ya es fin de semana' : ''}${f.fecha === c.hoy ? '. Hoy' : ''}</small></div>
+      <button class="quitar" data-quitar="${f.fecha}">Quitar</button></div>`;
+  $('cf-festivos').innerHTML = futuros.length ? futuros.map(fila).join('') : '<p class="intro">No hay festivos próximos apuntados.</p>';
+  $('cf-pasados').innerHTML = pasados.map(fila).join('');
+  $('cf-pasados-wrap').style.display = pasados.length ? '' : 'none';
+}
+
+$('cf-tarifas').onclick = e => {
+  const b = e.target.closest('[data-codigo]'); if (!b) return;
+  tarifaEditando = configActual.tarifas.find(t => t.codigo === b.dataset.codigo);
+  $('tf-nombre').value = tarifaEditando.nombre;
+  $('tf-precio').value = String(tarifaEditando.precio.toFixed(2)).replace('.', ',');
+  $('tf-msg').textContent = '';
+  abrirHojaId('hoja-tarifa');
+};
+$('tf-guardar').onclick = async () => {
+  const precio = leerEuros($('tf-precio').value);
+  if (precio === null || Number.isNaN(precio)) { $('tf-msg').textContent = 'Escribe un precio válido, por ejemplo 3,50.'; return; }
+  if (precio !== tarifaEditando.precio &&
+      !confirm(`¿Cambiar «${tarifaEditando.nombre}» de ${euros(tarifaEditando.precio)} a ${euros(precio)}?\n\nSe aplicará desde el próximo cobro.`)) return;
+  $('tf-guardar').disabled = true; $('tf-msg').textContent = '';
+  try {
+    configActual = await api('config', { datos: { accion: 'tarifa', codigo: tarifaEditando.codigo, nombre: $('tf-nombre').value, precio: $('tf-precio').value } });
+    cerrarHoja(); pintarConfig(); aviso('Precio guardado');
+  } catch (e) { $('tf-msg').textContent = e.message; }
+  $('tf-guardar').disabled = false;
+};
+
+$('cf-anadir').onclick = async () => {
+  $('cf-anadir').disabled = true; $('cf-msg').textContent = '';
+  try {
+    configActual = await api('config', { datos: { accion: 'festivo', fecha: $('cf-fecha').value, descripcion: $('cf-desc').value } });
+    $('cf-fecha').value = ''; $('cf-desc').value = '';
+    pintarConfig(); aviso('Festivo añadido');
+  } catch (e) { $('cf-msg').textContent = e.message; }
+  $('cf-anadir').disabled = false;
+};
+
+document.getElementById('p-config').addEventListener('click', async e => {
+  const b = e.target.closest('[data-quitar]'); if (!b) return;
+  const f = configActual.festivos.find(x => x.fecha === b.dataset.quitar);
+  if (!confirm(`¿Quitar «${f.descripcion}» del ${fechaDMY(f.fecha)}?`)) return;
+  try {
+    configActual = await api('config', { datos: { accion: 'quitar_festivo', fecha: f.fecha } });
+    pintarConfig(); aviso('Festivo quitado');
+  } catch (err) { aviso(err.message); }
+});
 
 construirTeclado(); pintarPuntos(); arrancar();
 </script>
