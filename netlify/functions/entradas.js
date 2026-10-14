@@ -1,5 +1,5 @@
 // /.netlify/functions/entradas
-// GET                                              → tickets de hoy + tipo de día (LJ / FINDE)
+// GET                                              → tickets de hoy + tipo de día (LJ / FINDE) + si la caja está cerrada
 // POST { tutor_id, nino_ids, metodo_pago }          → cobra la entrada y devuelve el ticket
 // POST { accion:'anular', ticket_id, motivo }       → anula un ticket
 // POST { accion:'marcar_enviado', ticket_id }       → apunta que se envió por WhatsApp
@@ -16,7 +16,7 @@ const SELECT_TICKET = `
   membresias ( fecha_alta, fecha_caducidad, activo )
 `;
 
-function formato(t) {
+function formato(t, cajaCerrada = false) {
   return {
     id: t.id, numero: t.numero, fecha: t.fecha, creado_at: t.creado_at,
     total: Number(t.total), metodo_pago: t.metodo_pago,
@@ -24,6 +24,7 @@ function formato(t) {
     tutor: t.tutores, usuario: t.usuarios?.nombre || null,
     socio_desde: t.membresias?.[0]?.fecha_alta || null,
     socio_hasta: t.membresias?.[0]?.fecha_caducidad || null,
+    caja_cerrada: cajaCerrada,
     lineas: (t.ticket_lineas || [])
       .sort((a, b) => a.id - b.id)
       .map(l => ({ descripcion: l.descripcion, precio: Number(l.precio), tarifa_codigo: l.tarifa_codigo, nino: l.ninos }))
@@ -43,7 +44,8 @@ const ERRORES_SQL = {
   CONCEPTO_NO_VALIDO: 'Concepto de cobro no válido.',
   NINO_NO_EXISTE: 'Ese niño ya no existe.',
   FALTA_PULSERA: 'Escribe el número de la pulsera.',
-  PULSERA_EN_USO: 'Esa pulsera ya está asignada a otro niño.'
+  PULSERA_EN_USO: 'Esa pulsera ya está asignada a otro niño.',
+  CAJA_CERRADA: 'La caja de hoy ya está cerrada: no se puede cobrar ni anular. Pide al administrador que la reabra.'
 };
 
 function errorSql(error) {
@@ -59,13 +61,14 @@ exports.handler = async (event) => {
     // ---------- Tickets de hoy ----------
     if (event.httpMethod === 'GET') {
       const hoy = hoyMadrid();
-      const [rT, rD] = await Promise.all([
+      const [rT, rD, rC] = await Promise.all([
         supabase.from('tickets').select(SELECT_TICKET).eq('fecha', hoy).order('creado_at', { ascending: false }),
-        supabase.rpc('tipo_dia', { p_fecha: hoy })
+        supabase.rpc('tipo_dia', { p_fecha: hoy }),
+        supabase.from('cierres_caja').select('fecha').eq('fecha', hoy).maybeSingle()
       ]);
-      if (rT.error) throw rT.error;
-      if (rD.error) throw rD.error;
-      return respuesta(200, { fecha: hoy, tipoDia: rD.data, tickets: rT.data.map(formato) });
+      for (const r of [rT, rD, rC]) if (r.error) throw r.error;
+      const cerrada = !!rC.data;
+      return respuesta(200, { fecha: hoy, tipoDia: rD.data, cajaCerrada: cerrada, tickets: rT.data.map(t => formato(t, cerrada)) });
     }
 
     if (event.httpMethod !== 'POST') return respuesta(405, { error: 'Método no permitido' });
@@ -97,7 +100,7 @@ exports.handler = async (event) => {
       const { error } = await supabase.from('tickets')
         .update({ anulado: true, anulado_motivo: `${motivo} (${usuario.nombre})`, anulado_at: new Date().toISOString() })
         .eq('id', id);
-      if (error) throw error;
+      if (error) throw errorSql(error);
       // Si era una cuota de socio, ese periodo deja de valer
       const { error: eM } = await supabase.from('membresias').update({ activo: false }).eq('ticket_id', id);
       if (eM) throw eM;

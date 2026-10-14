@@ -3,6 +3,7 @@
 // POST { accion:'tarifa', codigo, nombre, precio }   → cambia nombre y/o precio de una tarifa
 // POST { accion:'festivo', fecha, descripcion }      → añade (o renombra) un festivo
 // POST { accion:'quitar_festivo', fecha }            → quita un festivo
+// POST { accion:'fondo', fondo }                     → cambia el fondo de cambio fijo de la caja
 const {
   supabase, respuesta, leerBody, requerirUsuario, hoyMadrid, texto, errorHttp, responderError
 } = require('./_lib');
@@ -17,15 +18,17 @@ function fechaReal(s) {
 async function datos() {
   const hoy = hoyMadrid();
   const d = new Date(hoy + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() - 60);
-  const [rT, rF, rD] = await Promise.all([
+  const [rT, rF, rD, rA] = await Promise.all([
     supabase.from('tarifas').select('codigo, nombre, tipo, precio, orden, updated_at').order('orden'),
     supabase.from('festivos').select('fecha, descripcion').gte('fecha', d.toISOString().slice(0, 10)).order('fecha'),
-    supabase.rpc('tipo_dia', { p_fecha: hoy })
+    supabase.rpc('tipo_dia', { p_fecha: hoy }),
+    supabase.from('ajustes').select('valor').eq('clave', 'fondo_caja').maybeSingle()
   ]);
-  for (const r of [rT, rF, rD]) if (r.error) throw r.error;
+  for (const r of [rT, rF, rD, rA]) if (r.error) throw r.error;
   return {
     hoy,
     tipoDia: rD.data,
+    fondo: Number(rA.data?.valor ?? 30),
     tarifas: rT.data.map(t => ({ ...t, precio: Number(t.precio) })),
     festivos: rF.data
   };
@@ -62,6 +65,18 @@ exports.handler = async (event) => {
       if (!descripcion) throw errorHttp(400, 'Escribe qué fiesta es.');
       const { error } = await supabase.from('festivos')
         .upsert({ fecha: body.fecha, descripcion }, { onConflict: 'fecha' });
+      if (error) throw error;
+      return respuesta(200, await datos());
+    }
+
+    if (body.accion === 'fondo') {
+      const n = Number(String(body.fondo ?? '').replace(/\s|€/g, '').replace(',', '.'));
+      if (String(body.fondo ?? '').trim() === '' || !isFinite(n) || n < 0 || n > 10000) {
+        throw errorHttp(400, 'El fondo no es válido. Usa números y coma, por ejemplo 30,00.');
+      }
+      const { error } = await supabase.from('ajustes').upsert(
+        { clave: 'fondo_caja', valor: (Math.round(n * 100) / 100).toFixed(2), updated_at: new Date().toISOString() },
+        { onConflict: 'clave' });
       if (error) throw error;
       return respuesta(200, await datos());
     }
