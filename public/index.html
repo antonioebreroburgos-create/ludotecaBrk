@@ -994,7 +994,19 @@ function pintarResultados(q = '') {
   $('e-res').innerHTML = lista.map(tarjetaNino).join('');
 }
 
-const hoyLocal = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Madrid' });
+// "Hoy" de la ludoteca: hasta las 6:00 de la mañana sigue siendo el día anterior
+// (los fines de semana se cierra después de medianoche).
+// OJO: la misma hora está en _lib.js y en la función hoy() de Supabase.
+const HORA_CAMBIO_DIA = 6;
+function hoyLocal() {
+  const ahora = new Date();
+  const fecha = ahora.toLocaleDateString('sv-SE', { timeZone: 'Europe/Madrid' });
+  const h = Number(ahora.toLocaleString('en-GB', { timeZone: 'Europe/Madrid', hour: '2-digit', hourCycle: 'h23' }));
+  if (h >= HORA_CAMBIO_DIA) return fecha;
+  const d = new Date(fecha + 'T00:00:00Z');
+  d.setUTCDate(d.getUTCDate() - 1);
+  return d.toISOString().slice(0, 10);
+}
 const fechaDMY = s => s ? s.split('-').reverse().join('/') : '';
 const diasEntre = (a, b) => Math.round((new Date(b + 'T00:00:00Z') - new Date(a + 'T00:00:00Z')) / 86400000);
 

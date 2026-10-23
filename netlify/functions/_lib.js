@@ -9,7 +9,11 @@ const supabase = createClient(
 );
 
 const SECRET = process.env.AUTH_SECRET;
-const DURACION_SESION_HORAS = 16;   // una jornada: cada día se vuelve a meter el PIN
+
+// El día de la ludoteca termina a las 6:00 de la mañana (hora de España):
+// lo que pasa entre las 00:00 y las 6:00 cuenta como el día anterior.
+// OJO: la misma hora está en index.html (HORA_CAMBIO_DIA) y en la función hoy() de Supabase.
+const HORA_CAMBIO_DIA = 6;
 
 // ---------- Respuestas ----------
 function respuesta(status, body) {
@@ -55,7 +59,7 @@ function crearToken(usuario) {
     id: usuario.id,
     nombre: usuario.nombre,
     rol: usuario.rol,
-    exp: Date.now() + DURACION_SESION_HORAS * 3600 * 1000
+    exp: finJornadaMs()          // la sesión dura hasta que termina la jornada (6:00)
   };
   const data = Buffer.from(JSON.stringify(payload)).toString('base64url');
   const firma = crypto.createHmac('sha256', SECRET).update(data).digest('base64url');
@@ -95,9 +99,28 @@ function ipCliente(event) {
 }
 
 // ---------- Datos ----------
-// Fecha de hoy en España, formato YYYY-MM-DD
+// "Hoy" de la ludoteca en formato YYYY-MM-DD: la fecha de España, pero hasta las 6:00
+// sigue siendo el día anterior (los fines de semana se cierra después de medianoche)
+function horaEspana(fecha) {
+  return Number(fecha.toLocaleString('en-GB', { timeZone: 'Europe/Madrid', hour: '2-digit', hourCycle: 'h23' }));
+}
 function hoyMadrid() {
-  return new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Madrid' });
+  const ahora = new Date();
+  const fecha = ahora.toLocaleDateString('sv-SE', { timeZone: 'Europe/Madrid' });
+  if (horaEspana(ahora) >= HORA_CAMBIO_DIA) return fecha;
+  const d = new Date(fecha + 'T00:00:00Z');
+  d.setUTCDate(d.getUTCDate() - 1);
+  return d.toISOString().slice(0, 10);
+}
+
+// Momento (en ms) en que termina la jornada actual: las 6:00 del día siguiente, hora de España
+function finJornadaMs() {
+  const d = new Date(hoyMadrid() + 'T00:00:00Z');
+  d.setUTCDate(d.getUTCDate() + 1);
+  let t = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), HORA_CAMBIO_DIA);
+  // t son las 6:00 en UTC; se corrige con el desfase de España (1 h en invierno, 2 h en verano)
+  t -= (horaEspana(new Date(t)) - HORA_CAMBIO_DIA) * 3600 * 1000;
+  return t;
 }
 
 // '617 79 62 60' → '+34617796260'. Devuelve null si no es válido.
