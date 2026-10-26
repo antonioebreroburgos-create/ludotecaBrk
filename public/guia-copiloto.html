@@ -1,0 +1,1658 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Guía de Copiloto · Equipo comercial DJI / SYL</title>
+<link rel="icon" href="copiloto-perfil.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --tinta:#16263F; --tinta-suave:#55637A; --marino:#2B4B7A; --marino-osc:#1D3557;
+  --verde:#8BC53F; --verde-osc:#5E8F1F; --papel:#F4F6F9; --blanco:#FFFFFF; --linea:#DDE3EA;
+  --aviso:#FFF6DB; --aviso-borde:#E8C766; --peligro:#FDECEC; --peligro-borde:#E59A9A;
+  --wa-fondo:#ECE5DD; --wa-yo:#D9FDD3; --wa-bot:#FFFFFF; --wa-barra:#075E54;
+  --radio:14px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:calc(72px + env(safe-area-inset-top,0px))}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;font-family:'Figtree',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:17px;line-height:1.6;color:var(--tinta);background:var(--papel)}
+h1,h2,h3,h4{font-family:'Sora','Figtree',system-ui,sans-serif;line-height:1.2;color:var(--marino-osc)}
+a{color:var(--marino)}
+:focus-visible{outline:3px solid var(--verde);outline-offset:2px;border-radius:4px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+code,kbd{font-family:ui-monospace,'SF Mono',Consolas,monospace;font-size:.88em}
+kbd{display:inline-block;background:var(--blanco);border:1px solid var(--linea);border-bottom-width:3px;border-radius:7px;padding:1px 8px;font-weight:600;color:var(--marino-osc);white-space:nowrap}
+
+/* ---------- Cabecera ---------- */
+.portada{background:var(--marino-osc);color:#fff;padding:28px 20px 0;overflow:hidden}
+.portada-in{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:1fr;gap:28px;align-items:end}
+.marca{display:flex;align-items:center;gap:12px;margin-bottom:26px}
+.marca img{width:44px;height:44px;border-radius:50%;background:#fff;object-fit:contain;padding:3px}
+.marca span{font-size:14px;color:#C9D6E8;line-height:1.3}
+.portada h1{color:#fff;font-size:clamp(34px,6vw,58px);margin:0 0 14px;letter-spacing:-.02em;font-weight:800}
+.portada p.sub{color:#C9D6E8;font-size:18px;max-width:34ch;margin:0 0 24px}
+.buscador{position:relative;max-width:460px;margin-bottom:28px}
+.buscador input{width:100%;font:inherit;font-size:17px;padding:14px 16px 14px 46px;border-radius:12px;border:2px solid transparent;background:#fff;color:var(--tinta)}
+.buscador input:focus{outline:none;border-color:var(--verde)}
+.buscador svg{position:absolute;left:15px;top:50%;transform:translateY(-50%);width:20px;height:20px;color:var(--tinta-suave)}
+.resultados{position:fixed;left:0;width:0;top:0;background:#fff;border-radius:12px;box-shadow:0 12px 32px rgba(10,25,50,.28);max-height:340px;overflow:auto;z-index:60;display:none}
+.resultados.abierto{display:block}
+.resultados a{display:block;padding:11px 16px;text-decoration:none;color:var(--tinta);border-bottom:1px solid var(--linea)}
+.resultados a:last-child{border-bottom:0}
+.resultados a:hover,.resultados a:focus{background:#EEF3E4;outline:none}
+.resultados small{display:block;color:var(--tinta-suave);font-size:13px}
+.resultados .vacio{padding:14px 16px;color:var(--tinta-suave);font-size:15px}
+.telefono{justify-self:center;width:min(340px,100%);background:#0f1b2d;border-radius:34px 34px 0 0;padding:12px 12px 0;box-shadow:0 -10px 40px rgba(0,0,0,.25)}
+.telefono .chat{border-radius:24px 24px 0 0;margin:0}
+@media (min-width:880px){.portada-in{grid-template-columns:1.1fr .9fr}.telefono{justify-self:end}}
+
+/* ---------- Índice ---------- */
+.indice{position:sticky;top:0;z-index:20;background:rgba(244,246,249,.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--linea);padding-top:env(safe-area-inset-top,0px)}
+.indice-in{max-width:1120px;margin:0 auto;display:flex;gap:6px;overflow-x:auto;padding:10px 16px;scrollbar-width:none}
+.indice-in::-webkit-scrollbar{display:none}
+.indice a{flex:0 0 auto;text-decoration:none;font-size:15px;font-weight:600;color:var(--marino);padding:7px 13px;border-radius:999px;white-space:nowrap}
+.indice a:hover{background:#E4EAF2}
+.indice a.activo{background:var(--marino);color:#fff}
+
+/* ---------- Contenido ---------- */
+main{max-width:1120px;margin:0 auto;padding:12px 20px 80px}
+section.capitulo{padding:52px 0 8px;border-top:1px solid var(--linea)}
+section.capitulo:first-of-type{border-top:0}
+.cap-cab{display:flex;align-items:flex-start;gap:16px;margin-bottom:18px}
+.cap-emoji{flex:0 0 auto;width:56px;height:56px;border-radius:16px;background:var(--blanco);border:1px solid var(--linea);display:grid;place-items:center;font-size:28px}
+.cap-cab h2{font-size:clamp(26px,4vw,34px);margin:2px 0 4px;letter-spacing:-.01em}
+.cap-cab p{margin:0;color:var(--tinta-suave);max-width:60ch}
+.ruta{font-size:14px;color:var(--tinta-suave);margin:0 0 6px}
+.ruta kbd{font-size:13px}
+.prosa{max-width:68ch}
+.prosa p{margin:0 0 14px}
+h3{font-size:22px;margin:34px 0 10px}
+h4{font-size:17px;margin:22px 0 8px}
+
+.dos{display:grid;grid-template-columns:1fr;gap:28px;align-items:start}
+@media (min-width:900px){.dos{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr)}}
+
+/* Pasos: esto sí es una secuencia */
+ol.pasos{list-style:none;counter-reset:paso;padding:0;margin:8px 0 18px}
+ol.pasos>li{counter-increment:paso;position:relative;padding:0 0 18px 50px;min-height:36px}
+ol.pasos>li::before{content:counter(paso);position:absolute;left:0;top:-1px;width:34px;height:34px;border-radius:50%;background:var(--verde);color:var(--marino-osc);font-family:'Sora',sans-serif;font-weight:700;font-size:16px;display:grid;place-items:center}
+ol.pasos>li:not(:last-child)::after{content:"";position:absolute;left:16px;top:38px;bottom:4px;width:2px;background:#CFE3B2}
+ol.pasos>li strong{display:block;color:var(--marino-osc)}
+
+.nota,.cuidado,.truco{border-radius:12px;padding:14px 16px;margin:16px 0;font-size:16px;max-width:68ch}
+.nota{background:#E8EFF8;border-left:4px solid var(--marino)}
+.truco{background:#EEF6E1;border-left:4px solid var(--verde)}
+.cuidado{background:var(--aviso);border-left:4px solid var(--aviso-borde)}
+.nota b:first-child,.truco b:first-child,.cuidado b:first-child{color:var(--marino-osc)}
+
+/* Opciones de submenú: tabla ligera */
+table{border-collapse:collapse;width:100%;font-size:16px;background:var(--blanco);border-radius:12px;overflow:hidden}
+.tabla{overflow-x:auto;border:1px solid var(--linea);border-radius:12px;margin:12px 0 18px}
+th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--linea);vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{background:#EDF1F6;font-family:'Sora',sans-serif;font-size:14px;color:var(--marino-osc);font-weight:600}
+td:first-child{font-weight:600;width:34%;min-width:110px}
+@media (min-width:700px){td:first-child{white-space:nowrap;width:auto}}
+
+/* ---------- Chat estilo WhatsApp ---------- */
+.chat{background:var(--wa-fondo);border-radius:18px;overflow:hidden;border:1px solid #d6cdc2;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:15px;line-height:1.42;margin:6px 0 10px}
+.chat-barra{background:var(--wa-barra);color:#fff;display:flex;align-items:center;gap:10px;padding:10px 14px}
+.chat-barra img{width:34px;height:34px;border-radius:50%;background:#fff;object-fit:cover}
+.chat-barra b{display:block;font-size:15px}
+.chat-barra small{font-size:12px;color:#cfe9e4}
+.chat-cuerpo{padding:14px 12px 16px;display:flex;flex-direction:column;gap:6px}
+.msg{max-width:86%;padding:7px 10px 18px;border-radius:10px;position:relative;white-space:pre-line;word-wrap:break-word;box-shadow:0 1px .5px rgba(0,0,0,.13);color:#111b21}
+.msg::after{content:attr(data-h);position:absolute;right:8px;bottom:3px;font-size:11px;color:#667781}
+.bot{align-self:flex-start;background:var(--wa-bot);border-top-left-radius:3px}
+.yo{align-self:flex-end;background:var(--wa-yo);border-top-right-radius:3px}
+.yo::after{content:attr(data-h) " ✓✓";color:#53bdeb}
+.msg b{font-weight:700}
+.msg i{color:#667781}
+.msg .adj{display:flex;align-items:center;gap:8px;background:#f0f2f5;border-radius:8px;padding:8px 10px;margin-bottom:6px;font-size:14px;white-space:normal}
+.msg .adj span{font-size:22px}
+.msg .foto{display:grid;place-items:center;height:110px;border-radius:8px;background:repeating-linear-gradient(45deg,#e9e3d9,#e9e3d9 8px,#f3eee6 8px,#f3eee6 16px);color:#7c7466;font-size:13px;margin-bottom:6px;white-space:normal}
+.chat-sep{align-self:center;background:#E1F2FB;color:#54656f;font-size:12px;padding:4px 10px;border-radius:7px;margin:6px 0}
+.chat-pie{font-size:13px;color:var(--tinta-suave);margin:-2px 0 16px;max-width:52ch}
+
+/* ---------- Mapa del menú ---------- */
+.mapa{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin:18px 0}
+.rama{background:var(--blanco);border:1px solid var(--linea);border-radius:var(--radio);padding:16px 16px 12px}
+.rama h4{margin:0 0 8px;display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;font-size:17px}
+.rama h4 kbd{font-size:15px}
+.rama ul{list-style:none;margin:0;padding:0;font-size:15px}
+.rama li{padding:4px 0 4px 16px;border-left:2px solid #CFE3B2;margin-left:6px;color:var(--tinta-suave)}
+.rama li b{color:var(--tinta);font-weight:600}
+.rama a{text-decoration:none}
+.rama.grande{grid-column:1/-1;border-color:var(--marino);border-width:2px}
+.rama.grande .sub{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 18px}
+
+/* ---------- Chuleta ---------- */
+.chuleta td:first-child kbd{font-size:15px}
+
+/* ---------- Leyenda ---------- */
+.leyenda{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:4px 28px;margin:12px 0;max-width:900px}
+.leyenda div{display:flex;gap:12px;padding:8px 0;border-bottom:1px dashed var(--linea);font-size:16px}
+.leyenda span{flex:0 0 32px;font-size:22px;line-height:1.2}
+
+/* ---------- Problemas frecuentes ---------- */
+details.faq{background:var(--blanco);border:1px solid var(--linea);border-radius:12px;margin:0 0 10px;max-width:820px}
+details.faq summary{cursor:pointer;list-style:none;padding:15px 48px 15px 18px;font-weight:600;position:relative;color:var(--marino-osc)}
+details.faq summary::-webkit-details-marker{display:none}
+details.faq summary::after{content:"+";position:absolute;right:18px;top:50%;transform:translateY(-50%);font-size:24px;font-weight:400;color:var(--marino)}
+details.faq[open] summary::after{content:"−"}
+details.faq .resp{padding:0 18px 16px;font-size:16px}
+details.faq .resp p{margin:0 0 10px}
+
+/* ---------- Práctica ---------- */
+.practica{list-style:none;padding:0;margin:14px 0;max-width:820px}
+.practica li{background:var(--blanco);border:1px solid var(--linea);border-radius:12px;margin-bottom:10px}
+.practica label{display:flex;gap:14px;padding:14px 16px;cursor:pointer;align-items:flex-start}
+.practica input{width:22px;height:22px;margin-top:3px;accent-color:var(--verde-osc);flex:0 0 auto}
+.practica li.hecho{background:#F1F8E6;border-color:#CFE3B2}
+.practica li.hecho .enunciado{text-decoration:line-through;text-decoration-color:rgba(22,38,63,.35)}
+.practica small{display:block;color:var(--tinta-suave);font-size:14px;margin-top:2px}
+.progreso{display:flex;align-items:center;gap:14px;max-width:820px;margin:8px 0 4px;font-weight:600}
+.barra{flex:1;height:10px;border-radius:99px;background:#E1E7EE;overflow:hidden}
+.barra i{display:block;height:100%;width:0;background:var(--verde);transition:width .3s}
+
+.estado{display:inline-block;font-family:'Figtree',sans-serif;font-size:13px;font-weight:700;letter-spacing:.02em;padding:3px 10px;border-radius:999px;vertical-align:middle;margin-left:8px;white-space:nowrap}
+.estado.ya{background:#E3F2CF;color:#3F6614}
+.estado.pronto{background:var(--aviso);color:#7A5B00;border:1px solid var(--aviso-borde)}
+.fase{border-left:3px solid var(--linea);padding-left:18px;margin:26px 0}
+.fase.ya{border-left-color:var(--verde)}
+.fase.pronto{border-left-color:var(--aviso-borde)}
+.fase h3{margin-top:0}
+.cita{background:var(--blanco);border:1px solid var(--linea);border-radius:12px;padding:14px 18px;margin:10px 0;font-size:16px;max-width:68ch;position:relative}
+.cita::before{content:"💬";position:absolute;left:-12px;top:12px;font-size:18px;background:var(--papel);border-radius:50%}
+.chat-barra.cli{background:#1f2c34}
+.caso{background:var(--blanco);border:1px solid var(--linea);border-radius:18px;padding:22px 22px 8px;margin:22px 0}
+.caso-cab{display:flex;gap:14px;align-items:flex-start;margin-bottom:6px}
+.caso-num{flex:0 0 auto;font-family:'Sora',sans-serif;font-weight:800;font-size:15px;color:var(--marino-osc);background:#E4F1D2;border-radius:10px;padding:6px 10px}
+.caso h3{margin:0 0 4px;font-size:21px}
+.caso .modulos{font-size:14px;color:var(--tinta-suave)}
+.cliente-dice{background:#F3F6FA;border-radius:12px;padding:12px 16px;margin:12px 0 14px;font-size:16px;max-width:68ch}
+.cliente-dice b{color:var(--marino-osc)}
+.comparativa td:first-child{width:22%}
+.comparativa td:nth-child(2){color:var(--tinta-suave)}
+.comparativa th:nth-child(3),.comparativa td:nth-child(3){background:#F6FBEF}
+.practica-in-situ{border:2px dashed #CFE3B2;border-radius:12px;padding:12px 16px;margin:14px 0 16px;font-size:16px;max-width:68ch}
+.practica-in-situ b:first-child{color:var(--verde-osc)}
+.practica-in-situ ol{margin:6px 0 0;padding-left:20px}
+@media (max-width:640px){
+  .comparativa{overflow:visible}
+  .comparativa table,.comparativa tbody,.comparativa tr,.comparativa td{display:block;width:auto!important}
+  .comparativa tr:first-child{display:none}
+  .comparativa tr{border-bottom:1px solid var(--linea);padding:10px 14px}
+  .comparativa tr:last-child{border-bottom:0}
+  .comparativa td{border:0;padding:3px 0;white-space:normal}
+  .comparativa td:first-child{color:var(--marino-osc);margin-bottom:2px}
+  .comparativa td:nth-child(2)::before{content:"Sin Copiloto · ";font-weight:600;color:var(--tinta-suave)}
+  .comparativa td:nth-child(3){background:#F6FBEF;border-radius:8px;padding:6px 8px;margin-top:4px}
+  .comparativa td:nth-child(3)::before{content:"Con Copiloto · ";font-weight:700;color:var(--verde-osc)}
+}
+footer{max-width:1120px;margin:0 auto;padding:30px 20px 50px;color:var(--tinta-suave);font-size:14px;border-top:1px solid var(--linea)}
+.btn-imprimir{font:inherit;font-size:15px;font-weight:600;background:var(--blanco);border:1px solid var(--linea);color:var(--marino);border-radius:10px;padding:9px 14px;cursor:pointer}
+
+@media print{
+  .indice,.buscador,.telefono,.btn-imprimir,.progreso{display:none!important}
+  body{background:#fff;font-size:12pt}
+  .portada{background:#fff;color:var(--tinta);padding:0}
+  .portada h1{color:var(--marino-osc)} .portada p.sub,.marca span{color:var(--tinta-suave)}
+  section.capitulo{break-inside:auto;padding-top:24px}
+  .chat,.rama,details.faq,table{break-inside:avoid}
+  details.faq .resp{display:block}
+}
+</style>
+</head>
+<body>
+
+<header class="portada">
+  <div class="portada-in">
+    <div>
+      <div class="marca">
+        <img src="logo-dji.jpg" alt="Distribuciones Joaquín Infante">
+        <span>Distribuciones Joaquín Infante<br>Sylonuba · DJI Higiene</span>
+      </div>
+      <h1>Copiloto,<br>paso a paso</h1>
+      <p class="sub">Guía de uso para el equipo comercial. Para aprenderlo en la formación y para consultarlo cuando te surja una duda en la calle.</p>
+      <div class="buscador">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="buscar" type="search" autocomplete="off" placeholder="¿Qué quieres hacer? Ej: factura, alias, fotos…" aria-label="Buscar en la guía" aria-controls="resultados">
+        <div class="resultados" id="resultados" role="listbox"></div>
+      </div>
+    </div>
+    <div class="telefono" aria-hidden="true">
+      <div class="chat">
+        <div class="chat-barra"><img src="copiloto-perfil.jpg" alt=""><div><b>Copiloto</b><small>en línea</small></div></div>
+        <div class="chat-cuerpo">
+          <div class="msg yo" data-h="08:41">menu</div>
+          <div class="msg bot" data-h="08:41">👋 ¿En qué puedo ayudarte?
+
+1️⃣ <b>STOCK</b> — consultar stock de un producto
+2️⃣ <b>CATALOGOS/GALERIA</b> — PDFs y fotos
+3️⃣ <b>CLIENTE</b> — facturas, estudio, pedido, seguimiento
+4️⃣ <b>MIS DATOS</b> — tus ventas, clientes, objetivos y más
+5️⃣ <b>ENLACES</b> — apps y paneles internos
+6️⃣ <b>TAREAS</b> — que no se te pase nada
+7️⃣ <b>MEJORAS Y ERRORES</b> — avisa de fallos o propón ideas
+
+Responde con el número o la palabra.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Capítulos">
+  <div class="indice-in" id="indice">
+    <a href="#empezar">Empezar</a>
+    <a href="#mapa">Mapa</a>
+    <a href="#stock">Stock</a>
+    <a href="#catalogos">Catálogos</a>
+    <a href="#ficha">Ficha técnica</a>
+    <a href="#cliente">Cliente</a>
+    <a href="#facturas">Facturas</a>
+    <a href="#estudio">Estudio</a>
+    <a href="#pedido">Pedido</a>
+    <a href="#seguimiento">Seguimiento</a>
+    <a href="#consumo">Consumo</a>
+    <a href="#informe360">Informe 360</a>
+    <a href="#captar">Captar clientes</a>
+    <a href="#misdatos">Mis datos</a>
+    <a href="#enlaces">Enlaces</a>
+    <a href="#tareas">Tareas</a>
+    <a href="#mejoras">Mejoras</a>
+    <a href="#avisos">Avisos</a>
+    <a href="#clientes">Clientes</a>
+    <a href="#casos">Casos</a>
+    <a href="#chuleta">Chuleta</a>
+    <a href="#problemas">Problemas</a>
+    <a href="#practica">Práctica</a>
+  </div>
+</nav>
+
+<main>
+<!-- ===================== EMPEZAR ===================== -->
+<section class="capitulo" id="empezar" data-k="inicio reglas numero whatsapp guardar contacto autorizado acceso atajos directo">
+  <div class="cap-cab"><div class="cap-emoji">🚀</div><div>
+    <h2>Antes de empezar</h2>
+    <p>Qué es Copiloto, cómo se le habla y las cinco reglas que resuelven el 90% de las dudas.</p>
+  </div></div>
+
+  <div class="dos">
+    <div class="prosa">
+      <p>Copiloto es un asistente de WhatsApp conectado a Odoo. Le escribes como a cualquier contacto y te contesta con datos reales del momento: stock, facturas, pedidos, repartos, tus ventas. También puede crear presupuestos en Odoo por ti.</p>
+      <p>No es una persona ni una inteligencia que "charla": funciona con <b>menús numerados</b>. Tú respondes con un número (o una palabra) y él te lleva al siguiente paso.</p>
+
+      <h3 id="atajos">Atajos: ir directo sin números</h3>
+      <p>Si ya sabes lo que quieres, escríbelo junto con el nombre y te ahorras los menús:</p>
+      <div class="tabla"><table>
+        <tr><td><kbd>catalogo asiatico</kbd></td><td>Te llega el PDF del catálogo directamente.</td></tr>
+        <tr><td><kbd>stock hamburguesa angus</kbd></td><td>Stock de ese producto sin pasar por el menú.</td></tr>
+        <tr><td><kbd>pedido gansa</kbd></td><td>Busca el cliente y empieza el pedido.</td></tr>
+        <tr><td><kbd>facturas gansa</kbd> · <kbd>estudio gansa</kbd> · <kbd>seguimiento gansa</kbd> · <kbd>360 gansa</kbd></td><td>Igual, para cada opción del cliente.</td></tr>
+        <tr><td><kbd>web gansa</kbd></td><td>Pedido y carta en la web (formato 360, sin preparar el informe): pedido escrito o en foto a la izquierda y lo interpretado a la derecha. También vale <kbd>pedido web gansa</kbd>.</td></tr>
+        <tr><td>Reenviar el pedido del cliente</td><td>Reenvía a Copiloto el pedido que te manda el cliente (texto o foto; si son varios mensajes, reenvíalos todos). Copiloto pregunta de qué cliente es: escribe su nombre o alias y te manda el enlace web con el pedido ya cargado, solo tienes que pulsar <b>Interpretar pedido</b>. Atajo: pon <kbd>web gansa</kbd> como texto de la foto, o en la primera línea del mensaje.</td></tr>
+      </table></div>
+      <p>Funcionan desde el menú y desde cualquier lista numerada. Mientras Copiloto espera que escribas algo concreto (el texto de un pedido, una tarea…), no: termina o escribe <kbd>menu</kbd> antes.</p>
+      <h3>Guárdalo en tus contactos</h3>
+      <div class="tabla"><table>
+        <tr><th>Empresa</th><th>Número de Copiloto</th></tr>
+        <tr><td>DJI</td><td>+34 623 31 14 45</td></tr>
+        <tr><td>SYL (DJI Higiene)</td><td>+34 692 63 42 00</td></tr>
+      </table></div>
+      <p>Escribe siempre al número de <b>tu</b> empresa. Solo responde a los teléfonos dados de alta como comerciales; si te dice <i>"Este número no está autorizado"</i>, habla con administración.</p>
+    </div>
+
+    <div>
+      <h3 style="margin-top:0">Las cinco reglas de oro</h3>
+      <ol class="pasos">
+        <li><strong><kbd>menu</kbd> te saca de cualquier sitio</strong>Estés donde estés, escribir <kbd>menu</kbd> vuelve al principio. Si te pierdes, esa es la salida.</li>
+        <li><strong>Responde con el número</strong>Cuando veas 1️⃣ 2️⃣ 3️⃣… contesta solo con la cifra: <kbd>3</kbd>. En el menú principal también vale la palabra: <kbd>stock</kbd>, <kbd>cliente</kbd>, <kbd>tareas</kbd>…</li>
+        <li><strong>"Dame un momento" significa espera</strong>Algunas cosas (direcciones, interpretar un pedido, PDFs) tardan unos segundos y llegan en un mensaje aparte. Si tarda, escribe cualquier cosa (un punto vale) para ver si ya está.</li>
+        <li><strong>Solo texto y fotos</strong>Las notas de voz no las entiende. Los pedidos se escriben o se mandan en foto.</li>
+        <li><strong>Háblale a diario</strong>Los avisos que te manda Copiloto por su cuenta (tareas nuevas, respuestas de clientes) solo te llegan seguro si le has escrito en las últimas 24 horas. Un <kbd>menu</kbd> por la mañana basta.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== MAPA ===================== -->
+<section class="capitulo" id="mapa" data-k="menu principal opciones estructura arbol">
+  <div class="cap-cab"><div class="cap-emoji">🗺️</div><div>
+    <h2>El mapa del menú</h2>
+    <p>Todo lo que hay dentro de Copiloto, de un vistazo. Toca cualquier opción para ir a su explicación.</p>
+  </div></div>
+
+  <div class="mapa">
+    <div class="rama"><h4><kbd>1</kbd> <a href="#stock">Stock</a></h4><ul><li>Buscar producto → stock, compras pendientes, coste, venta media y margen</li></ul></div>
+    <div class="rama"><h4><kbd>2</kbd> <a href="#catalogos">Catálogos / Galería</a></h4><ul><li><b>1</b> Catálogos en PDF</li><li><b>2</b> Galería de fotos (ver / subir)</li></ul></div>
+    <div class="rama grande"><h4><kbd>3</kbd> <a href="#cliente">Cliente</a> <span style="font-weight:400;font-size:15px;color:var(--tinta-suave);flex-basis:100%">buscas el cliente una vez y eliges qué hacer con él</span></h4>
+      <div class="sub">
+        <ul><li><b><a href="#facturas">1 Facturas</a></b></li><li>Resumen · pendientes · última · PDF combinado · informe · trimestre</li></ul>
+        <ul><li><b><a href="#estudio">2 Estudio</a></b></li><li>Deuda, ventas 3 años, top productos, caídas</li></ul>
+        <ul><li><b><a href="#pedido">3 Pedido</a></b></li><li>Texto o foto → revisar → presupuesto en Odoo</li></ul>
+        <ul><li><b><a href="#seguimiento">4 Seguimiento</a></b></li><li>En reparto · repartidos · sin confirmar · anteriores</li></ul>
+        <ul><li><b><a href="#consumo">5 Consumo del año</a></b></li><li>Excel con todo lo que ha pedido en el año</li></ul>
+        <ul><li><b><a href="#fichas-cliente">6 Fichas técnicas</a></b></li><li>Las fichas de todos sus productos, en un PDF o una a una</li></ul>
+        <ul><li><b><a href="#informe360">7 Informe 360</a></b></li><li>Web del cliente para tablet/PC: ventas, artículos, locales, deuda y hacer pedido</li></ul>
+        <ul><li><b><a href="#informe360">8 Estudio de carta</a></b></li><li>Enlace, PDF o foto de su carta → qué le podemos vender</li></ul>
+        <ul><li><b><a href="#informe360">9 Catálogo a medida</a></b></li><li>Eliges artículos por etiquetas y se lo mandas con fotos y precios</li></ul>
+        <ul><li><b><a href="#informe360">10 Pedido y carta en la web</a></b></li><li>Se abre al momento, sin preparar el informe: hacer pedido y estudio de carta</li></ul>
+      </div>
+    </div>
+    <div class="rama"><h4><kbd>4</kbd> <a href="#misdatos">Mis datos</a></h4><ul><li>Ventas, clientes, artículos, mi día, objetivos, cobros, inactivos, faltas, repartos de la semana</li></ul></div>
+    <div class="rama"><h4><kbd>5</kbd> <a href="#enlaces">Enlaces</a></h4><ul><li>Apps y paneles internos</li></ul></div>
+    <div class="rama"><h4><kbd>6</kbd> <a href="#tareas">Tareas</a></h4><ul><li><b>1</b> Nueva tarea</li><li><b>2</b> Mis pendientes</li><li><b>3</b> Las que he creado</li></ul></div>
+    <div class="rama"><h4><kbd>7</kbd> <a href="#mejoras">Mejoras y errores</a></h4><ul><li><b>1</b> Algo no funciona</li><li><b>2</b> Propongo una mejora</li><li><b>3</b> Ver lo que he enviado</li></ul></div>
+    <div class="rama"><h4><kbd>8</kbd> <a href="#ficha">Ficha técnica</a></h4><ul><li>Buscar producto → PDF de la ficha adjunta en Odoo</li></ul></div>
+  </div>
+</section>
+
+<!-- ===================== STOCK ===================== -->
+<section class="capitulo" id="stock" data-k="stock existencias producto disponible pendiente recibir compras llega precio coste margen beneficio venta media cotizacion tarifa">
+  <div class="cap-cab"><div class="cap-emoji">📦</div><div>
+    <p class="ruta">Menú → <kbd>1</kbd></p>
+    <h2>Stock</h2>
+    <p>Cuánto hay de un producto, si hay compras en camino, y su coste, precio medio de venta y margen para preparar una cotización.</p>
+  </div></div>
+  <div class="dos">
+    <div class="prosa">
+      <ol class="pasos">
+        <li><strong>Escribe <kbd>1</kbd> o <kbd>stock</kbd></strong>Te pide el nombre del producto.</li>
+        <li><strong>Escribe parte del nombre</strong>Con dos o tres palabras clave es suficiente: <kbd>brioche 48</kbd>.</li>
+        <li><strong>Si hay varios, elige el número</strong>Te enseña hasta 8 coincidencias. Si no está el tuyo, <kbd>menu</kbd> y prueba con otra palabra.</li>
+        <li><strong>Lee la respuesta</strong>Stock actual y, si hay pedidos a proveedor sin recibir, cuántas unidades vienen y de qué proveedor. Debajo, el bloque de precios.</li>
+      </ol>
+      <h3 id="precios-stock">El bloque de precios</h3>
+      <div class="tabla"><table>
+        <tr><td>Coste</td><td>El coste actual del producto en Odoo.</td></tr>
+        <tr><td>Venta media 6 meses</td><td>Lo que se ha cobrado de media por unidad (o kg) en los pedidos confirmados de los últimos 6 meses, ya con descuentos. Pesa más quien más compra. Debajo, cuántas ventas y cuánta cantidad hay detrás de esa media.</td></tr>
+        <tr><td>Margen sobre venta</td><td>Qué parte del precio de venta es beneficio: (venta media − coste) ÷ venta media. Si sale negativo, se está vendiendo por debajo de coste.</td></tr>
+      </table></div>
+      <p>Todos los precios son sin IVA. Con esto tienes una referencia para cotizar: si ofreces por debajo de la media, sabes cuánto margen te queda.</p>
+      <div class="cuidado"><b>El coste es confidencial.</b> Este bloque sale marcado 🔒 porque la respuesta de stock a veces se reenvía. Nunca reenvíes al cliente el mensaje completo: si quieres pasarle el stock, escríbeselo tú.</div>
+      <div class="nota"><b>Dato en vivo.</b> El stock se consulta a Odoo en el momento. Tras cada consulta vuelves al menú principal; para otra, <kbd>1</kbd> otra vez.</div>
+    </div>
+    <div>
+      <div class="chat"><div class="chat-cuerpo">
+        <div class="msg yo" data-h="10:02">1</div>
+        <div class="msg bot" data-h="10:02">Escribe el nombre (o parte del nombre) del producto que quieres consultar.</div>
+        <div class="msg yo" data-h="10:02">brioche</div>
+        <div class="msg bot" data-h="10:02">He encontrado varios productos, ¿cuál quieres consultar?
+
+1. PAN BRIOCHE BURGER 80G C/48
+2. PAN BRIOCHE HOT DOG C/36
+
+Responde con el número.</div>
+        <div class="msg yo" data-h="10:03">1</div>
+        <div class="msg bot" data-h="10:03">📦 <b>PAN BRIOCHE BURGER 80G C/48</b>
+Stock actual: 36 uds
+📥 Pendiente de recibir: 120 uds
+   • P01234 — 120 uds (PROVEEDOR PAN SL)
+
+🔒 <b>Solo para ti — no reenviar al cliente</b>
+Coste: 0,31 € / ud
+Venta media 6 meses: 0,42 € / ud
+   (57 ventas · 8640 ud)
+Margen sobre venta: 26,2%
+<i>Precios sin IVA</i>
+
+📑 Escribe <b>ficha</b> y te mando la ficha técnica en PDF.
+
+Escribe <b>menu</b> para otra consulta.</div>
+      </div></div>
+      <p class="chat-pie">Ejemplo ilustrativo: los nombres y cifras son inventados.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CATÁLOGOS / GALERÍA ===================== -->
+<section class="capitulo" id="catalogos" data-k="catalogo pdf galeria fotos subir foto feria evento imagen">
+  <div class="cap-cab"><div class="cap-emoji">🖼️</div><div>
+    <p class="ruta">Menú → <kbd>2</kbd></p>
+    <h2>Catálogos y galería</h2>
+    <p>Los PDF de cada familia para reenviar a clientes, y un álbum compartido de fotos del equipo.</p>
+  </div></div>
+  <div class="dos">
+    <div class="prosa">
+      <h3 style="margin-top:0">Catálogos en PDF</h3>
+      <ol class="pasos">
+        <li><strong>Menú → <kbd>2</kbd> → <kbd>1</kbd></strong>Te sale la lista de catálogos disponibles (Burguer, Asiático, Pastelería, Carnes…).</li>
+        <li><strong>Responde con el número</strong>Te llega el PDF como adjunto. Mantén pulsado y reenvíalo al cliente.</li>
+        <li><strong>¿Otro? Otro número</strong>Te quedas en la lista para bajar varios seguidos. Para salir, <kbd>menu</kbd>.</li>
+      </ol>
+
+      <h3 id="galeria">Galería de fotos</h3>
+      <p>Menú → <kbd>2</kbd> → <kbd>2</kbd>, y ahí:</p>
+      <div class="tabla"><table>
+        <tr><td>1 Ver galería</td><td>Te manda el enlace a la web con todas las fotos subidas por el equipo.</td></tr>
+        <tr><td>2 Subir una foto</td><td>Primero te pide una etiqueta corta (feria, evento o cliente, ej. <i>"Feria Hostelco 2026"</i>). Luego mandas las fotos, una a una. Todas se guardan con esa etiqueta hasta que escribas <kbd>menu</kbd>.</td></tr>
+      </table></div>
+      <div class="cuidado"><b>Si un catálogo no llega.</b> WhatsApp no admite adjuntos de más de unos 16 MB. Si pides uno y no aparece, avisa para que lo reduzcan de tamaño.</div>
+    </div>
+    <div>
+      <div class="chat"><div class="chat-cuerpo">
+        <div class="msg yo" data-h="11:15">2</div>
+        <div class="msg bot" data-h="11:15">1️⃣ Catálogos (PDF)
+2️⃣ Galería de fotos
+
+Responde con el número, o escribe <b>menu</b> para volver al principio.</div>
+        <div class="msg yo" data-h="11:15">1</div>
+        <div class="msg bot" data-h="11:15">¿Qué catálogo necesitas?
+
+1. Burguer
+2. Asiático
+3. Pastelería
+4. Carnes
+
+Responde con el número.</div>
+        <div class="msg yo" data-h="11:16">1</div>
+        <div class="msg bot" data-h="11:16"><div class="adj"><span>📄</span>Burguer.pdf</div>📄 Aquí tienes el catálogo de <b>Burguer</b>.
+
+¿Necesitas otro? Responde con el número, o escribe <b>menu</b> para salir.</div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FICHA TÉCNICA ===================== -->
+<section class="capitulo" id="ficha" data-k="ficha tecnica fichas cliente compras año todas auditoria pdf especificaciones alergenos ingredientes datasheet producto articulo adjunto odoo">
+  <div class="cap-cab"><div class="cap-emoji">📑</div><div>
+    <p class="ruta">Menú → <kbd>8</kbd> · atajo <kbd>ficha producto</kbd> · o <kbd>ficha</kbd> después de STOCK</p>
+    <h2>Ficha técnica</h2>
+    <p>El PDF que está adjunto en la ficha del artículo en Odoo (ingredientes, alérgenos, formato, conservación…), listo para reenviárselo al cliente.</p>
+  </div></div>
+  <div class="dos">
+    <div class="prosa">
+      <h3 style="margin-top:0">Tres formas de pedirla</h3>
+      <ol class="pasos">
+        <li><strong>Atajo: <kbd>ficha hamburguesa angus</kbd></strong>Desde el menú o cualquier lista. Si solo hay un producto que encaje, te llega el PDF directamente; si hay varios, eliges el número.</li>
+        <li><strong>Después de consultar STOCK</strong>Si el artículo tiene ficha, al final de la respuesta verás <i>"📑 Escribe ficha…"</i>. Escribe <kbd>ficha</kbd> y te llega la de ese mismo producto.</li>
+        <li><strong>Menú → <kbd>8</kbd></strong>Te pregunta el producto y sigue igual que el atajo.</li>
+      </ol>
+      <p>El atajo funciona también si estabas a mitad de buscar otro producto: no hace falta escribir <kbd>menu</kbd> antes.</p>
+      <h3>Si el artículo tiene varios PDF</h3>
+      <p>Copiloto manda el que lleva en el nombre <i>ficha</i>, <i>técnica</i> o <i>FT</i>. Si no puede saber cuál es, te enseña la lista para que elijas. Si te manda la ficha y el artículo tiene más PDF, escribe <kbd>otros pdf</kbd> para verlos todos.</p>
+      <h3 id="fichas-cliente">Todas las fichas de un cliente</h3>
+      <p>Para cuando un cliente pide las fichas técnicas de todo lo que le vendemos (hoteles, colegios, auditorías de calidad…).</p>
+      <ol class="pasos">
+        <li><strong>CLIENTE → elige el cliente → <kbd>6</kbd></strong>O directamente <kbd>fichas cliente gansa</kbd>.</li>
+        <li><strong>Copiloto mira sus productos</strong>Todo lo que ha <b>comprado en los últimos 12 meses</b> (pedidos confirmados). No usa la tarifa, que puede tener artículos que hace años que no pide. Te dice cuántos tienen ficha y cuáles no.</li>
+        <li><strong><kbd>1</kbd> Un PDF con todas</strong>Con una portada e índice (artículo y página). Si juntas pasan de 16 MB, llegan en varios PDF: reenvíalos todos.</li>
+        <li><strong><kbd>2</kbd> Una a una</strong>Un mensaje por ficha. Solo si son 40 o menos; si no, mejor el PDF.</li>
+      </ol>
+      <div class="cuidado"><b>La lista de "sin ficha" es solo para ti.</b> No va en el PDF del cliente. Úsala para pedir en la oficina que suban las que faltan.</div>
+      <div class="cuidado"><b>"No tiene ninguna ficha técnica adjunta".</b> Nadie ha subido el PDF al artículo en Odoo. Pide en la oficina que lo adjunten (clip 📎 de la ficha del producto) y desde ese momento ya sale en Copiloto, sin hacer nada más. Lo mismo si llega una ficha antigua: basta con cambiar el adjunto en Odoo.</div>
+      <div class="cuidado"><b>PDF de más de 16 MB.</b> WhatsApp no los admite. Copiloto te avisa; pide en la oficina una versión más ligera.</div>
+    </div>
+    <div>
+      <div class="chat"><div class="chat-cuerpo">
+        <div class="msg yo" data-h="12:40">ficha brioche 80</div>
+        <div class="msg bot" data-h="12:40"><div class="adj"><span>📑</span>ficha-tecnica-pan-brioche.pdf</div>📑 Ficha técnica de <b>PAN BRIOCHE BURGER 80G C/48</b>.
+
+Escribe <b>menu</b> para otra consulta.</div>
+      </div></div>
+      <p class="chat-pie">Ejemplo ilustrativo: los nombres son inventados.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CLIENTE ===================== -->
+<section class="capitulo" id="cliente" data-k="cliente buscar alias atajo nombre localizar encontrar">
+  <div class="cap-cab"><div class="cap-emoji">🤝</div><div>
+    <p class="ruta">Menú → <kbd>3</kbd></p>
+    <h2>Cliente</h2>
+    <p>La puerta a todo lo que tiene que ver con un cliente concreto: se busca una sola vez y luego eliges qué hacer.</p>
+  </div></div>
+  <div class="dos">
+    <div class="prosa">
+      <ol class="pasos">
+        <li><strong>Escribe <kbd>3</kbd> o <kbd>cliente</kbd></strong>También funcionan <kbd>factura</kbd>, <kbd>pedido</kbd>, <kbd>estudio</kbd> o <kbd>seguimiento</kbd>: todos llevan aquí.</li>
+        <li><strong>Escribe el nombre del cliente</strong>Busca solo entre <b>tus</b> clientes de Odoo. Basta con un trozo del nombre.</li>
+        <li><strong>Si hay varios, elige el número</strong>Los atajos que tengas guardados salen los primeros, marcados con <i>(alias: …)</i>.</li>
+        <li><strong>Elige qué hacer</strong>Aparece el mini-menú del cliente. Puedes pasar de Facturas a Estudio o Seguimiento <b>sin volver a buscarlo</b>, hasta que escribas <kbd>menu</kbd>.</li>
+      </ol>
+
+      <h3 id="alias">Alias: tu atajo para cada cliente</h3>
+      <p>Muchos clientes se llaman en Odoo por su razón social y no por el nombre del bar. Un alias es tu propio apodo para encontrarlo al instante. Es personal: solo lo ves tú.</p>
+      <p>Se guarda escribiendo <kbd>alias gansa</kbd> en uno de estos momentos, con el cliente ya elegido:</p>
+      <ul>
+        <li>dentro de <a href="#facturas">Facturas</a> (en su menú de opciones), o</li>
+        <li>durante un <a href="#pedido">Pedido</a>, cuando te pregunta cómo quieres meterlo o te pide el texto.</li>
+      </ul>
+      <p>A partir de ahí, en <kbd>3</kbd> escribes <kbd>gansa</kbd> y entras directo a ese cliente.</p>
+      <div class="truco"><b>Truco.</b> Pon alias a tus 10–15 clientes de todos los días en la primera semana. Es lo que más tiempo ahorra.</div>
+    </div>
+    <div>
+      <div class="chat"><div class="chat-cuerpo">
+        <div class="msg yo" data-h="12:30">cliente</div>
+        <div class="msg bot" data-h="12:30">Escribe el nombre del cliente.</div>
+        <div class="msg yo" data-h="12:30">gansa</div>
+        <div class="msg bot" data-h="12:30">Cliente: <b>HOSTELERÍA LA GANSA S.L.</b>
+
+1️⃣ Facturas
+2️⃣ Estudio
+3️⃣ Pedido
+4️⃣ Seguimiento
+
+Responde con el número, o <b>menu</b> para volver al principio.</div>
+      </div></div>
+      <p class="chat-pie">Con alias guardado, "gansa" lleva directo al cliente sin lista intermedia.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FACTURAS ===================== -->
+<section class="capitulo" id="facturas" data-k="facturas deuda pendientes pago cobro pdf reenviar informe cuenta ultima factura trimestre">
+  <div class="cap-cab"><div class="cap-emoji">🧾</div><div>
+    <p class="ruta">Menú → <kbd>3</kbd> → cliente → <kbd>1</kbd></p>
+    <h2>Facturas</h2>
+    <p>Estado de cuenta del cliente y documentos listos para mandarle.</p>
+  </div></div>
+  <div class="dos">
+    <div class="prosa">
+      <div class="tabla"><table>
+        <tr><th>Opción</th><th>Qué te da</th></tr>
+        <tr><td>1 Resumen</td><td>Nº de facturas pendientes, importe total y la más antigua sin pagar. Si hay pagos parciales, ya vienen descontados.</td></tr>
+        <tr><td>2 Pendientes</td><td>Lista de facturas sin pagar con fecha e importe. Después puedes pedir el <a href="#reenviar">texto para el cliente</a>.</td></tr>
+        <tr><td>3 Última factura</td><td>Datos de la última y, en un momento, su PDF.</td></tr>
+        <tr><td>4 PDF combinado</td><td>Todas las pendientes juntas en un solo PDF.</td></tr>
+        <tr><td>5 Informe de cuenta</td><td>PDF con presentación corporativa para reenviar. Te pregunta el periodo: último trimestre, año actual o todo.</td></tr>
+        <tr><td>6 Facturas de un trimestre</td><td>Todas las facturas (y abonos) del trimestre que elijas, en PDF, para cuando el cliente las ha perdido o las pide su gestoría. Elige uno de los últimos 6 trimestres o escribe otro, ej. <kbd>3T 2024</kbd>. Si son muchas, llegan en varios PDF.</td></tr>
+      </table></div>
+
+      <h3 id="reenviar">Reclamar deuda sin escribir nada</h3>
+      <ol class="pasos">
+        <li><strong>Opción <kbd>2</kbd> Pendientes</strong>Ves el listado interno.</li>
+        <li><strong>Escribe <kbd>r</kbd></strong>(o <kbd>reenviar</kbd>). Copiloto te devuelve un mensaje limpio, en tono para el cliente, con cada factura, el total y una frase pidiendo previsión de pago.</li>
+        <li><strong>Reenvíalo tal cual</strong>Mantén pulsado ese mensaje y reenvíalo al cliente. El "escribe menu" llega en un mensaje aparte para que no se cuele.</li>
+      </ol>
+      <div class="nota"><b>Ojo.</b> Tras ver las pendientes, si escribes cualquier cosa que no sea <kbd>r</kbd>, vuelves al menú principal. Las demás opciones (1, 3, 4, 5) sí te dejan dentro de Facturas.</div>
+      <div class="nota"><b>Cliente real.</b> Si buscas una dirección o sucursal, Copiloto sube automáticamente a la empresa que factura, para que la deuda sea la de verdad.</div>
+    </div>
+    <div>
+      <div class="chat"><div class="chat-cuerpo">
+        <div class="msg yo" data-h="13:05">2</div>
+        <div class="msg bot" data-h="13:05">🧾 <b>Facturas pendientes — HOSTELERÍA LA GANSA S.L.</b>
+
+• F/2026/01422 — 2026-08-29 — 412.60 € pendiente
+• F/2026/01587 — 2026-09-12 — 298.15 € pendiente
+
+Escribe <b>r</b> para tener el texto listo para copiar y mandarle al cliente, o <b>menu</b> para otra consulta.</div>
+        <div class="msg yo" data-h="13:05">r</div>
+        <div class="msg bot" data-h="13:05">Te paso el detalle actualizado de facturas pendientes:
+* F/2026/01422 (2026-08-29) — 412,60 €
+* F/2026/01587 (2026-09-12) — 298,15 €
+Total pendiente: 710,75 €
+Cuando puedas, revísalo y dime previsión de pago.
+Si hay cualquier diferencia, lo revisamos.</div>
+        <div class="msg bot" data-h="13:05">Escribe <b>menu</b> para otra consulta.</div>
+      </div></div>
+      <p class="chat-pie">El segundo mensaje (el de "Te paso el detalle…") es el que se reenvía al cliente.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ESTUDIO ===================== -->
+<section class="capitulo" id="estudio" data-k="estudio analisis visita preparar ventas comparativa caida top productos deuda semaforo">
+  <div class="cap-cab"><div class="cap-emoji">📊</div><div>
+    <p class="ruta">Menú → <kbd>3</kbd> → cliente → <kbd>2</kbd></p>
+    <h2>Estudio</h2>
+    <p>Una ficha rápida para preparar una visita: cómo va el cliente y qué ha dejado de comprar.</p>
+  </div></div>
+  <div class="dos">
+    <div class="prosa">
+      <p>En un solo mensaje verás:</p>
+      <div class="tabla"><table>
+        <tr><td>💰 Deuda</td><td>Lo que debe, con <a href="#leyenda">semáforo</a> comparado con lo que factura de media al mes.</td></tr>
+        <tr><td>📅 Ventas</td><td>Lo facturado este año hasta hoy, frente al mismo corte de los dos años anteriores, con % de variación.</td></tr>
+        <tr><td>🏆 Top</td><td>Sus 6 productos principales del año y cómo van respecto al año pasado.</td></tr>
+        <tr><td>⚠️ En caída</td><td>Hasta 3 productos que ha reducido un 40% o más, o ha dejado de pedir. Es tu guion de venta.</td></tr>
+      </table></div>
+      <p>Al terminar sigues en el menú del cliente: <kbd>1</kbd> Facturas, <kbd>3</kbd> Pedido, <kbd>4</kbd> Seguimiento.</p>
+      <div class="truco"><b>Truco.</b> Mira el Estudio en el coche antes de entrar. Los productos "en caída" son la conversación: "Oye, ¿el pan de hot dog ya no lo trabajáis?"</div>
+    </div>
+    <div>
+      <div class="chat"><div class="chat-cuerpo">
+        <div class="msg bot" data-h="09:48">📊 <b>HOSTELERÍA LA GANSA S.L.</b>
+💰 Deuda: 711€ 🟡 (media/mes: 1180€)
+📅 2026: 9820€ · 2025: 8710€ 📈 +13% · 2024: 7950€ 📈 +24%
+
+🏆 <b>Top 2026:</b>
+1. PAN BRIOCHE BURGER 80G C/48 — 96u 📈 +20%
+2. CARNE BURGER VACUNO 180G — 410u ➡️ +2%
+3. PATATA 9MM CONGELADA 2,5KG — 64u 📉 -11%
+
+⚠️ <b>En caída (vs 2025):</b>
+- PAN HOT DOG C/36: 0u vs 22u (-100%)
+
+1 Facturas · 3 Pedido · 4 Seguimiento · <b>menu</b> salir</div>
+      </div></div>
+    </div>
+  </div>
+</section>
+<!-- ===================== PEDIDO ===================== -->
+<section class="capitulo" id="pedido" data-k="pedido presupuesto odoo crear meter foto nota texto libre direccion confirmar SI corregir pro cant add del N1 no identificado pedido rapido no avisar cliente olvidados habituales">
+  <div class="cap-cab"><div class="cap-emoji">🛒</div><div>
+    <p class="ruta">Menú → <kbd>3</kbd> → cliente → <kbd>3</kbd></p>
+    <h2>Pedido</h2>
+    <p>Escribes el pedido como te lo dice el cliente (o le haces una foto a la nota), Copiloto lo traduce a productos de Odoo, lo revisas y se crea el presupuesto a tu nombre.</p>
+  </div></div>
+
+  <div class="dos">
+    <div class="prosa">
+      <ol class="pasos">
+        <li><strong>Elige <kbd>3</kbd> en el menú del cliente</strong>Te enseña su deuda con semáforo y se pone a buscar sus direcciones de entrega.</li>
+        <li><strong>Espera el segundo mensaje</strong>Si el cliente tiene varias direcciones, te pide elegir una por número. Si tiene una sola, pasa directo.</li>
+        <li><strong>Elige cómo meterlo</strong><kbd>1</kbd> Escribirlo tú (texto libre o foto) · <kbd>2</kbd> <a href="#pedido-rapido">Pedido rápido</a>.</li>
+        <li><strong>Escribe el pedido, un producto por línea</strong>Como te salga: <i>"2 cajas brioche"</i>, <i>"10 kg patata 9"</i>. O manda una <b>foto</b> de la nota o albarán.</li>
+        <li><strong>Espera "Pedido interpretado"</strong>Llega en unos segundos, en un mensaje aparte. Si escribes antes, te dirá que aún está en ello.</li>
+        <li><strong>Revisa y corrige</strong>Con los <a href="#comandos-pedido">comandos de corrección</a>. Cada corrección te devuelve el pedido actualizado.</li>
+        <li><strong>Escribe <kbd>SI</kbd></strong>Se crea el presupuesto en Odoo con tu nombre de comercial y te llega su referencia y enlace.</li>
+      </ol>
+      <div class="cuidado"><b>Es un presupuesto, no un pedido confirmado.</b> Se crea como presupuesto en Odoo. Si hay que confirmarlo o retocarlo, se sigue haciendo como siempre.</div>
+    </div>
+    <div>
+      <div class="chat"><div class="chat-cuerpo">
+        <div class="msg yo" data-h="17:20">3</div>
+        <div class="msg bot" data-h="17:20">Cliente: <b>HOSTELERÍA LA GANSA S.L.</b>.
+💰 Deuda: 710.75 € 🟡
+
+🔍 Buscando sus direcciones, dame un momento...</div>
+        <div class="msg bot" data-h="17:20">¿A qué dirección va el pedido de <b>HOSTELERÍA LA GANSA S.L.</b>?
+
+1. BAR LA GANSA — C/ Feria 12, Sevilla
+2. LA GANSA TERRAZA — Av. Constitución 3, Sevilla
+
+Responde con el número.</div>
+        <div class="msg yo" data-h="17:21">1</div>
+        <div class="msg bot" data-h="17:21">Dirección: <b>BAR LA GANSA</b>.
+
+¿Cómo quieres meter el pedido?
+
+1️⃣ Escribirlo yo (texto libre)
+2️⃣ Pedido rápido — productos habituales con cantidades sugeridas
+
+O escribe <b>alias &lt;nombre&gt;</b> para guardarle un atajo a este cliente.</div>
+        <div class="msg yo" data-h="17:21">1</div>
+        <div class="msg bot" data-h="17:21">Escribe ahora el pedido de <b>HOSTELERÍA LA GANSA S.L.</b> (un producto por línea).</div>
+        <div class="msg yo" data-h="17:22">2 cajas brioche
+40 burger vacuno
+3 patata 9
+1 salsa trufa</div>
+        <div class="msg bot" data-h="17:22">🧠 Interpretando tu pedido, dame un momento...</div>
+      </div></div>
+    </div>
+  </div>
+
+  <h3 id="revision">Leer el pedido interpretado</h3>
+  <div class="dos">
+    <div class="prosa">
+      <p>Cada línea lleva un símbolo que te dice cuánto se fía Copiloto de haber acertado el producto:</p>
+      <div class="tabla"><table>
+        <tr><td>✅</td><td>Seguro. Coincide con lo que el cliente suele pedir.</td></tr>
+        <tr><td>🟡</td><td>Dudoso. Revisa que sea el producto correcto.</td></tr>
+        <tr><td>🔴</td><td>Poco fiable. Casi seguro que hay que corregirlo.</td></tr>
+        <tr><td>⚠️ Solo hay…</td><td>No hay stock suficiente para esa cantidad. Avisa al cliente o ajusta.</td></tr>
+        <tr><td>N1, N2…</td><td>Lo que no ha sabido identificar. Sale abajo, aparte.</td></tr>
+      </table></div>
+
+      <h3 id="comandos-pedido">Comandos de corrección</h3>
+      <p>El número es siempre el de la línea en el pedido interpretado.</p>
+      <div class="tabla chuleta"><table>
+        <tr><th>Escribe</th><th>Qué hace</th><th>Ejemplo</th></tr>
+        <tr><td><kbd>SI</kbd></td><td>Confirma y crea el presupuesto</td><td></td></tr>
+        <tr><td><kbd>cant 2 5</kbd></td><td>Cambia la cantidad de la línea 2 a 5</td><td>La cantidad que corriges se aprende para este cliente</td></tr>
+        <tr><td><kbd>pro 3 pan brioche 48</kbd></td><td>Cambia el producto de la línea 3 buscando "pan brioche 48"</td><td>Luego eliges de una lista y dices cantidad</td></tr>
+        <tr><td><kbd>add peperoni</kbd></td><td>Añade una línea nueva buscando "peperoni"</td><td>Eliges producto y cantidad</td></tr>
+        <tr><td><kbd>del 4</kbd></td><td>Quita la línea 4</td><td></td></tr>
+        <tr><td><kbd>N1</kbd></td><td>Busca el primer "no identificado" y lo añade con la cantidad que ya ponía</td><td></td></tr>
+        <tr><td><kbd>N1 rock</kbd></td><td>Igual, pero buscando con tu palabra ("rock")</td><td>Útil cuando el cliente usa un nombre raro</td></tr>
+        <tr><td><kbd>menu</kbd></td><td>Cancela el pedido entero</td><td>No se crea nada en Odoo</td></tr>
+      </table></div>
+      <div class="truco"><b>Copiloto aprende de ti.</b> Cuando corriges un producto o emparejas un N1, se guarda cómo llama ese cliente a ese producto. Y si corriges "2 cajas" a 96 unidades, aprende cuántas unidades tiene su caja. La segunda vez acierta solo.</div>
+      <p>Las búsquedas de <kbd>pro</kbd>, <kbd>add</kbd> y <kbd>N1</kbd> se hacen en el catálogo de ese cliente (lo que suele comprar). Si no aparece, prueba con otra palabra.</p>
+    </div>
+    <div>
+      <div class="chat"><div class="chat-cuerpo">
+        <div class="msg bot" data-h="17:22">📝 <b>Pedido interpretado:</b>
+
+1. ✅ 96 x PAN BRIOCHE BURGER 80G C/48
+2. ✅ 40 x CARNE BURGER VACUNO 180G
+3. 🟡 3 x PATATA 9MM CONGELADA 2,5KG ⚠️ <i>Solo hay 2 uds en stock, faltarían 1</i>
+
+⚠️ No identificado:
+N1. 1 salsa trufa
+
+Responde <b>N1</b>, <b>N2</b>... para buscar y emparejar uno (o <b>N1 palabra</b> para indicar tú la búsqueda, ej. "N1 rock").
+
+<b>SI</b> confirmar · <b>pro Nº búsq</b> cambiar producto · <b>cant Nº cant</b> cambiar cantidad · <b>add nombre</b> añadir · <b>del Nº</b> quitar · <b>menu</b> cancelar</div>
+        <div class="msg yo" data-h="17:23">N1 trufa</div>
+        <div class="msg bot" data-h="17:23">Productos parecidos a "trufa" (cantidad detectada: 1):
+
+1. SALSA MAYONESA TRUFA 1KG
+2. ACEITE TRUFA BLANCA 250ML
+
+Responde con el número.</div>
+        <div class="msg yo" data-h="17:23">1</div>
+        <div class="msg bot" data-h="17:23">📝 <b>Pedido interpretado:</b>
+…
+4. ✅ 1 x SALSA MAYONESA TRUFA 1KG
+…</div>
+        <div class="msg yo" data-h="17:24">SI</div>
+      </div></div>
+    </div>
+  </div>
+
+  <h3 id="tras-pedido">Después del SI: los avisos</h3>
+  <div class="dos">
+    <div class="prosa">
+      <p>Con el presupuesto creado, Copiloto mira el historial del cliente y te avisa de dos cosas (solo a ti, el cliente no lo ve):</p>
+      <ul>
+        <li><b>Deuda alta</b>, si supera la mitad de lo que factura al mes.</li>
+        <li><b>Productos habituales que no están en este pedido</b>: 🟡 si lleva 10 días o más sin pedirlo, 🔴 si lleva 21 o más.</li>
+      </ul>
+      <h4 id="aviso-cliente">El aviso automático al cliente</h4>
+      <p>Si hay productos habituales olvidados, Copiloto <b>programa un WhatsApp al cliente</b> recordándoselos, que sale a los <b>10 minutos</b>. Según los contactos que tenga guardados:</p>
+      <ul>
+        <li><b>Un contacto de Pedidos</b>: te dice a quién va a avisar y lo programa.</li>
+        <li><b>Varios</b>: te pregunta a cuál, por número.</li>
+        <li><b>Ninguno</b>: te pide el contacto así: <kbd>María - 622334455</kbd>. Queda guardado para la próxima.</li>
+      </ul>
+      <div class="cuidado"><b>¿No quieres que se le avise?</b> Escribe <kbd>no avisar</kbd> antes de que pasen los 10 minutos. Funciona desde cualquier punto de Copiloto.</div>
+      <p>Si el cliente responde a ese aviso, a ti te llega un mensaje con su nombre y teléfono para que le llames. Copiloto no sigue la conversación con él.</p>
+      <p>Tras el pedido vuelves al menú principal.</p>
+    </div>
+    <div>
+      <div class="chat"><div class="chat-cuerpo">
+        <div class="msg bot" data-h="17:24">✅ Presupuesto <b>S04512</b> creado para <b>HOSTELERÍA LA GANSA S.L.</b>.
+🔗 https://…
+
+👁️ <b>A tener en cuenta sobre HOSTELERÍA LA GANSA S.L.:</b>
+🟡 Deuda: 710.75 € (60% de su media mensual, 1180 €)
+🔴 No ha pedido <b>PAN HOT DOG C/36</b> desde hace 34 días (lo pide habitualmente)
+
+📤 Voy a avisar a <b>Manolo</b> de HOSTELERÍA LA GANSA S.L. de que no ha pedido: PAN HOT DOG C/36. Se enviará en 10 min salvo que escribas <b>no avisar</b>.
+
+Escribe <b>menu</b> para otra consulta.</div>
+        <div class="msg yo" data-h="17:25">no avisar</div>
+        <div class="msg bot" data-h="17:25">✅ Aviso a <b>HOSTELERÍA LA GANSA S.L.</b> cancelado. No se enviará.</div>
+      </div></div>
+    </div>
+  </div>
+
+  <h3 id="pedido-rapido">Pedido rápido</h3>
+  <div class="prosa">
+    <p>En el paso de "¿Cómo quieres meter el pedido?" responde <kbd>2</kbd>. Te llega un enlace a una pantalla con los productos habituales del cliente y cantidades ya sugeridas. Ajustas, envías, y se crea el presupuesto directamente en Odoo. Es lo más rápido para clientes de pedido repetitivo.</p>
+  </div>
+</section>
+
+<!-- ===================== SEGUIMIENTO ===================== -->
+<section class="capitulo" id="seguimiento" data-k="seguimiento reparto entregado repartido fotos entrega almacen donde esta mi pedido sin confirmar anteriores semana ia verificacion incidencia analisis falta producto">
+  <div class="cap-cab"><div class="cap-emoji">🚚</div><div>
+    <p class="ruta">Menú → <kbd>3</kbd> → cliente → <kbd>4</kbd></p>
+    <h2>Seguimiento</h2>
+    <p>"¿Dónde está mi pedido?" contestado en segundos, con fotos de almacén y de entrega.</p>
+  </div></div>
+  <div class="dos">
+    <div class="prosa">
+      <div class="tabla"><table>
+        <tr><th>Opción</th><th>Qué te da (semana actual, lunes a domingo)</th></tr>
+        <tr><td>1 En reparto</td><td>Pedidos que han salido o están preparados para salir, con fecha prevista y fotos del almacén.</td></tr>
+        <tr><td>2 Repartidos</td><td>Pedidos entregados, con día de entrega y enlace a cada foto (almacén y entrega).</td></tr>
+        <tr><td>3 Sin confirmar</td><td>Presupuestos de esta semana que aún no se han confirmado.</td></tr>
+        <tr><td>4 Anteriores</td><td>Los últimos 5 pedidos, aunque sean de otras semanas. Eliges uno por número y ves su detalle.</td></tr>
+        <tr><td>5 Todo</td><td>Resumen de la semana: repartidos, en reparto y sin confirmar, en un solo mensaje.</td></tr>
+      </table></div>
+      <h4 id="verificacion-ia">Verificación IA de las fotos</h4>
+      <p>El almacén fotografía cada pedido y una IA revisa que se vean todos los productos. En cada pedido verás:</p>
+      <div class="tabla"><table>
+        <tr><td>⚠️ IA (alto/medio/bajo)</td><td>La IA ha detectado algo, por ejemplo un producto que no se ve en las fotos. Lo de entre paréntesis es lo segura que está.</td></tr>
+        <tr><td>⚠️ Incidencia</td><td>Una incidencia marcada a mano por el repartidor.</td></tr>
+        <tr><td>🤖 Sin incidencias registradas</td><td>Hay fotos y nadie ha marcado nada.</td></tr>
+        <tr><td>🔍 Enlace</td><td>Abre las fotos del almacén con el análisis completo.</td></tr>
+      </table></div>
+      <div class="truco"><b>Antes de que llame el cliente.</b> Si ves un ⚠️ de la IA en un pedido en reparto, compruébalo con almacén: aún estás a tiempo de que no llegue incompleto.</div>
+      <p>Los pedidos se identifican por su <b>referencia de venta</b> (la misma de Odoo). Te quedas en este submenú hasta escribir <kbd>menu</kbd>, así que puedes consultar varias cosas seguidas.</p>
+      <div class="truco"><b>Truco.</b> Si un cliente dice que no le ha llegado algo, abre "Repartidos" y reenvíale el enlace de la foto de entrega.</div>
+    </div>
+    <div>
+      <div class="chat"><div class="chat-cuerpo">
+        <div class="msg yo" data-h="16:10">2</div>
+        <div class="msg bot" data-h="16:10">✅ <b>Repartidos — HOSTELERÍA LA GANSA S.L.</b>
+
+1. ✅ VTA/2026/12131 — entregado 30/9
+   ⚠️ IA (alto): Fondant Chocolate 100 Grs x 20 uds — no se ve en las fotos
+   🔍 4 fotos de almacén y análisis: https://…
+   📷 entrega 1: https://…
+
+— — —
+Cliente: <b>HOSTELERÍA LA GANSA S.L.</b>
+
+1️⃣ En reparto (esta semana)
+2️⃣ Repartidos (esta semana)
+3️⃣ Sin confirmar (esta semana)
+4️⃣ Pedidos anteriores (buscar más atrás)
+5️⃣ Todo (resumen semanal)</div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CONSUMO ===================== -->
+<section class="capitulo" id="consumo" data-k="consumo anual año excel listado articulos cantidades consumidas cliente pide">
+  <div class="cap-cab"><div class="cap-emoji">📋</div><div>
+    <p class="ruta">Menú → <kbd>3</kbd> → cliente → <kbd>5</kbd> · o escribe <kbd>consumo gansa</kbd></p>
+    <h2>Consumo del año</h2>
+    <p>Cuando un cliente te pide «qué os he comprado este año», Copiloto te manda un Excel con todo, listo para reenviárselo.</p>
+  </div></div>
+  <div class="prosa">
+    <p>El Excel trae cada artículo con su referencia, unidad, <b>cantidad</b>, <b>importe sin IVA</b> y cuántas veces lo ha pedido, ordenado de más a menos importe y con el total al final. En el mensaje te resume además cuántos artículos son, el total y los tres que más.</p>
+    <div class="nota"><b>Qué cuenta.</b> Pedidos confirmados desde el 1 de enero hasta hoy, de cualquier dirección del cliente. Las devoluciones restan. Los presupuestos sin confirmar no entran.</div>
+    <div class="truco"><b>Antes de reenviarlo,</b> ábrelo y échale un vistazo: lleva importes. Si el cliente solo quiere cantidades, borra esa columna en el móvil antes de mandarlo.</div>
+  </div>
+</section>
+
+<!-- ===================== INFORME 360 ===================== -->
+<section class="capitulo" id="informe360" data-k="informe 360 web tablet ordenador dashboard cliente ventas articulos locales establecimientos deuda margen ranking presentacion pedido foto reenviar">
+  <div class="cap-cab"><div class="cap-emoji">📊</div><div>
+    <p class="ruta">Menú → <kbd>3</kbd> → cliente → <kbd>7</kbd> · o escribe <kbd>360 gansa</kbd></p>
+    <h2>Informe 360</h2>
+    <p>Todo el cliente de un vistazo, en una web para la tablet o el ordenador (también se ve en el móvil). Ideal para preparar una visita o una llamada.</p>
+  </div></div>
+  <div class="prosa">
+    <p>Copiloto te manda un <b>enlace personal que vale 7 días</b>. No lo reenvíes: lleva márgenes y deuda.</p>
+  </div>
+  <div class="tabla"><table>
+    <tr><th>Pestaña</th><th>Qué tiene</th></tr>
+    <tr><td>Resumen</td><td>Ventas del año frente al anterior, margen, deuda, puesto en la cartera, ticket medio, cada cuánto pide, lo que más compra, <b>«Antes de la visita»</b> (resumen de la IA) y alertas.</td></tr>
+    <tr><td>Ventas y locales</td><td>Meses, trimestres y año comparados hasta la misma fecha, y el reparto por establecimiento si tiene varios.</td></tr>
+    <tr><td>Artículos</td><td>Lo que compra (ordenable), lo que ha dejado de comprar, lo nuevo y el margen en riesgo.</td></tr>
+    <tr><td>Deuda y seguimiento</td><td>Pendiente, vencido, días que tarda en pagar, PDF de cada factura, contactos, notas de visita (con tarea de recordatorio) e historial de pedidos, incidencias y notas.</td></tr>
+    <tr><td>Oportunidades IA</td><td>Complementarios de lo que compra, lo que compran los clientes parecidos, formatos mayores para subir el ticket, alertas tempranas con qué hacer y próximo pedido previsto. Con <b>+ Al pedido</b> se añade al pedido.</td></tr>
+    <tr><td>Estudio de carta</td><td>Pega el enlace de su carta, sube el PDF o una foto (o mándala a Copiloto: CLIENTE → <kbd>8</kbd>, o <kbd>carta gansa</kbd>). Te dice qué platos podemos servir, qué ya nos compra, las oportunidades con <b>+ Al pedido</b>, un argumentario y una <b>propuesta en PDF</b> para el cliente. El pescado fresco y la carne al corte no se proponen.</td></tr>
+    <tr><td>Prospección de un municipio</td><td>Escribe <kbd>prospectar el viso del alcor</kbd>. Copiloto busca en Google Maps los locales que nos interesan (DJI: gastrobares y cocina elaborada, o toda la hostelería; SYL: veterinarias, clínicas, dentistas, fisioterapia y centros oficiales), los cruza con Odoo (<b>ya es cliente</b>, <b>fue cliente</b> o <b>por captar</b>) y te manda una web con lista y mapa. Desde cada local: llamar, cómo llegar, su web y <b>Estudiar su carta</b>. El seguimiento (visitado, interesado…) y las notas los ven todos los comerciales. La búsqueda de un municipio se reutiliza 30 días.</td></tr>
+    <tr><td>Primer contacto</td><td>En la prospección, botón <b>Primer contacto</b> de cada local: prepara su <b>página personalizada</b> (tu foto, productos para sus platos, muestras o —en DJI— demostración en nuestra cocina, y día para la visita), su <b>tarjeta A6 con QR</b> para dejarla en mano y tu <b>guion de llamada</b>. Lo que pida el local te llega por WhatsApp para que se lo confirmes tú.</td></tr>
+    <tr><td>Permiso para escribirle</td><td>Nunca se escribe por WhatsApp a un local sin su «sí». Consíguelo por teléfono o en persona y regístralo en el panel, o desde la calle: <kbd>permiso la resolana javier 600111222</kbd>. Copiloto le envía la propuesta con tu nombre y el enlace a su página. Si responde <b>BAJA</b>, no se le vuelve a escribir.</td></tr>
+    <tr><td>Tu foto</td><td>Escribe <kbd>mi foto</kbd> y mándala (de frente, buena luz, fondo liso). Sale en tus páginas y tarjetas.</td></tr>
+    <tr><td>Tu tarjeta de visita</td><td>Escribe <kbd>mi tarjeta</kbd>. Te llega un único mensaje listo para reenviar al cliente: en su WhatsApp se ve tu foto, nombre y cargo, y al tocarlo se abre la tarjeta (WhatsApp contigo, llamar, guardar contacto, pedidos por WhatsApp, dirección y cocina). Para la versión de imprenta (85 × 55 mm con QR) escribe <kbd>mi tarjeta imprimir</kbd>.</td></tr>
+    <tr><td>Si un cliente escribe a Copiloto</td><td>Copiloto no conversa con clientes: le contesta una vez (si ya es cliente con Copiloto, con su enlace de pedido) y <b>te pasa su mensaje a ti</b> con su número para que le contestes. Lo reconoce por su ficha de Odoo, por el permiso de la prospección o porque viene de tu tarjeta de visita. Si no sabe de quién es, el aviso va a la oficina.</td></tr>
+    <tr><td>Sin informe (rápido)</td><td>CLIENTE → <kbd>10</kbd>: la misma pantalla de <b>Hacer pedido</b> y <b>Estudio de carta</b>, pero se abre al momento porque no prepara el Informe 360.</td></tr>
+    <tr><td>Carta de un local que aún no es cliente</td><td>Puerta fría: escribe <kbd>carta nueva bar la esquina</kbd> y mándale a Copiloto el enlace, el PDF o la foto de su carta. Te avisa cuando está y te da el enlace: ves nuestro <b>coste</b> de cada artículo, pones el precio que le ofreces (en rojo si el margen baja del 30 %) y sacas la <b>propuesta en PDF</b>. Para volver a verlo, escribe otra vez <kbd>carta nueva</kbd> con el mismo nombre.</td></tr>
+    <tr><td>Catálogo a medida</td><td>CLIENTE → <kbd>9</kbd> o <kbd>seleccion gansa</kbd>. Eliges artículos por etiquetas (familia, momento, origen, preparación, alérgenos…): dentro de un grupo vale cualquiera, entre grupos tienen que cumplirse todos. Se le manda al cliente por WhatsApp una página con fotos, fichas técnicas y, si quieres, sus precios (también en PDF). Te avisa cuando lo abre y lo que marca como <b>«Me interesa»</b>; el pedido lo metes tú. Solo salen artículos <b>revisados para catálogo</b> en Odoo.</td></tr>
+    <tr><td>Hacer pedido</td><td>A la izquierda el pedido del cliente (texto o foto) y a la derecha lo interpretado, con el mismo número de línea. Se crea como presupuesto.</td></tr>
+  </table></div>
+  <div class="prosa">
+    <div class="truco"><b>Foto del cliente.</b> Reenvía a Copiloto la foto que te mande el cliente por WhatsApp: la tendrás 48 horas en <i>Hacer pedido → Foto</i> para pasarla desde la tablet.</div>
+    <div class="nota"><b>Modo presentación.</b> El botón de arriba oculta márgenes y deuda para enseñarle la pantalla al cliente.</div>
+  </div>
+</section>
+
+<!-- ===================== CAPTAR CLIENTES ===================== -->
+<section class="capitulo" id="captar" data-k="captar clientes nuevos prospeccion prospectar municipio pueblo puerta fria primer contacto pagina tarjeta qr guion llamada permiso whatsapp baja foto muestras demostracion cocina visita">
+  <div class="cap-cab"><div class="cap-emoji">🧭</div><div>
+    <p class="ruta">Escribe <kbd>prospectar el viso del alcor</kbd> · <kbd>permiso …</kbd> · <kbd>mi foto</kbd></p>
+    <h2>Captar clientes nuevos, paso a paso</h2>
+    <p>Del pueblo al primer pedido: encuentra los locales que nos interesan, prepárales una propuesta solo para ellos, consigue su permiso y deja que elijan cuándo verte.</p>
+  </div></div>
+
+  <div class="prosa">
+    <h3 style="margin-top:0">Antes de empezar (una sola vez)</h3>
+    <ol class="pasos">
+      <li><strong>Sube tu foto</strong>Escribe <kbd>mi foto</kbd> a Copiloto y mándale tu foto (de frente, buena luz, fondo liso). Te contesta <i>«Foto guardada»</i>. Saldrá en todas tus páginas y tarjetas. Para cambiarla, repite.</li>
+    </ol>
+
+    <h3>1 · Buscar los locales del pueblo</h3>
+    <ol class="pasos">
+      <li><strong>Pide la prospección</strong>Escribe <kbd>prospectar</kbd> y el municipio, por ejemplo <kbd>prospectar la palma del condado</kbd>. En DJI elige <kbd>1</kbd> (gastrobares y cocina elaborada) o <kbd>2</kbd> (toda la hostelería); en SYL busca directamente clínicas, veterinarias y centros oficiales.</li>
+      <li><strong>Espera el resumen</strong>En uno o dos minutos te llega cuántos locales hay, cuántos <b>por captar</b>, cuántos <b>fueron clientes</b> y cuántos ya lo son, con el enlace a la web. Si el pueblo ya se buscó este mes, el enlace llega al momento.</li>
+      <li><strong>Abre la web y elige a quién ir</strong>Filtra por tipo y por <b>En Odoo → Por captar</b>. Cada local trae por qué encaja, valoración, horario de hoy, teléfono, web y mapa. Con <b>Ordenar → Más cerca de mí</b> planificas la ruta a pie.</li>
+      <li><strong>¿Falta alguno?</strong>Al final de la web, en <b>¿Falta algún local?</b>, escribe su nombre, pulsa <b>Buscar en Google</b> y <b>Añadir</b>. En <b>Descartados por la búsqueda</b> ves lo que se quitó y por qué (otro municipio, cerrado o no encaja) y puedes <b>Recuperar</b> cualquiera.</li>
+    </ol>
+
+    <h3>2 · Preparar la propuesta</h3>
+    <ol class="pasos">
+      <li><strong>(DJI) Estudia su carta</strong>Si el local tiene web, pulsa <b>Estudiar su carta</b>. En 1–3 minutos te avisa Copiloto; en el estudio ves nuestro coste, pones precio (en rojo si baja del 30 %) y puedes <b>⇄ Cambiar</b> o <b>+ Añadir</b> artículos. Hazlo antes del paso siguiente: así su página habla de <i>sus</i> platos.</li>
+      <li><strong>Prepara su página y su tarjeta</strong>En el local, botón <b>Primer contacto → Preparar su página y tarjeta</b>. En unos segundos tienes: <b>Ver su página</b> (lo que verá el local), <b>Imprimir tarjeta</b> (A6 a doble cara, con QR a su página) y tu <b>guion de llamada</b>. Si algo no te gusta, <b>Rehacer</b>.</li>
+    </ol>
+
+    <h3>3 · Primer contacto y permiso</h3>
+    <ol class="pasos">
+      <li><strong>Llama con el guion, o pásate</strong>Por teléfono: sigue el guion de 30 segundos, que termina pidiendo permiso para mandarle la propuesta por WhatsApp y su móvil. En persona: deja la tarjeta y, si te atiende quien compra, pídele el móvil.</li>
+      <li><strong>Registra el permiso y envía</strong>Desde la web: en <b>Primer contacto</b> rellena contacto, cargo y móvil, elige cómo te lo dio, marca <b>«Me ha dicho que sí»</b> y pulsa <b>Registrar el permiso y enviar la propuesta</b>. Desde la calle: escribe <kbd>permiso la resolana javier 600111222</kbd> (local, nombre y móvil), responde <kbd>1</kbd> (teléfono) o <kbd>2</kbd> (en persona) y <kbd>1</kbd> para enviar.</li>
+      <li><strong>Lo que le llega</strong>Un WhatsApp del número de la empresa, con tu nombre, que le agradece la atención y le da el enlace a su página. Lleva «responde BAJA» para darse de baja.</li>
+    </ol>
+
+    <h3>4 · El local elige y tú confirmas</h3>
+    <ol class="pasos">
+      <li><strong>El local abre su página</strong>Ve los productos para sus platos y elige <b>muestras</b> o —en DJI— <b>demostración en nuestra cocina</b> (C/ Bodega Espinosa, 15, con botón a Google Maps), el día y la franja. También puede darnos permiso de WhatsApp desde ahí.</li>
+      <li><strong>Te llega el aviso</strong>Copiloto te escribe con el día, la hora, por quién preguntar y qué quiere probar. <b>Confírmaselo tú</b> por teléfono o WhatsApp. En la web verás también si ha abierto su página.</li>
+      <li><strong>Apunta el seguimiento</strong>En el local, marca <b>Visitado</b>, <b>Interesado</b> o <b>No interesado</b> y deja una nota (con quién hablar, cuándo volver). Lo ven todos los comerciales.</li>
+      <li><strong>Si se hace cliente</strong>Alta en Odoo como siempre. A partir de ahí ya tienes su <b>Informe 360</b>, el <b>catálogo a medida</b> y sus pedidos en Copiloto.</li>
+    </ol>
+  </div>
+
+  <div class="prosa">
+    <div class="nota"><b>Sin «sí», no hay WhatsApp.</b> Copiloto no deja enviar nada a un local que no nos ha dado permiso, y queda guardado quién lo dio, a qué número, cómo y cuándo. Si responde <b>BAJA</b>, no se le vuelve a escribir.</div>
+    <div class="truco"><b>Prueba completa con un local de confianza.</b> Haz todo el recorrido con un restaurante de la casa y pon <b>tu propio móvil</b> como contacto en el permiso: recibirás el WhatsApp como lo recibiría el local, podrás abrir su página, pedir la demostración (te llegará el aviso como comercial) y, al final, responder <kbd>BAJA</kbd> para comprobar que ya no deja enviar.</div>
+  </div>
+</section>
+
+<!-- ===================== MIS DATOS ===================== -->
+<section class="capitulo" id="misdatos" data-k="mis datos ventas objetivos clientes articulos mi dia cobro inactivos faltas reparto entregados semana repartidor">
+  <div class="cap-cab"><div class="cap-emoji">📋</div><div>
+    <p class="ruta">Menú → <kbd>4</kbd></p>
+    <h2>Mis datos</h2>
+    <p>Tu actividad como comercial, sin abrir el ordenador. Todo sale de Odoo en el momento.</p>
+  </div></div>
+  <div class="tabla"><table>
+    <tr><th>Opción</th><th>Qué te da</th></tr>
+    <tr><td>1 Mis ventas</td><td>Mes, trimestre y año en curso, cada uno comparado con el mismo periodo del año pasado.</td></tr>
+    <tr><td>2 Mis clientes</td><td>Tus clientes que más te compran este mes.</td></tr>
+    <tr><td>3 Mis artículos</td><td>Los productos que más vendes este mes.</td></tr>
+    <tr><td>4 Mi día</td><td>Lo que llevas hoy: confirmados y presupuestos sin confirmar.</td></tr>
+    <tr><td>5 Mis objetivos</td><td>Objetivo del trimestre y el % que llevas.</td></tr>
+    <tr><td>6 Pendientes de cobro</td><td>Deuda total de tu cartera y los clientes que más deben.</td></tr>
+    <tr><td>7 Sin pedido reciente</td><td>Clientes tuyos que llevan 21 días o más sin pedir. Tu lista de llamadas.</td></tr>
+    <tr><td>8 Mis faltas</td><td>Tus presupuestos con productos sin stock suficiente, agrupados por cliente.</td></tr>
+    <tr><td>9 En reparto / sin confirmar</td><td>Todos tus clientes a la vez: lo que está en reparto esta semana agrupado por repartidor, y los presupuestos sin confirmar.</td></tr>
+    <tr><td>10 Entregados esta semana</td><td>Todas tus entregas de la semana por día, con el nº de fotos 📷. Responde con el número de una para ver sus fotos.</td></tr>
+  </table></div>
+  <p class="prosa">Después de cada dato te vuelve a salir este menú, para que pidas otro. <kbd>menu</kbd> para salir.</p>
+</section>
+
+<!-- ===================== ENLACES ===================== -->
+<section class="capitulo" id="enlaces" data-k="enlaces links apps paneles dashboard reparto web">
+  <div class="cap-cab"><div class="cap-emoji">🔗</div><div>
+    <p class="ruta">Menú → <kbd>5</kbd></p>
+    <h2>Enlaces</h2>
+    <p>Accesos directos a las apps y paneles internos de la empresa (reparto, dashboard de ventas y otros). Toca el enlace y se abre en el navegador del móvil.</p>
+  </div></div>
+</section>
+
+<!-- ===================== TAREAS ===================== -->
+<section class="capitulo" id="tareas" data-k="tareas recordatorio pendiente asignar reunion visita compañero marcar hecha implicados todos">
+  <div class="cap-cab"><div class="cap-emoji">✅</div><div>
+    <p class="ruta">Menú → <kbd>6</kbd></p>
+    <h2>Tareas</h2>
+    <p>Encargos entre compañeros que no se pierden: Copiloto recuerda cada mañana a quien tenga algo pendiente hasta que lo marque hecho.</p>
+  </div></div>
+  <div class="dos">
+    <div class="prosa">
+      <h3 style="margin-top:0">Crear una tarea</h3>
+      <ol class="pasos">
+        <li><strong>Menú → <kbd>6</kbd> → <kbd>1</kbd></strong>Te pide un título: <i>"Enviar presupuesto a Bar Sol"</i>, <i>"Visita cliente Y"</i>.</li>
+        <li><strong>Fecha (opcional)</strong>Formato <kbd>15/10</kbd>, o <kbd>no</kbd> si no tiene fecha concreta.</li>
+        <li><strong>¿A quién implica?</strong>Te sale la lista numerada del equipo. Responde con uno o varios números separados por comas: <kbd>2,4</kbd>. <kbd>0</kbd> es para <b>todos</b>. Para una tarea solo tuya, pon tu propio número.</li>
+        <li><strong>Si son varios, qué le toca a cada uno</strong>Te pregunta persona por persona qué tiene que hacer.</li>
+        <li><strong>Listo</strong>Cada implicado recibe un aviso con la tarea.</li>
+      </ol>
+
+      <h3>Marcar tu parte como hecha</h3>
+      <p>Menú → <kbd>6</kbd> → <kbd>2</kbd> <b>Mis tareas pendientes</b>. Responde con el número de la que has terminado. Quien la creó recibe un aviso; cuando todos han terminado, le llega "completa del todo".</p>
+
+      <h3>Ver cómo van las que has pedido</h3>
+      <p>Menú → <kbd>6</kbd> → <kbd>3</kbd>. Cada persona aparece con ✅ si ya lo hizo o ⏳ si lo tiene pendiente.</p>
+
+      <div class="nota"><b>Recordatorio diario.</b> Cada mañana a primera hora te llega un WhatsApp con tus tareas pendientes. Si la tarea tiene fecha, el recordatorio empieza 3 días antes; si no, sale todos los días hasta que la marques.</div>
+    </div>
+    <div>
+      <div class="chat"><div class="chat-cuerpo">
+        <div class="msg yo" data-h="09:02">tareas</div>
+        <div class="msg bot" data-h="09:02">✅ <b>Tareas</b>
+
+1️⃣ Nueva tarea
+2️⃣ Mis tareas pendientes
+3️⃣ Tareas que he creado</div>
+        <div class="msg yo" data-h="09:02">1</div>
+        <div class="msg bot" data-h="09:02">¿Qué título le pones a la tarea? (ej. "Enviar presupuesto a Cliente X", o "Visita cliente Y")</div>
+        <div class="msg yo" data-h="09:03">Visita Hotel Mirador</div>
+        <div class="msg bot" data-h="09:03">¿Tiene una fecha concreta? Escribe la fecha (DD/MM), o "no" si no aplica.</div>
+        <div class="msg yo" data-h="09:03">08/10</div>
+        <div class="msg bot" data-h="09:03">¿A quién implica?
+
+0. Todos
+1. Antonio
+2. Juanjo
+3. Manolo
+…
+
+Responde con el/los número(s) separados por comas (ej. "2,4"), o <b>0</b> si es para todos.</div>
+        <div class="msg yo" data-h="09:04">1,2</div>
+        <div class="msg bot" data-h="09:04">¿Qué le toca hacer a <b>Antonio</b>?</div>
+        <div class="msg yo" data-h="09:04">Muestras de carne</div>
+        <div class="msg bot" data-h="09:04">¿Qué le toca hacer a <b>Juanjo</b>?</div>
+        <div class="msg yo" data-h="09:05">Tarifa actualizada impresa</div>
+        <div class="msg bot" data-h="09:05">✅ Tarea creada: <b>Visita Hotel Mirador</b> (08/10)
+   Antonio: Muestras de carne
+   Juanjo: Tarifa actualizada impresa</div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== MEJORAS ===================== -->
+<section class="capitulo" id="mejoras" data-k="mejoras errores fallo reportar sugerencia idea no funciona problema captura">
+  <div class="cap-cab"><div class="cap-emoji">🛠️</div><div>
+    <p class="ruta">Menú → <kbd>7</kbd> · o escribe <kbd>reportar</kbd> en cualquier momento</p>
+    <h2>Mejoras y errores</h2>
+    <p>Si algo falla o se te ocurre cómo mejorar Copiloto, apúntalo aquí. Cada aviso llega directamente a quien lo arregla, y te avisamos cuando esté resuelto.</p>
+  </div></div>
+  <div class="dos">
+    <div class="prosa">
+      <h3 style="margin-top:0">Si algo falla en mitad de algo: <kbd>reportar</kbd></h3>
+      <ol class="pasos">
+        <li><strong>Escribe <kbd>reportar</kbd></strong>Estés donde estés: en un pedido, en facturas… Copiloto guarda en qué punto estabas y con qué cliente.</li>
+        <li><strong>Cuenta qué ha pasado</strong>Qué hacías y qué esperabas. Si ayuda, manda una captura de pantalla.</li>
+        <li><strong>Sigue donde lo dejaste</strong>Te da un número de aviso y te devuelve al mismo punto para que continúes.</li>
+      </ol>
+      <h3>Para ideas o fallos en general: menú <kbd>7</kbd></h3>
+      <div class="tabla"><table>
+        <tr><td>1 Algo no funciona</td><td>Describe el fallo, con captura si la tienes.</td></tr>
+        <tr><td>2 Propongo una mejora</td><td>Qué te gustaría que hiciera Copiloto o qué cambiarías.</td></tr>
+        <tr><td>3 Ver lo que he enviado</td><td>Tus últimos avisos con su estado: 🆕 recibido, 🔧 en curso, ✅ resuelto, y la respuesta si la hay.</td></tr>
+      </table></div>
+      <div class="truco"><b>Cuanto más concreto, mejor.</b> "En el pedido de Pasterico mandé una foto y me dijo que no identificaba nada" se arregla mucho antes que "las fotos no van".</div>
+    </div>
+    <div>
+      <div class="chat"><div class="chat-cuerpo">
+        <div class="msg yo" data-h="14:06">reportar</div>
+        <div class="msg bot" data-h="14:06">🐞 <b>Reportar un problema</b>
+He guardado en qué punto estabas (Pedido).
+
+Cuéntame qué ha pasado o qué esperabas que pasara. Puedes adjuntar una captura.</div>
+        <div class="msg yo" data-h="14:07">Mando la foto de la nota y dice que no identifica ningún producto</div>
+        <div class="msg bot" data-h="14:07">✅ Recibido <b>#27</b>. Gracias, Manolo. Te avisaré cuando esté resuelto.
+
+↩️ Te dejo donde estabas (Pedido): sigue escribiendo como antes, o <b>menu</b> para salir.</div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== AVISOS ===================== -->
+<section class="capitulo" id="avisos" data-k="avisos notificaciones me llega mensaje solo respuesta cliente 24 horas">
+  <div class="cap-cab"><div class="cap-emoji">🔔</div><div>
+    <h2>Lo que te llega sin pedirlo</h2>
+    <p>Mensajes que Copiloto te manda por su cuenta. No hay que contestarlos para que sigan funcionando.</p>
+  </div></div>
+  <div class="tabla"><table>
+    <tr><th>Mensaje</th><th>Cuándo</th><th>Qué hacer</th></tr>
+    <tr><td>📌 Te han asignado una tarea</td><td>Cuando un compañero te incluye en una tarea</td><td>Menú → <kbd>6</kbd> → <kbd>2</kbd> para verla</td></tr>
+    <tr><td>Recordatorio de tareas</td><td>Cada mañana, si tienes alguna pendiente</td><td>Márcala hecha cuando la termines</td></tr>
+    <tr><td>✅ Alguien ha marcado su parte</td><td>En tareas que tú creaste</td><td>Nada; es informativo</td></tr>
+    <tr><td>📩 Un cliente ha respondido</td><td>Cuando un cliente contesta al aviso de productos no pedidos</td><td>Llámale o escríbele tú directamente</td></tr>
+  </table></div>
+  <div class="cuidado prosa"><b>Importante.</b> Por normas de WhatsApp, algunos de estos avisos solo llegan si has escrito a Copiloto en las últimas 24 horas. Acostúmbrate a abrirlo cada mañana.</div>
+</section>
+
+<!-- ===================== CLIENTES ===================== -->
+<section class="capitulo" id="clientes" data-k="clientes cliente final autoservicio activar presentacion acepto contactos mis contactos ficha quien pide quien paga pedido cliente tarifa niveles revalidar baja argumentario">
+  <div class="cap-cab"><div class="cap-emoji">🏪</div><div>
+    <h2>Copiloto y tus clientes</h2>
+    <p>Lo que Copiloto ya hace con tus clientes, cómo se activa para ellos y lo que podrán hacer por su cuenta. Tú sigues siendo su comercial: Copiloto trabaja para ti, no en tu lugar.</p>
+  </div></div>
+
+  <div class="fase ya">
+    <h3 id="clientes-hoy">Lo que ya hace con tus clientes <span class="estado ya">Ya funciona</span></h3>
+    <div class="dos">
+      <div class="prosa">
+        <p><b>Recordatorio de productos habituales.</b> Cuando creas un pedido por Copiloto y al cliente se le ha olvidado algo que suele pedir, le llega un WhatsApp de la empresa recordándoselo, a los 10 minutos. Tú puedes cancelarlo antes con <kbd>no avisar</kbd> (más detalle en <a href="#aviso-cliente">Pedido</a>).</p>
+        <p><b>Si el cliente contesta</b>, sea lo que sea, él recibe <i>"Perfecto, tu comercial te contactará en breve"</i> y a ti te llega un aviso con su nombre y teléfono. Copiloto no sigue la conversación: a partir de ahí le llamas o le escribes tú.</p>
+        <p><b>Lo que tú le reenvías.</b> El texto de facturas pendientes (<kbd>r</kbd>), los catálogos, el informe de cuenta en PDF y los enlaces a las fotos de entrega están pensados para reenviarlos tal cual.</p>
+      </div>
+      <div>
+        <div class="chat"><div class="chat-cuerpo">
+          <div class="msg bot" data-h="18:02">📩 <b>HOSTELERÍA LA GANSA S.L.</b> ha respondido al aviso de productos habituales no pedidos. Contacta con él/ella directamente: +34 6XX XXX XXX</div>
+        </div></div>
+        <p class="chat-pie">Lo que te llega a ti cuando un cliente contesta.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="fase ya">
+    <h3 id="ficha-contactos">La ficha de contactos: lo que lo hace posible <span class="estado ya">Ya funciona</span></h3>
+    <div class="prosa">
+      <p>Copiloto solo escribe a clientes cuyo contacto has revisado tú. Para eso te llega por WhatsApp un enlace personal a tu <b>ficha de contactos</b>, con tu cartera de clientes. Por cada uno rellenas:</p>
+      <div class="tabla"><table>
+        <tr><td>Quién pide</td><td>Nombre y teléfono de la persona que hace los pedidos. A este contacto van los recordatorios.</td></tr>
+        <tr><td>Quién paga</td><td>Nombre y teléfono de quien lleva las facturas.</td></tr>
+        <tr><td>¿Acepta Copiloto?</td><td>Si el cliente quiere o no recibir comunicaciones de Copiloto.</td></tr>
+      </table></div>
+      <p>Los clientes que ya has revisado desaparecen de la lista, aunque les falte algún dato.</p>
+      <div class="truco"><b>Truco.</b> Pregúntale al cliente en la visita quién hace los pedidos y si le parece bien recibir avisos por WhatsApp. Es un minuto y evita escribir a quien no toca.</div>
+    </div>
+  </div>
+
+  <div class="fase ya">
+    <h3 id="activar-cliente">Cómo se activa Copiloto para un cliente <span class="estado ya">Primera fase en marcha</span></h3>
+    <div class="dos">
+      <div class="prosa">
+        <ol class="pasos">
+          <li><strong>Tú verificas el contacto</strong>En la ficha de contactos, con el cliente de acuerdo.</li>
+          <li><strong>La empresa le envía una presentación</strong>Un WhatsApp desde el número oficial explicando qué es Copiloto, con tu nombre como su comercial.</li>
+          <li><strong>El cliente pulsa "Sí, acepto"</strong>Queda activado al momento. Como el teléfono lo verificaste tú, no hace falta ningún paso más.</li>
+        </ol>
+        <p>Un mismo cliente puede tener varios teléfonos activados: el de quien pide, el de quien paga, y alguno puntual en temporada alta.</p>
+        <div class="nota"><b>Nadie entra por su cuenta.</b> Si un número desconocido escribe a Copiloto, no recibe nada. Solo se activan teléfonos que un comercial ha revisado antes.</div>
+      </div>
+      <div>
+        <div class="chat">
+          <div class="chat-barra cli"><img src="logo-dji.jpg" alt=""><div><b>Distribuciones Joaquín Infante</b><small>cuenta de empresa</small></div></div>
+          <div class="chat-cuerpo">
+            <div class="chat-sep">Así lo ve el cliente</div>
+            <div class="msg bot" data-h="10:30"><i>[Mensaje de presentación de Copiloto, con el nombre de su comercial]</i></div>
+            <div class="msg yo" data-h="10:41">Sí, acepto</div>
+            <div class="msg bot" data-h="10:41">✅ ¡Perfecto! Ya tienes activado a Copiloto.
+
+Muy pronto podrás consultar aquí mismo tu stock, tarifa, facturas y más. Te avisaremos en cuanto esté listo.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fase pronto">
+    <h3 id="cliente-podra">Lo que podrá hacer el cliente <span class="estado pronto">En preparación</span></h3>
+    <div class="prosa">
+      <p>Cuando se abra, el cliente activado podrá hablar con Copiloto desde su propio WhatsApp. Lo que pueda ver dependerá de lo delicado que sea:</p>
+      <div class="tabla"><table>
+        <tr><th>Nivel</th><th>Qué podrá hacer</th></tr>
+        <tr><td>Consulta libre</td><td>Stock de productos, su tarifa y sus productos habituales.</td></tr>
+        <tr><td>Con verificación extra</td><td>Sus facturas, lo que tiene pendiente de pago y el resumen de su cuenta.</td></tr>
+        <tr><td>Pedidos</td><td>Pedir sus productos habituales desde el móvil, con cantidades sugeridas o con un carrito dentro de WhatsApp.</td></tr>
+      </table></div>
+
+      <h4>Cómo funcionará un pedido del cliente</h4>
+      <ol class="pasos">
+        <li><strong>El cliente elige productos y cantidades</strong>De entre los que suele comprar.</li>
+        <li><strong>Se crea un presupuesto en Odoo</strong>A tu nombre. El cliente recibe copia de lo que ha pedido, marcado como "pendiente de valoración": el precio es siempre el de su tarifa.</li>
+        <li><strong>Te llega un aviso</strong>Revisas el presupuesto y, si hace falta, lo ajustas.</li>
+        <li><strong>Tú lo confirmas en Odoo</strong>Solo entonces pasa a pedido, y al cliente le llega la confirmación.</li>
+      </ol>
+
+      <h4>Lo que no hará</h4>
+      <p>No enseñará datos de otros clientes, no confirmará pedidos sin ti, no negociará precios ni condiciones, y no conversa libremente: funciona con menús, igual que el tuyo.</p>
+
+      <h4>Mantenimiento de los accesos</h4>
+      <p>Cada 30 días Copiloto te pedirá que confirmes que los contactos de tus clientes siguen siendo válidos. Si no respondes en 10 días, esos teléfonos se dan de baja. También se da de baja un teléfono que lleve 30 días sin usar Copiloto. Si un cliente cambia de encargado o de número, actualízalo en tu <a href="#ficha-contactos">ficha de contactos</a>.</p>
+
+      <div class="cuidado"><b>Todavía no está abierto.</b> Esta parte describe cómo está previsto que funcione y algún detalle puede cambiar. No prometas fechas al cliente: cuando esté listo, se le avisará desde Copiloto.</div>
+    </div>
+  </div>
+
+  <h3 id="presentar-cliente">Cómo contárselo a un cliente</h3>
+  <div class="prosa">
+    <div class="cita">"Vamos a tener un WhatsApp de la empresa donde podrás ver tu stock, tus facturas y hacer tus pedidos habituales a cualquier hora, sin esperar a que te llame."</div>
+    <div class="cita">"Yo sigo siendo tu comercial. Todo lo que pidas por ahí me llega a mí y lo reviso antes de confirmarlo."</div>
+    <div class="cita">"Solo funciona con los teléfonos que tú me digas. Nadie más puede ver tus datos."</div>
+  </div>
+
+  <h4>Preguntas que te hará el cliente</h4>
+  <details class="faq" data-k="cliente coste pagar gratis">
+    <summary>"¿Me cuesta algo?"</summary>
+    <div class="resp"><p>No. Es un WhatsApp normal; el servicio lo pone la empresa.</p></div>
+  </details>
+  <details class="faq" data-k="cliente privacidad datos quien ve">
+    <summary>"¿Quién ve mis datos?"</summary>
+    <div class="resp"><p>Solo los teléfonos que el propio cliente ha autorizado, y tú como su comercial. Copiloto no enseña datos de un cliente a otro.</p></div>
+  </details>
+  <details class="faq" data-k="cliente llamar comercial seguir">
+    <summary>"¿Puedo seguir llamándote a ti?"</summary>
+    <div class="resp"><p>Claro. Copiloto es una forma más de pedir y consultar, no sustituye al comercial.</p></div>
+  </details>
+  <details class="faq" data-k="cliente error pedido mal">
+    <summary>"¿Y si me equivoco en un pedido?"</summary>
+    <div class="resp"><p>El pedido entra como presupuesto y lo revisa su comercial antes de confirmarlo, así que se corrige a tiempo.</p></div>
+  </details>
+  <details class="faq" data-k="cliente no quiere mensajes baja">
+    <summary>"No quiero recibir mensajes"</summary>
+    <div class="resp"><p>Márcalo en su ficha de contactos como que no acepta Copiloto, y no se le escribirá.</p></div>
+  </details>
+</section>
+
+<!-- ===================== CASOS PRÁCTICOS ===================== -->
+<section class="capitulo" id="casos" data-k="casos practicos situaciones ejemplos formacion comparativa sin copiloto con copiloto burger rubia gallega deuda reclamar no llego falta recuperar cliente nota mano preparar dia">
+  <div class="cap-cab"><div class="cap-emoji">🎭</div><div>
+    <h2>Casos prácticos</h2>
+    <p>Situaciones reales del día a día, contadas dos veces: cómo se resuelven sin Copiloto y cómo con Copiloto. Cada caso trae una práctica para hacer en la sesión.</p>
+  </div></div>
+  <div class="nota prosa"><b>Para las prácticas.</b> Usad clientes reales, pero no confirméis pedidos de prueba: cancelad con <kbd>menu</kbd> antes del <kbd>SI</kbd>. Los textos para clientes, reenviádselos a un compañero.</div>
+
+  <article class="caso" id="caso-burger">
+    <div class="caso-cab"><span class="caso-num">Caso 1</span><div>
+      <h3>«¿Qué me cuentas de la burger de rubia gallega?»</h3>
+      <div class="modulos">Catálogos · Stock · Estudio · Pedido</div>
+    </div></div>
+    <div class="cliente-dice">El cliente pregunta por hamburguesas. Le mandas el catálogo y contesta: <b>«Me interesa la de rubia gallega. ¿Tenéis? ¿A cuánto me sale? Mándame 2 cajas.»</b></div>
+    <div class="tabla comparativa"><table>
+        <tr><th>Lo que hay que hacer</th><th>Sin Copiloto</th><th>Con Copiloto</th></tr>
+        <tr><td>Mandar el catálogo</td><td>Buscarlo en el correo o pedirlo a la oficina</td><td>Menú → <kbd>2</kbd> → <kbd>1</kbd> → Burguer, y reenviar el PDF</td></tr>
+        <tr><td>¿Hay stock?</td><td>Llamar al almacén y esperar</td><td>Menú → <kbd>1</kbd> → <kbd>rubia gallega</kbd>: stock y compras en camino al momento</td></tr>
+        <tr><td>¿A qué precio se lo ofrezco?</td><td>Tarifa impresa o preguntar; sin saber el margen</td><td>En la misma consulta: coste, venta media 6 meses y margen 🔒</td></tr>
+        <tr><td>¿Le encaja a este cliente?</td><td>De memoria</td><td>Cliente → <kbd>2</kbd> Estudio: qué compra de burger y qué ha dejado</td></tr>
+        <tr><td>Meter el pedido</td><td>Apuntarlo y pasarlo luego a la oficina</td><td>Cliente → <kbd>3</kbd> Pedido → <kbd>2 cajas burger rubia gallega</kbd> → <kbd>SI</kbd></td></tr>
+        <tr><td>¿Se olvida algo?</td><td>Depende de la memoria</td><td>Tras el SI te avisa de sus habituales no pedidos (¿el pan brioche?)</td></tr>
+    </table></div>
+    <div class="truco"><b>La clave.</b> Todo se resuelve sin colgar al cliente y el pedido queda en Odoo en el momento. El aviso de olvidados tras el SI es venta extra que sin Copiloto se pierde.</div>
+    <div class="practica-in-situ"><b>🎯 Práctica in situ</b>
+      <ol>
+          <li>El formador hace de cliente por WhatsApp con el mensaje de arriba.</li>
+          <li>Un comercial lo resuelve «como siempre», contando en voz alta cada paso ("ahora llamaría a…"). Cronometrad.</li>
+          <li>Otro lo resuelve con Copiloto en su móvil, proyectado. Cronometrad.</li>
+          <li>Comentad: ¿qué precio le daríais viendo el margen? Cancelad el pedido con <kbd>menu</kbd> antes del SI si es de prueba.</li>
+      </ol>
+    </div>
+  </article>
+  <article class="caso" id="caso-deuda">
+    <div class="caso-cab"><span class="caso-num">Caso 2</span><div>
+      <h3>«¿Qué os debo?» (o tienes que reclamar tú)</h3>
+      <div class="modulos">Cliente → Facturas</div>
+    </div></div>
+    <div class="cliente-dice">Un cliente con facturas atrasadas te dice: <b>«Pásame lo que tengo pendiente que lo miro con la gestoría.»</b> O eres tú quien tiene que reclamar sin que suene a bronca.</div>
+    <div class="tabla comparativa"><table>
+        <tr><th>Lo que hay que hacer</th><th>Sin Copiloto</th><th>Con Copiloto</th></tr>
+        <tr><td>Saber qué debe</td><td>Pedir a administración un listado</td><td>Cliente → <kbd>1</kbd> Facturas → <kbd>2</kbd> Pendientes</td></tr>
+        <tr><td>Escribirle el mensaje</td><td>Redactarlo a mano, con cifras copiadas</td><td>Escribe <kbd>r</kbd>: Copiloto te da el texto listo, educado y con el total</td></tr>
+        <tr><td>Mandarle los documentos</td><td>Pedir las facturas a la oficina</td><td><kbd>4</kbd> PDF combinado con todas las pendientes, o <kbd>5</kbd> informe de cuenta corporativo</td></tr>
+        <tr><td>¿Es grave?</td><td>Sin referencia</td><td>El semáforo 🟢🟡🔴 compara la deuda con lo que factura al mes</td></tr>
+    </table></div>
+    <div class="truco"><b>La clave.</b> La reclamación sale en un minuto, con datos exactos y un tono que no estropea la relación. El cliente recibe documentos oficiales sin que nadie de la oficina intervenga.</div>
+    <div class="practica-in-situ"><b>🎯 Práctica in situ</b>
+      <ol>
+          <li>Cada comercial elige un cliente suyo con facturas pendientes.</li>
+          <li>Genera el texto con <kbd>r</kbd> y reenvíaselo… a un compañero de la sala, no al cliente.</li>
+          <li>Pedid también el PDF combinado y comprobad que llega.</li>
+          <li>Debate: ¿en qué semáforo empezaríais a reclamar?</li>
+      </ol>
+    </div>
+  </article>
+  <article class="caso" id="caso-no-llego">
+    <div class="caso-cab"><span class="caso-num">Caso 3</span><div>
+      <h3>«No me ha llegado todo» / «¿Dónde está mi pedido?»</h3>
+      <div class="modulos">Cliente → Seguimiento · Verificación IA</div>
+    </div></div>
+    <div class="cliente-dice">Un cliente te llama a mediodía: <b>«Me falta la caja de fondant del pedido de ayer.»</b> O simplemente: <b>«¿Cuándo me llega lo que pedí?»</b></div>
+    <div class="tabla comparativa"><table>
+        <tr><th>Lo que hay que hacer</th><th>Sin Copiloto</th><th>Con Copiloto</th></tr>
+        <tr><td>¿Salió o no?</td><td>Llamar al almacén o al repartidor</td><td>Cliente → <kbd>4</kbd> Seguimiento → <kbd>1</kbd> En reparto o <kbd>2</kbd> Repartidos</td></tr>
+        <tr><td>¿Se cargó completo?</td><td>Nadie lo sabe con seguridad</td><td>Mira si el pedido tiene ⚠️ de la IA: «Fondant… no se ve en las fotos»</td></tr>
+        <tr><td>Pruebas para el cliente</td><td>Ninguna</td><td>Enlace a las fotos de almacén y de entrega para reenviar</td></tr>
+        <tr><td>Pedidos de otras semanas</td><td>Buscar en Odoo o preguntar</td><td><kbd>4</kbd> Pedidos anteriores, eliges uno y ves su detalle</td></tr>
+    </table></div>
+    <div class="truco"><b>La clave.</b> Contestas en segundos y con pruebas. Si la IA ya marcó la falta, puedes adelantarte y avisar al almacén antes de que el cliente se queje.</div>
+    <div class="practica-in-situ"><b>🎯 Práctica in situ</b>
+      <ol>
+          <li>El formador escoge un pedido entregado esta semana con ⚠️ de la IA (hay ejemplos en la tabla de incidencias).</li>
+          <li>Hace de cliente reclamando ese producto.</li>
+          <li>El comercial lo busca en Seguimiento, abre el enlace de verificación y le contesta con lo que ve.</li>
+          <li>Repetid con un pedido sin incidencias: ¿cómo lo contaríais con la foto de entrega?</li>
+      </ol>
+    </div>
+  </article>
+  <article class="caso" id="caso-recuperar">
+    <div class="caso-cab"><span class="caso-num">Caso 4</span><div>
+      <h3>El cliente que hace semanas que no pide</h3>
+      <div class="modulos">Mis datos · Estudio</div>
+    </div></div>
+    <div class="cliente-dice">Nadie te avisa: simplemente un cliente deja de pedir y te das cuenta tarde. <b>¿Cómo lo detectas a tiempo y qué le dices?</b></div>
+    <div class="tabla comparativa"><table>
+        <tr><th>Lo que hay que hacer</th><th>Sin Copiloto</th><th>Con Copiloto</th></tr>
+        <tr><td>Detectarlo</td><td>Cuando ya es tarde, o nunca</td><td>Menú → <kbd>4</kbd> Mis datos → <kbd>7</kbd>: clientes con 21+ días sin pedir</td></tr>
+        <tr><td>Saber qué ha dejado</td><td>Intuición</td><td>Cliente → <kbd>2</kbd> Estudio: productos en caída (−40 % o más) y ventas frente a años anteriores</td></tr>
+        <tr><td>Preparar la llamada</td><td>Llamar «a ver qué tal»</td><td>Llamar con un motivo concreto: «He visto que ya no os llevo el pan de hot dog…»</td></tr>
+        <tr><td>Cerrar la venta</td><td>Apuntar y pasar a la oficina</td><td>Pedido desde Copiloto en la misma llamada</td></tr>
+    </table></div>
+    <div class="truco"><b>La clave.</b> Pasas de esperar a que el cliente llame a ir tú con un argumento concreto. Es la diferencia entre perder un cliente y recuperarlo.</div>
+    <div class="practica-in-situ"><b>🎯 Práctica in situ</b>
+      <ol>
+          <li>Cada comercial saca su lista con Mis datos → <kbd>7</kbd>.</li>
+          <li>Elige uno y abre su Estudio. Apunta el producto en caída más claro.</li>
+          <li>Por parejas: uno hace de cliente y el otro le llama con ese argumento (30 segundos).</li>
+          <li>Comentad qué argumento funcionó mejor.</li>
+      </ol>
+    </div>
+  </article>
+  <article class="caso" id="caso-nota">
+    <div class="caso-cab"><span class="caso-num">Caso 5</span><div>
+      <h3>La nota a mano del cliente</h3>
+      <div class="modulos">Cliente → Pedido con foto</div>
+    </div></div>
+    <div class="cliente-dice">Llegas al bar y el encargado te da un papel: <b>«5 cajas tramezzini, 4 cajas paté F.H pimiento, 4 ídem sobrasada, 4 ídem pato…»</b>, con comillas de repetición.</div>
+    <div class="tabla comparativa"><table>
+        <tr><th>Lo que hay que hacer</th><th>Sin Copiloto</th><th>Con Copiloto</th></tr>
+        <tr><td>Pasar el pedido</td><td>Teclearlo línea a línea o llevar el papel a la oficina</td><td>Cliente → <kbd>3</kbd> Pedido → <kbd>1</kbd> → mandas la foto de la nota</td></tr>
+        <tr><td>Entender las «ídem»</td><td>Interpretarlas tú</td><td>Copiloto las deshace y te enseña lo que ha leído (📷 He leído en la foto)</td></tr>
+        <tr><td>Corregir lo dudoso</td><td>Llamadas de la oficina preguntando</td><td>Revisas ✅🟡🔴 y corriges con <kbd>pro</kbd>, <kbd>cant</kbd> o <kbd>N1</kbd> antes del SI</td></tr>
+        <tr><td>Que la próxima vez acierte</td><td>No aplica</td><td>Lo que corriges se aprende para ese cliente</td></tr>
+    </table></div>
+    <div class="truco"><b>La clave.</b> Del papel al presupuesto en Odoo en un par de minutos, sin teclear. Y cada corrección hace que la siguiente vez salga mejor.</div>
+    <div class="practica-in-situ"><b>🎯 Práctica in situ</b>
+      <ol>
+          <li>El formador reparte notas a mano escritas por él (con alguna «ídem» y algún nombre raro).</li>
+          <li>Cada comercial hace la foto y la manda en un pedido de un cliente suyo.</li>
+          <li>Revisad juntos qué ha leído bien y qué no, y corregidlo con los comandos.</li>
+          <li>Cancelad con <kbd>menu</kbd> antes del SI.</li>
+      </ol>
+    </div>
+  </article>
+  <article class="caso" id="caso-dia">
+    <div class="caso-cab"><span class="caso-num">Caso 6</span><div>
+      <h3>Preparar el día en 5 minutos (en el coche)</h3>
+      <div class="modulos">Mis datos · Tareas · Estudio</div>
+    </div></div>
+    <div class="cliente-dice">Son las 8:30 y estás aparcado frente al primer cliente. <b>¿Qué tienes pendiente hoy y qué le vas a ofrecer?</b></div>
+    <div class="tabla comparativa"><table>
+        <tr><th>Lo que hay que hacer</th><th>Sin Copiloto</th><th>Con Copiloto</th></tr>
+        <tr><td>¿Qué llevo hoy?</td><td>Revisar el móvil, el correo, la libreta</td><td>Mis datos → <kbd>4</kbd> Mi día: pedidos confirmados y presupuestos sin confirmar</td></tr>
+        <tr><td>¿Qué faltas tienen mis pedidos?</td><td>Enterarse cuando llama el cliente</td><td>Mis datos → <kbd>8</kbd> Mis faltas: avisas tú antes que nadie</td></tr>
+        <tr><td>Encargos de compañeros</td><td>Mensajes sueltos que se pierden</td><td>Recordatorio de tareas de cada mañana y <kbd>6</kbd> → <kbd>2</kbd> Mis pendientes</td></tr>
+        <tr><td>¿Qué le ofrezco al primero?</td><td>Lo de siempre</td><td>Su Estudio: lo que ha dejado de pedir</td></tr>
+    </table></div>
+    <div class="truco"><b>La clave.</b> Empiezas el día sabiendo qué tienes, qué falta y qué ofrecer. Los encargos entre compañeros dejan de perderse.</div>
+    <div class="practica-in-situ"><b>🎯 Práctica in situ</b>
+      <ol>
+          <li>Cada comercial hace la ronda completa: Mi día, Mis faltas y Tareas.</li>
+          <li>Crea una tarea para un compañero de la sala (con fecha de mañana) y que este la marque hecha.</li>
+          <li>Comprobad que al creador le llega el aviso.</li>
+          <li>Cronometrad: ¿cuánto se tarda en preparar el día?</li>
+      </ol>
+    </div>
+  </article>
+</section>
+
+<!-- ===================== CHULETA ===================== -->
+<section class="capitulo" id="chuleta" data-k="chuleta comandos resumen palabras atajos leyenda emojis semaforo colores">
+  <div class="cap-cab"><div class="cap-emoji">📌</div><div>
+    <h2>Chuleta</h2>
+    <p>Todas las palabras especiales en una sola tabla. Para tener a mano o imprimir.</p>
+  </div></div>
+  <div class="tabla chuleta"><table>
+    <tr><th>Escribe</th><th>Dónde</th><th>Qué hace</th></tr>
+    <tr><td><kbd>menu</kbd></td><td>En cualquier momento</td><td>Vuelve al menú principal y cancela lo que estuvieras haciendo</td></tr>
+    <tr><td><kbd>catalogo asiatico</kbd></td><td>Menú o cualquier lista</td><td>Te manda directamente ese catálogo</td></tr>
+    <tr><td><kbd>stock hamburguesa angus</kbd></td><td>Menú o cualquier lista</td><td>Consulta el stock sin pasar por el menú</td></tr>
+    <tr><td><kbd>ficha hamburguesa angus</kbd></td><td>Menú o cualquier lista</td><td>Te manda la ficha técnica en PDF</td></tr>
+    <tr><td><kbd>fichas cliente gansa</kbd></td><td>Menú o cualquier lista</td><td>Las fichas de todos los productos de ese cliente (PDF único o una a una)</td></tr>
+    <tr><td><kbd>otros pdf</kbd></td><td>Justo después de una ficha</td><td>Todos los PDF adjuntos a ese artículo</td></tr>
+    <tr><td><kbd>ficha</kbd></td><td>Justo después de STOCK</td><td>La ficha técnica del producto que acabas de consultar</td></tr>
+    <tr><td><kbd>cliente gansa</kbd></td><td>Menú o cualquier lista</td><td>Entra directo al cliente</td></tr>
+    <tr><td><kbd>facturas gansa</kbd> · <kbd>estudio gansa</kbd> · <kbd>pedido gansa</kbd> · <kbd>seguimiento gansa</kbd> · <kbd>consumo gansa</kbd> · <kbd>360 gansa</kbd> · <kbd>web gansa</kbd></td><td>Menú o cualquier lista</td><td>Entra directo en esa opción del cliente</td></tr>
+    <tr><td><kbd>reportar</kbd></td><td>En cualquier momento</td><td>Avisa de un fallo guardando dónde estabas; luego te devuelve al mismo punto</td></tr>
+    <tr><td><kbd>no avisar</kbd></td><td>En cualquier momento</td><td>Cancela el último aviso a cliente programado (10 min de margen)</td></tr>
+    <tr><td><kbd>stock</kbd> <kbd>cliente</kbd> <kbd>tareas</kbd>…</td><td>Menú principal</td><td>Igual que pulsar el número de esa opción</td></tr>
+    <tr><td><kbd>alias gansa</kbd></td><td>Facturas o Pedido, con cliente elegido</td><td>Guarda "gansa" como atajo a ese cliente</td></tr>
+    <tr><td><kbd>r</kbd> o <kbd>reenviar</kbd></td><td>Tras ver facturas pendientes</td><td>Texto listo para reenviar al cliente</td></tr>
+    <tr><td><kbd>SI</kbd></td><td>Revisión del pedido</td><td>Crea el presupuesto en Odoo</td></tr>
+    <tr><td><kbd>cant 2 5</kbd></td><td>Revisión del pedido</td><td>Línea 2 pasa a cantidad 5</td></tr>
+    <tr><td><kbd>pro 3 texto</kbd></td><td>Revisión del pedido</td><td>Cambia el producto de la línea 3</td></tr>
+    <tr><td><kbd>add texto</kbd></td><td>Revisión del pedido</td><td>Añade un producto</td></tr>
+    <tr><td><kbd>del 4</kbd></td><td>Revisión del pedido</td><td>Quita la línea 4</td></tr>
+    <tr><td><kbd>N1</kbd> / <kbd>N1 texto</kbd></td><td>Revisión del pedido</td><td>Empareja un producto no identificado</td></tr>
+    <tr><td><kbd>Nombre - Teléfono</kbd></td><td>Cuando pide contacto del cliente</td><td>Guarda el contacto de Pedidos y programa el aviso</td></tr>
+    <tr><td><kbd>15/10</kbd> / <kbd>no</kbd></td><td>Nueva tarea</td><td>Fecha de la tarea o sin fecha</td></tr>
+    <tr><td><kbd>2,4</kbd> / <kbd>0</kbd></td><td>Nueva tarea</td><td>Implicados por número / todo el equipo</td></tr>
+  </table></div>
+
+  <h3 id="leyenda">Qué significa cada símbolo</h3>
+  <div class="leyenda">
+    <div><span>🟢</span>Deuda baja: menos de la mitad de lo que factura al mes</div>
+    <div><span>🟡</span>Deuda media (50–100% de su mes) · producto dudoso en un pedido · habitual sin pedir desde hace 10+ días</div>
+    <div><span>🔴</span>Deuda alta (más de un mes de facturación) · producto poco fiable · habitual sin pedir desde hace 21+ días</div>
+    <div><span>✅</span>Producto seguro en el pedido · entregado · tarea hecha</div>
+    <div><span>⚠️</span>Falta stock para esa línea · no identificado · producto en caída</div>
+    <div><span>📈📉</span>Sube o baja más de un 5% respecto al año pasado (➡️ se mantiene)</div>
+    <div><span>🚚</span>En reparto</div>
+    <div><span>📝</span>Presupuesto sin confirmar</div>
+    <div><span>📷</span>Foto de almacén o entrega (el número indica cuántas hay)</div>
+    <div><span>⏳</span>Tarea o factura pendiente</div>
+  </div>
+</section>
+<!-- ===================== PROBLEMAS ===================== -->
+<section class="capitulo" id="problemas" data-k="problemas dudas error no funciona no contesta fallo ayuda">
+  <div class="cap-cab"><div class="cap-emoji">🛟</div><div>
+    <h2>Problemas frecuentes</h2>
+    <p>Qué hacer cuando algo no sale como esperabas.</p>
+  </div></div>
+
+  <details class="faq" data-k="no contesta tarda lento colgado espera">
+    <summary>No me contesta o tarda mucho</summary>
+    <div class="resp">
+      <p>Algunas respuestas (direcciones, interpretar el pedido, PDFs) llegan en un segundo mensaje y pueden tardar unos segundos. Escribe un punto <kbd>.</kbd> para ver si ya está.</p>
+      <p>Si pasado un minuto no hay nada, escribe <kbd>menu</kbd> y repite. Si vuelve a pasar, avisa a Ebrero diciendo la hora y qué estabas haciendo.</p>
+    </div>
+  </details>
+
+  <details class="faq" data-k="todavia interpretando buscando direcciones">
+    <summary>Me dice "Todavía estoy interpretando tu pedido" o "buscando las direcciones"</summary>
+    <div class="resp"><p>Es normal: sigue trabajando. Espera unos segundos y escribe algo otra vez. Si se repite durante más de un minuto, <kbd>menu</kbd> y vuelve a empezar el pedido.</p></div>
+  </details>
+
+  <details class="faq" data-k="no autorizado acceso numero">
+    <summary>"Este número no está autorizado para usar este servicio"</summary>
+    <div class="resp"><p>Tu teléfono no está dado de alta, o estás escribiendo al número de la otra empresa. Comprueba que escribes al Copiloto de tu empresa y, si es así, habla con administración.</p></div>
+  </details>
+
+  <details class="faq" data-k="no encuentra cliente buscar nombre razon social">
+    <summary>No encuentra a mi cliente</summary>
+    <div class="resp">
+      <p>Solo busca entre los clientes asignados a ti en Odoo. Prueba con otra parte del nombre: muchas veces el cliente está por su razón social ("Hostelería…", "Restauración…") y no por el nombre del bar.</p>
+      <p>Cuando lo encuentres, <a href="#alias">guárdale un alias</a> y no volverá a pasar.</p>
+    </div>
+  </details>
+
+  <details class="faq" data-k="producto mal pedido equivocado corregir">
+    <summary>En el pedido ha puesto un producto equivocado</summary>
+    <div class="resp"><p>Antes del <kbd>SI</kbd>, corrígelo con <kbd>pro Nº búsqueda</kbd> (o <kbd>del Nº</kbd> y <kbd>add</kbd>). Copiloto guarda la corrección para ese cliente y la próxima vez acertará.</p></div>
+  </details>
+
+  <details class="faq" data-k="confirmado error presupuesto borrar cancelar si equivocado">
+    <summary>He dado al SI y el pedido estaba mal</summary>
+    <div class="resp"><p>Lo que se ha creado es un <b>presupuesto</b> en Odoo, todavía sin confirmar. Corrígelo o cancélalo en Odoo como cualquier otro presupuesto, o pide a oficina que lo haga con la referencia que te dio Copiloto.</p></div>
+  </details>
+
+  <details class="faq" data-k="nota de voz audio">
+    <summary>Le he mandado una nota de voz y no hace nada</summary>
+    <div class="resp"><p>Copiloto no entiende audios. Escribe el pedido o mándale una foto de la nota escrita.</p></div>
+  </details>
+
+  <details class="faq" data-k="pdf factura no llega catalogo adjunto">
+    <summary>No me llega el PDF (factura o catálogo)</summary>
+    <div class="resp">
+      <p>Las facturas en PDF tardan un poco en generarse: dale un minuto. Si no llega, vuelve a pedirla.</p>
+      <p>Si es un catálogo, puede que sea demasiado grande para WhatsApp. Avisa a Ebrero de cuál es.</p>
+    </div>
+  </details>
+
+  <details class="faq" data-k="mensaje cortado puntos suspensivos incompleto">
+    <summary>El mensaje sale cortado con "…" al final</summary>
+    <div class="resp"><p>WhatsApp no permite mensajes muy largos, así que Copiloto los recorta. Si te falta información, usa una opción más concreta (por ejemplo "Repartidos" en vez de "Todo").</p></div>
+  </details>
+
+  <details class="faq" data-k="aviso tarea no llega recordatorio">
+    <summary>Un compañero me asignó una tarea y no me llegó el aviso</summary>
+    <div class="resp"><p>Probablemente llevabas más de 24 horas sin escribir a Copiloto. La tarea sí está creada: mírala en Menú → <kbd>6</kbd> → <kbd>2</kbd>. El recordatorio de cada mañana sí te llega siempre.</p></div>
+  </details>
+
+  <details class="faq" data-k="me saca al menu principal vuelve menu">
+    <summary>Me ha devuelto al menú principal sin querer</summary>
+    <div class="resp"><p>En algunos puntos, si escribes algo que no es una de las opciones, Copiloto vuelve al principio (por ejemplo, tras ver facturas pendientes). No se pierde nada; vuelve a entrar al cliente.</p></div>
+  </details>
+
+  <details class="faq" data-k="cliente ve que recibe cliente final privacidad">
+    <summary>¿Qué ve el cliente de todo esto?</summary>
+    <div class="resp"><p>Nada, salvo dos cosas: lo que tú le reenvíes (textos de deuda, catálogos, informes, fotos) y el aviso automático de productos habituales no pedidos, que puedes cancelar con <kbd>no avisar</kbd>. Los semáforos, estudios y avisos internos solo los ves tú.</p></div>
+  </details>
+</section>
+
+<!-- ===================== PRÁCTICA ===================== -->
+<section class="capitulo" id="practica" data-k="practica ejercicios formacion aprender probar">
+  <div class="cap-cab"><div class="cap-emoji">🎯</div><div>
+    <h2>Práctica guiada</h2>
+    <p>Los ejercicios de la sesión de formación. Hazlos con tu móvil y márcalos al terminar; se quedan guardados en este navegador.</p>
+  </div></div>
+  <div class="progreso"><span id="progreso-txt">0 de 0</span><div class="barra"><i id="progreso-barra"></i></div></div>
+  <ol class="practica" id="lista-practica">
+    <li><label><input type="checkbox"><span><span class="enunciado">Guarda el número de Copiloto y escríbele <kbd>menu</kbd>.</span><small><a href="#empezar">Antes de empezar</a></small></span></label></li>
+    <li><label><input type="checkbox"><span><span class="enunciado">Consulta el stock de un producto que vendas mucho.</span><small><a href="#stock">Stock</a></small></span></label></li>
+    <li><label><input type="checkbox"><span><span class="enunciado">Descarga un catálogo y reenvíaselo a un compañero.</span><small><a href="#catalogos">Catálogos</a></small></span></label></li>
+    <li><label><input type="checkbox"><span><span class="enunciado">Busca uno de tus clientes, entra en Facturas y guárdale un alias.</span><small><a href="#alias">Alias</a></small></span></label></li>
+    <li><label><input type="checkbox"><span><span class="enunciado">Vuelve a <kbd>menu</kbd>, entra con el alias y mira su Estudio.</span><small><a href="#estudio">Estudio</a></small></span></label></li>
+    <li><label><input type="checkbox"><span><span class="enunciado">Mira sus facturas pendientes y genera el texto para el cliente con <kbd>r</kbd>.</span><small><a href="#reenviar">Reclamar deuda</a></small></span></label></li>
+    <li><label><input type="checkbox"><span><span class="enunciado">Haz un pedido de 3 líneas. Cambia una cantidad con <kbd>cant</kbd> y un producto con <kbd>pro</kbd>. Cancela con <kbd>menu</kbd> (no confirmes salvo que te lo indique el formador).</span><small><a href="#pedido">Pedido</a></small></span></label></li>
+    <li><label><input type="checkbox"><span><span class="enunciado">Repite el pedido mandando una foto de una nota escrita a mano.</span><small><a href="#pedido">Pedido</a></small></span></label></li>
+    <li><label><input type="checkbox"><span><span class="enunciado">En Seguimiento, abre "Repartidos" de un cliente y mira una foto de entrega.</span><small><a href="#seguimiento">Seguimiento</a></small></span></label></li>
+    <li><label><input type="checkbox"><span><span class="enunciado">En Mis datos, mira tus ventas y tus clientes sin pedido reciente.</span><small><a href="#misdatos">Mis datos</a></small></span></label></li>
+    <li><label><input type="checkbox"><span><span class="enunciado">Crea una tarea para un compañero de la sala con fecha de mañana. Que él la marque hecha y comprueba que te llega el aviso.</span><small><a href="#tareas">Tareas</a></small></span></label></li>
+  </ol>
+</section>
+</main>
+
+<footer>
+  <p>Guía de Copiloto · Distribuciones Joaquín Infante / Sylonuba. Si algo de esta guía no coincide con lo que ves en WhatsApp, avisa: Copiloto se actualiza y la guía también.</p>
+  <button class="btn-imprimir" type="button" onclick="window.print()">Imprimir o guardar en PDF</button>
+</footer>
+
+<script>
+(function(){
+  // ---------- Buscador ----------
+  var norm = function(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); };
+  var indice = [];
+  document.querySelectorAll('section.capitulo').forEach(function(sec){
+    var h2 = sec.querySelector('h2');
+    var capitulo = h2 ? h2.textContent.trim() : '';
+    indice.push({ titulo: capitulo, sub: 'Capítulo', href: '#'+sec.id, texto: norm(capitulo+' '+(sec.dataset.k||'')) });
+    sec.querySelectorAll('h3[id],h4[id]').forEach(function(h){
+      var c = h.cloneNode(true); c.querySelectorAll('.estado').forEach(function(x){ x.remove(); });
+      var t = c.textContent.trim();
+      indice.push({ titulo: t, sub: capitulo, href: '#'+h.id, texto: norm(t+' '+capitulo) });
+    });
+    sec.querySelectorAll('details.faq').forEach(function(d, i){
+      if(!d.id) d.id = 'faq-'+i;
+      var s = d.querySelector('summary').textContent.trim();
+      indice.push({ titulo: s, sub: 'Problemas frecuentes', href: '#'+d.id, texto: norm(s+' '+(d.dataset.k||'')+' '+d.textContent), faq: d });
+    });
+    // Filas de tablas (atajos, opciones…) y pasos numerados: también se buscan
+    sec.querySelectorAll('tr, ol li').forEach(function(el, i){
+      var celdas = el.querySelectorAll('td');
+      var titulo = '';
+      if (el.tagName === 'TR') { if (!celdas.length) return; titulo = celdas[0].textContent.trim(); }
+      else { var st = el.querySelector('strong'); if (!st) return; titulo = st.textContent.trim(); }
+      if (!titulo) return;
+      if (!el.id) el.id = sec.id + '-f' + i;
+      indice.push({ titulo: titulo, sub: capitulo, href: '#'+el.id, texto: norm(titulo+' '+el.textContent), peso: 0.8 });
+    });
+  });
+  indice.forEach(function(e){ e.palabras = e.texto.split(/[^a-z0-9ñ]+/).filter(function(w){ return w.length > 3; }); });
+  // Distancia de edición (para aguantar erratas: "prospetar" → "prospectar")
+  function distancia(a, b){
+    if (Math.abs(a.length - b.length) > 2) return 9;
+    var v = []; for (var j = 0; j <= b.length; j++) v[j] = j;
+    for (var i = 1; i <= a.length; i++){ var prev = v[0]; v[0] = i;
+      for (var k = 1; k <= b.length; k++){ var t = v[k]; v[k] = Math.min(v[k]+1, v[k-1]+1, prev + (a[i-1]===b[k-1]?0:1)); prev = t; } }
+    return v[b.length];
+  }
+  function parecida(w, e){
+    if (w.length < 4) return false;
+    var max = w.length >= 8 ? 2 : 1;
+    for (var i = 0; i < e.palabras.length; i++){ var x = e.palabras[i]; if (distancia(w, x.slice(0, w.length + 1)) <= max || distancia(w, x) <= max) return true; }
+    return false;
+  }
+
+  var input = document.getElementById('buscar');
+  var caja = document.getElementById('resultados');
+  function pintar(){
+    var q = norm(input.value.trim());
+    if(q.length < 2){ caja.classList.remove('abierto'); caja.innerHTML=''; return; }
+    var palabras = q.split(/\s+/);
+    var res = indice.map(function(e){
+      var p = 0;
+      palabras.forEach(function(w){
+        if(e.texto.indexOf(w) > -1) p += 1; else if (parecida(w, e)) p += 0.6;
+        if(norm(e.titulo).indexOf(w) > -1) p += 2;
+      });
+      return { e:e, p:p * (e.peso || 1) };
+    }).filter(function(r){ return r.p > 0; }).sort(function(a,b){ return b.p-a.p; }).slice(0,8);
+    caja.innerHTML = res.length ? '' : '<div class="vacio">Nada con esa palabra. Prueba con otra: "pedido", "factura", "prospectar", "tarjeta"…</div>';
+    res.forEach(function(r){
+      var a = document.createElement('a');
+      a.href = r.e.href; a.setAttribute('role','option');
+      a.innerHTML = '<span></span><small></small>';
+      a.firstChild.textContent = r.e.titulo; a.lastChild.textContent = r.e.sub;
+      a.addEventListener('click', function(){ if(r.e.faq) r.e.faq.open = true; caja.classList.remove('abierto'); });
+      caja.appendChild(a);
+    });
+    caja.classList.add('abierto');
+    colocar();
+  }
+  // La lista va "flotando" sobre la página: así no la tapa la barra del índice ni la corta la portada
+  function colocar(){
+    if (!caja.classList.contains('abierto')) return;
+    var r = input.getBoundingClientRect();
+    caja.style.left = r.left + 'px'; caja.style.top = (r.bottom + 6) + 'px'; caja.style.width = r.width + 'px';
+    caja.style.maxHeight = Math.max(160, Math.min(380, window.innerHeight - r.bottom - 16)) + 'px';
+  }
+  window.addEventListener('scroll', colocar, { passive: true });
+  window.addEventListener('resize', colocar);
+  input.addEventListener('input', pintar);
+  input.addEventListener('focus', pintar);
+  input.addEventListener('keydown', function(ev){
+    if(ev.key === 'Enter'){ var p = caja.querySelector('a'); if(p){ ev.preventDefault(); p.click(); location.hash = p.getAttribute('href'); } }
+    if(ev.key === 'Escape'){ caja.classList.remove('abierto'); }
+  });
+  document.addEventListener('click', function(ev){ if(!ev.target.closest('.buscador')) caja.classList.remove('abierto'); });
+
+  // Abrir la pregunta frecuente si se llega por enlace directo
+  if(location.hash){ var d = document.querySelector(location.hash); if(d && d.tagName === 'DETAILS') d.open = true; }
+
+  // ---------- Índice activo ----------
+  var enlaces = {};
+  document.querySelectorAll('#indice a').forEach(function(a){ enlaces[a.getAttribute('href').slice(1)] = a; });
+  if('IntersectionObserver' in window){
+    var obs = new IntersectionObserver(function(entradas){
+      entradas.forEach(function(en){
+        if(en.isIntersecting && enlaces[en.target.id]){
+          Object.keys(enlaces).forEach(function(k){ enlaces[k].classList.remove('activo'); });
+          var a = enlaces[en.target.id]; a.classList.add('activo');
+          // Mover solo la barra del índice en horizontal. scrollIntoView movía
+          // también la página y cortaba el salto a la sección pulsada.
+          var barra = document.getElementById('indice');
+          barra.scrollLeft = a.offsetLeft - (barra.clientWidth - a.offsetWidth) / 2;
+        }
+      });
+    }, { rootMargin:'-40% 0px -55% 0px' });
+    document.querySelectorAll('section.capitulo').forEach(function(s){ obs.observe(s); });
+  }
+
+  // ---------- Práctica (se guarda en este navegador) ----------
+  var CLAVE = 'guia-copiloto-practica';
+  var checks = Array.prototype.slice.call(document.querySelectorAll('#lista-practica input'));
+  var guardado = [];
+  try { guardado = JSON.parse(localStorage.getItem(CLAVE) || '[]'); } catch(e) { guardado = []; }
+  function actualizar(){
+    var n = 0;
+    checks.forEach(function(c){ c.closest('li').classList.toggle('hecho', c.checked); if(c.checked) n++; });
+    document.getElementById('progreso-txt').textContent = n + ' de ' + checks.length;
+    document.getElementById('progreso-barra').style.width = (checks.length ? (n/checks.length*100) : 0) + '%';
+  }
+  checks.forEach(function(c, i){
+    c.checked = guardado.indexOf(i) > -1;
+    c.addEventListener('change', function(){
+      var marcados = checks.map(function(x, j){ return x.checked ? j : -1; }).filter(function(j){ return j > -1; });
+      try { localStorage.setItem(CLAVE, JSON.stringify(marcados)); } catch(e) {}
+      actualizar();
+    });
+  });
+  actualizar();
+
+  // Al imprimir, abrir todas las preguntas frecuentes
+  window.addEventListener('beforeprint', function(){ document.querySelectorAll('details.faq').forEach(function(d){ d.open = true; }); });
+})();
+</script>
+</body>
+</html>

@@ -950,19 +950,20 @@ async function procesarMensajeInterno(telefono, textoOriginal, media = null, opc
     await guardarSesion(telefono, 'esperando_foto_perfil');
     return { texto: '📸 Mándame tu foto (de frente, con buena luz y fondo liso). Saldrá en las páginas y tarjetas de primer contacto que prepares. O escribe *menu* para salir.' };
   }
-  // "mi tarjeta": tarjeta de visita digital del comercial (para dar, reenviar o imprimir)
-  if (estadoNavegacion && /^(mi\s+)?tarjeta(\s+de\s+visita)?$/i.test(textoOriginal.trim())) {
+  // "mi tarjeta": UN solo mensaje, listo para reenviar al cliente (en su WhatsApp se ve la
+  // vista previa con foto, nombre y cargo). "mi tarjeta imprimir": la versión de imprenta.
+  const atajoTarjeta = estadoNavegacion ? /^(?:mi\s+)?tarjeta(?:\s+de\s+visita)?(\s+(?:imprimir|impresa|para\s+imprimir))?$/i.exec(textoOriginal.trim()) : null;
+  const atajoImprimir = estadoNavegacion && /^imprimir\s+(?:mi\s+)?tarjeta$/i.test(textoOriginal.trim());
+  if (atajoTarjeta || atajoImprimir) {
     const { urlTarjetaVisita } = require('./tarjetaVisita');
     const empresa = getEmpresaActiva();
     const url = urlTarjetaVisita(empresa, comercial.telefono);
-    // 1) Mensaje listo para reenviar al cliente: WhatsApp le enseña la tarjeta (foto, nombre, cargo) sin abrir nada
+    if (atajoImprimir || (atajoTarjeta && atajoTarjeta[1])) {
+      return { texto: `🖨️ *Tu tarjeta para imprimir* (85 × 55 mm, cara y dorso, con QR):\n${process.env.SITE_URL}/visita.html?e=${empresa}&c=${url.split('/').pop()}&imprimir=1${comercial.foto_url ? '' : '\n\n📸 Aún no tienes foto: escribe *mi foto* para ponerla.'}` };
+    }
     const nombreEmpresa = (require('./primerContacto').EMPRESAS[empresa] || {}).nombre || '';
     const quien = comercial.nombre_tarjeta || comercial.nombre || '';
-    try {
-      await enviarMensajeLibre({ to: telefono, body: `Hola 👋 Soy ${quien}, de ${nombreEmpresa}. Te dejo mi tarjeta: desde ella puedes escribirme, llamarme, guardar mi contacto o hacer tu pedido por WhatsApp.\n\n${url}` });
-    } catch (e) { console.error('Error enviando la tarjeta para reenviar:', e.message); }
-    // 2) Instrucciones para el comercial (llegan después)
-    return { texto: `🪪 👆 *Reenvía ese mensaje al cliente*: en su WhatsApp se ve tu tarjeta con tu foto, nombre y cargo; al tocarla se abre entera.\n\nPara imprimirla (85 × 55 mm, con QR):\n${process.env.SITE_URL}/visita.html?e=${empresa}&c=${url.split('/').pop()}&imprimir=1${comercial.foto_url ? '' : '\n\n📸 Aún no tienes foto: escribe *mi foto* para ponerla (sale en la vista previa).'}` };
+    return { texto: `Hola 👋 Soy ${quien}, de ${nombreEmpresa}. Te dejo mi tarjeta: desde ella puedes escribirme, llamarme, guardar mi contacto o hacer tu pedido por WhatsApp.\n\n${url}` };
   }
   // "permiso la resolana javier 600111222": permiso de WhatsApp de un local (prospección) y envío de su propuesta
   const atajoPermiso = estadoNavegacion ? /^permiso\s+(.{3,})$/i.exec(textoOriginal.trim()) : null;
