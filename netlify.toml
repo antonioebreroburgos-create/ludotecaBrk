@@ -1,6 +1,57 @@
 [build]
-  publish = "public"
   functions = "netlify/functions"
+  publish = "public"
 
-[functions]
-  node_bundler = "esbuild"
+# Sin especificar node_bundler: usamos el empaquetador por defecto de
+# Netlify (no esbuild). esbuild comprime todo en un único archivo y
+# "pdfkit" necesita leer sus ficheros de datos de fuentes (Helvetica.afm,
+# etc.) desde disco en tiempo de ejecución — con esbuild esos archivos
+# se quedan fuera del paquete y falla con ENOENT. El empaquetador por
+# defecto conserva node_modules tal cual, así que esto no pasa.
+
+# Job de detección: revisa pedidos vs stock cada 15 minutos
+[functions."detectar-faltas"]
+  schedule = "*/15 * * * *"
+
+# Job de recordatorio: avisa por WhatsApp a los responsables, 2 veces al
+# día (7:00 y 13:00 hora España) de lunes a viernes. Netlify programa en
+# UTC — 5,11 UTC equivale a 7:00/13:00 en verano (CEST); en invierno
+# (CET) caerá una hora más tarde, 8:00/14:00.
+[functions."recordatorio-faltas"]
+  schedule = "0 5,11 * * 1-5"
+
+# Job de alertas de reposición: consulta pedidos-dji cada mañana, después
+# de su sync nocturna de las 06:00. Netlify programa en UTC — 05:00 UTC
+# equivale a las 07:00 en España en horario de verano (06:00 en invierno).
+[functions."sync-alertas-reposicion"]
+  schedule = "0 5 * * *"
+
+# Job de recordatorio de tareas: avisa a cada persona de sus puntos
+# pendientes, todos los días a las 8:00 hora España. Netlify programa en
+# UTC — 06:00 UTC equivale a 8:00 en verano (CEST); en invierno (CET)
+# caerá una hora más tarde, 9:00 — mismo desfase que el resto de jobs.
+[functions."recordatorio-tareas"]
+  schedule = "0 6 * * *"
+
+# Job de envío de avisos al cliente (productos habituales no pedidos):
+# manda los que llevan más del margen de cancelación (10 min) sin que
+# el comercial haya escrito "no avisar". Cada 5 min es margen de sobra
+# frente a los 10 min de espera, sin generar carga real (normalmente
+# la tabla estará vacía).
+[functions."enviar-avisos-cliente"]
+  schedule = "*/5 * * * *"
+
+# Enlace corto de verificación IA de fotos de almacén que manda el
+# copiloto en SEGUIMIENTO: /v/d/<order_id> (DJI) o /v/s/<order_id> (SYL)
+[[redirects]]
+  from = "/v/:emp/:id"
+  to = "/.netlify/functions/ir-verificacion?emp=:emp&id=:id"
+  status = 200
+
+# Tarjeta de visita del comercial con vista previa en WhatsApp:
+# /tarjeta/<DJI|SYL>/<código> devuelve la página con las etiquetas
+# Open Graph (foto, nombre, cargo) que WhatsApp usa para la vista previa
+[[redirects]]
+  from = "/tarjeta/:e/:c"
+  to = "/.netlify/functions/visita-pagina?e=:e&c=:c"
+  status = 200

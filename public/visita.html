@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Tarjeta de visita</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--c:#04538E;--o:#0B3557;--tinta:#1E2A36;--gris:#4A5866;--linea:#D5DEE7}
+*{box-sizing:border-box}
+body{margin:0;background:#E9EEF3;font-family:Lato,Arial,sans-serif;color:var(--tinta);font-size:15px;line-height:1.5}
+a{color:var(--c)}
+.tit{font-family:Montserrat,Arial,sans-serif}
+.pag{max-width:520px;margin:0 auto;background:#fff;min-height:100vh;padding-bottom:28px}
+.cab{background:var(--o);color:#fff;padding:22px 20px 26px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px}
+.cab .emp{font-size:12px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:rgba(255,255,255,.78)}
+.foto{width:116px;height:116px;border-radius:50%;object-fit:cover;object-position:50% 12%;border:4px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font:800 40px Montserrat,Arial,sans-serif;color:#fff}
+.cab h1{margin:4px 0 0;font-size:26px;line-height:1.15}
+.cab .cargo{font-size:15px;color:rgba(255,255,255,.85)}
+.acciones{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:18px 16px 0}
+.acc{min-height:64px;border-radius:14px;border:1px solid var(--linea);background:#fff;color:var(--o);display:flex;align-items:center;justify-content:center;gap:10px;font:700 15px Lato,Arial,sans-serif;text-decoration:none;cursor:pointer;padding:8px 10px;text-align:center}
+.acc.pri{background:#1F8F4E;border-color:#1F8F4E;color:#fff}
+.acc svg{width:22px;height:22px;flex:none}
+.sec{margin:18px 16px 0;padding:16px;border:1px solid var(--linea);border-radius:16px;display:flex;flex-direction:column;gap:10px}
+.sec h2{margin:0;font-size:17px;color:var(--o)}
+.sec p{margin:0;color:var(--gris);font-size:14px}
+.sec.pedidos{background:#EAF6EF;border-color:#BFE3CC}
+.fila{display:flex;gap:12px;align-items:flex-start;text-decoration:none;color:var(--tinta);min-height:44px;padding:4px 0}
+.fila svg{width:22px;height:22px;flex:none;color:var(--c);margin-top:1px}
+.fila b{display:block;color:var(--o)}
+.fila span{font-size:14px;color:var(--gris)}
+ul.raz{margin:0;padding-left:18px;color:var(--tinta);font-size:14px}
+ul.raz li{margin:3px 0}
+.qr-box{display:flex;gap:14px;align-items:center}
+.qr{width:120px;height:120px;flex:none}
+.qr img,.qr canvas{width:120px!important;height:120px!important}
+.pie{margin:18px 16px 0;font-size:12px;color:var(--gris);text-align:center}
+.cargando{padding:80px 20px;text-align:center;color:var(--gris)}
+/* --- Impresión: tarjeta 85 × 55 mm, cara y dorso --- */
+.imp .barra{position:sticky;top:0;background:#0B3557;color:#fff;padding:10px 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.imp .barra button{min-height:44px;padding:0 18px;border-radius:10px;border:0;background:#fff;color:#0B3557;font:700 14px Lato,Arial,sans-serif;cursor:pointer}
+.caras{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;padding:24px 12px}
+.cara{width:85mm;height:55mm;border-radius:3mm;box-shadow:0 2px 10px rgba(0,0,0,.18);overflow:hidden;position:relative}
+.frente{background:var(--o);color:#fff;padding:5mm 5.5mm;display:flex;flex-direction:column;justify-content:space-between}
+.dorso{background:#fff;padding:4.5mm 5mm;display:flex;gap:4mm;align-items:center}
+.qr-imp{width:34mm;height:34mm;flex:none}
+.qr-imp img,.qr-imp canvas{width:34mm!important;height:34mm!important}
+@media print{
+  body{background:#fff}.barra{display:none!important}.caras{padding:0;gap:0;display:block}
+  .cara{box-shadow:none;border-radius:0;page-break-after:always;break-after:page}
+  @page{size:85mm 55mm;margin:0}
+}
+</style>
+</head>
+<body>
+<div id="app"><div class="cargando">Cargando…</div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+(function () {
+  'use strict';
+  var qs0 = new URLSearchParams(location.search);
+  // La tarjeta se abre como /tarjeta/DJI/<código> (con vista previa en WhatsApp) o como visita.html?e=DJI&c=<código>
+  var ruta = location.pathname.match(/^\/tarjeta\/([A-Za-z]+)\/([A-Za-z0-9_-]+)/);
+  var qs = { get: function (k) { if (ruta && k === 'e') return ruta[1]; if (ruta && k === 'c') return ruta[2]; return qs0.get(k); } };
+  var imprimir = qs.get('imprimir') === '1';
+  var urlTarjeta = location.origin + '/tarjeta/' + encodeURIComponent(qs.get('e') || '') + '/' + encodeURIComponent(qs.get('c') || '');
+  function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function telBonito(t) { return String(t || '').replace(/^\+34/, '').replace(/\D/g, '').replace(/(\d{3})(\d{2})(\d{2})(\d{2})/, '$1 $2 $3 $4'); }
+  function mapsDe(dir) { return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(dir); }
+  function webBonita(u) { return String(u || '').replace(/^https?:\/\//, '').replace(/\/$/, ''); }
+  function iniciales(n) { return String(n || '').split(/\s+/).filter(Boolean).slice(0, 2).map(function (w) { return w.charAt(0).toUpperCase(); }).join(''); }
+  var I = {
+    wa: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3Z"/></svg>',
+    tel: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2Z"/></svg>',
+    agenda: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/><path d="M19 3v6M16 6h6"/></svg>',
+    comp: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>',
+    pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>',
+    chef: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 13.9A4 4 0 0 1 7.5 6a5 5 0 0 1 9 0A4 4 0 0 1 18 13.9V21H6Z"/><path d="M6 17h12"/></svg>',
+    web: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg>',
+    mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>',
+    insta: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>'
+  };
+
+  fetch('/.netlify/functions/visita?' + new URLSearchParams({ e: qs.get('e') || '', c: qs.get('c') || '' }))
+    .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || 'No disponible'); return j; }); })
+    .then(function (D) {
+      document.documentElement.style.setProperty('--c', D.color);
+      document.documentElement.style.setProperty('--o', D.oscuro);
+      document.title = D.nombre + ' · ' + D.empresa_nombre;
+      if (imprimir) pintarImpresion(D); else pintarDigital(D);
+    })
+    .catch(function (e) { document.getElementById('app').innerHTML = '<div class="cargando">' + esc(e.message) + '</div>'; });
+
+  function waComercial(D) {
+    var t = 'Hola ' + D.nombre_pila + ', te escribo desde tu tarjeta de ' + D.empresa_nombre + '.';
+    return 'https://wa.me/' + D.telefono.replace(/\D/g, '') + '?text=' + encodeURIComponent(t);
+  }
+  // La referencia permite a Copiloto saber de qué comercial viene y pasarle el mensaje
+  function waCopiloto(D) { return 'https://wa.me/' + D.copiloto + '?text=' + encodeURIComponent('Hola, quiero hacer un pedido (ref. ' + (qs.get('c') || '') + ')'); }
+
+  function pintarDigital(D) {
+    var foto = D.foto ? '<img class="foto" src="' + esc(D.foto) + '" alt="Foto de ' + esc(D.nombre) + '">' : '<div class="foto" aria-hidden="true">' + esc(iniciales(D.nombre)) + '</div>';
+    var h = '<main class="pag">' +
+      '<section class="cab">' +
+        '<div class="emp">' + esc(D.empresa_nombre) + '</div>' + foto +
+        '<h1 class="tit">' + esc(D.nombre) + '</h1>' +
+        '<div class="cargo">' + esc(D.cargo) + ' · ' + esc(telBonito(D.telefono)) + '</div>' +
+      '</section>' +
+      '<nav class="acciones" aria-label="Contactar">' +
+        '<a class="acc pri" href="' + esc(waComercial(D)) + '" target="_blank" rel="noopener">' + I.wa + 'WhatsApp</a>' +
+        '<a class="acc" href="tel:' + esc(D.telefono) + '">' + I.tel + 'Llamar</a>' +
+        '<button type="button" class="acc" id="bVcf">' + I.agenda + 'Guardar contacto</button>' +
+        '<button type="button" class="acc" id="bComp">' + I.comp + 'Compartir</button>' +
+      '</nav>';
+    if (D.copiloto) {
+      h += '<section class="sec pedidos"><h2 class="tit">Pedidos por WhatsApp</h2>' +
+        '<p>Escribid a nuestro WhatsApp de pedidos a cualquier hora. Si ya sois clientes os manda vuestro enlace de pedido; y vuestro mensaje le llega siempre a ' + esc(D.nombre_pila) + '.</p>' +
+        '<a class="acc pri" style="min-height:52px" href="' + esc(waCopiloto(D)) + '" target="_blank" rel="noopener">' + I.wa + 'Hacer un pedido · ' + esc(telBonito('+' + D.copiloto)) + '</a></section>';
+    }
+    h += '<section class="sec"><h2 class="tit">' + esc(D.empresa_nombre) + '</h2>' +
+      '<a class="fila" href="' + esc(D.empresa === 'SYL' && D.maps ? D.maps : mapsDe(D.direccion)) + '" target="_blank" rel="noopener">' + I.pin + '<div><b>Oficinas y almacén</b><span>' + esc(D.direccion) + '</span></div></a>' +
+      (D.cocina ? '<a class="fila" href="' + esc(D.cocina.maps) + '" target="_blank" rel="noopener">' + I.chef + '<div><b>Cocina de demostraciones</b><span>' + esc(D.cocina.direccion) + ' · probad nuestros productos con vuestros platos</span></div></a>' : '') +
+      (D.web ? '<a class="fila" href="' + esc(D.web) + '" target="_blank" rel="noopener">' + I.web + '<div><b>Web</b><span>' + esc(webBonita(D.web)) + '</span></div></a>' : '') +
+      (D.email ? '<a class="fila" href="mailto:' + esc(D.email) + '">' + I.mail + '<div><b>Correo</b><span>' + esc(D.email) + '</span></div></a>' : '') +
+      (D.instagram ? '<a class="fila" href="' + esc(/^https?:/.test(D.instagram) ? D.instagram : 'https://instagram.com/' + D.instagram.replace(/^@/, '')) + '" target="_blank" rel="noopener">' + I.insta + '<div><b>Instagram</b><span>' + esc(/^https?:/.test(D.instagram) ? webBonita(D.instagram) : '@' + D.instagram.replace(/^@/, '')) + '</span></div></a>' : '') +
+      '</section>';
+    if (D.razones && D.razones.length) h += '<section class="sec"><h2 class="tit">Por qué trabajar con nosotros</h2><ul class="raz">' + D.razones.map(function (r) { return '<li>' + esc(r) + '</li>'; }).join('') + '</ul></section>';
+    h += '<section class="sec"><div class="qr-box"><div class="qr" id="qr"></div><p>Enseña este código para que otra persona guarde mi tarjeta con la cámara del móvil.</p></div></section></main>';
+    // Sin enlace a la versión para imprimir: esta página la ve el cliente (el comercial lo tiene en el mensaje de mi tarjeta)
+    document.getElementById('app').innerHTML = h;
+    qr('qr', 300);
+    document.getElementById('bVcf').onclick = function () { guardarContacto(D); };
+    document.getElementById('bComp').onclick = function () {
+      var datos = { title: D.nombre + ' · ' + D.empresa_nombre, text: D.nombre + ', ' + D.empresa_nombre, url: urlTarjeta };
+      if (navigator.share) navigator.share(datos).catch(function () {});
+      else location.href = 'https://wa.me/?text=' + encodeURIComponent(datos.text + ': ' + urlTarjeta);
+    };
+  }
+
+  function guardarContacto(D) {
+    var partes = D.nombre.trim().split(/\s+/);
+    var lineas = ['BEGIN:VCARD', 'VERSION:3.0',
+      'N:' + partes.slice(1).join(' ') + ';' + partes[0] + ';;;',
+      'FN:' + D.nombre, 'ORG:' + D.empresa_nombre, 'TITLE:' + D.cargo,
+      'TEL;TYPE=CELL,VOICE:' + D.telefono];
+    if (D.copiloto) lineas.push('TEL;TYPE=WORK:+' + D.copiloto);
+    if (D.email) lineas.push('EMAIL;TYPE=WORK:' + D.email);
+    if (D.web) lineas.push('URL:' + D.web);
+    lineas.push('URL:' + urlTarjeta);
+    lineas.push('ADR;TYPE=WORK:;;' + D.direccion.replace(/[;,]/g, ' ') + ';;;;España');
+    lineas.push('NOTE:' + (D.copiloto ? 'Pedidos por WhatsApp: +' + D.copiloto + '. ' : '') + 'Tarjeta: ' + urlTarjeta);
+    function terminar(foto) {
+      if (foto) lineas.push('PHOTO;ENCODING=b;TYPE=JPEG:' + foto);
+      lineas.push('END:VCARD');
+      var blob = new Blob([lineas.join('\r\n')], { type: 'text/vcard;charset=utf-8' });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = D.nombre.replace(/[^\wÁÉÍÓÚÑáéíóúñ ]/g, '').trim() + '.vcf';
+      document.body.appendChild(a); a.click(); a.remove();
+    }
+    if (!D.foto) { terminar(null); return; }
+    fetch(D.foto).then(function (r) { return r.blob(); }).then(function (b) {
+      var fr = new FileReader();
+      fr.onload = function () { terminar(String(fr.result).split(',')[1]); };
+      fr.onerror = function () { terminar(null); };
+      fr.readAsDataURL(b);
+    }).catch(function () { terminar(null); });
+  }
+
+  function pintarImpresion(D) {
+    document.body.className = 'imp';
+    var foto = D.foto ? '<img src="' + esc(D.foto) + '" alt="" style="width:15mm;height:15mm;border-radius:50%;object-fit:cover;object-position:50% 12%;border:.6mm solid rgba(255,255,255,.4)">' : '';
+    document.getElementById('app').innerHTML =
+      '<div class="barra"><span>Tarjeta de visita 85 × 55 mm · imprímela a doble cara en cartulina</span><button type="button" id="bImp">Imprimir</button></div>' +
+      '<div class="caras">' +
+        '<div class="cara frente">' +
+          '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:3mm"><div class="tit" style="font-size:7pt;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,.8);max-width:52mm">' + esc(D.empresa_nombre) + '</div>' + foto + '</div>' +
+          '<div><div class="tit" style="font-size:13pt;font-weight:800;line-height:1.1">' + esc(D.nombre) + '</div>' +
+          '<div style="font-size:8pt;color:rgba(255,255,255,.85);margin-top:.6mm">' + esc(D.cargo) + '</div>' +
+          '<div style="font-size:9pt;font-weight:700;margin-top:2mm">' + esc(telBonito(D.telefono)) + '</div>' +
+          (D.email ? '<div style="font-size:7.5pt;color:rgba(255,255,255,.85)">' + esc(D.email) + '</div>' : '') +
+          '<div style="font-size:6.5pt;color:rgba(255,255,255,.75);margin-top:1mm">' + esc(D.direccion) + (D.web ? ' · ' + esc(webBonita(D.web)) : '') + '</div></div>' +
+        '</div>' +
+        '<div class="cara dorso"><div class="qr-imp" id="qrImp"></div>' +
+          '<div style="display:flex;flex-direction:column;gap:1.6mm;min-width:0">' +
+            '<div class="tit" style="font-size:9.5pt;font-weight:700;line-height:1.2;color:var(--c)">Escanéame</div>' +
+            '<div style="font-size:7pt;color:#4A5866;line-height:1.4">WhatsApp directo conmigo<br>Pedidos por WhatsApp' + (D.cocina ? '<br>Nuestra cocina de demostraciones' : '') + '<br>Guardar mi contacto</div>' +
+            (D.copiloto ? '<div style="font-size:7pt;line-height:1.3"><b>Pedidos WhatsApp</b><br>' + esc(telBonito('+' + D.copiloto)) + '</div>' : '') +
+          '</div></div>' +
+      '</div>';
+    document.getElementById('bImp').onclick = function () { window.print(); };
+    qr('qrImp', 300);
+  }
+
+  function qr(id, px) {
+    try { new QRCode(document.getElementById(id), { text: urlTarjeta, width: px, height: px, correctLevel: QRCode.CorrectLevel.M }); }
+    catch (e) { var el = document.getElementById(id); el.style.cssText += ';font-size:9px;word-break:break-all;overflow:hidden'; el.textContent = urlTarjeta; }
+  }
+})();
+</script>
+</body>
+</html>
