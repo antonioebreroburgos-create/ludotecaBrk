@@ -423,6 +423,21 @@
   #ef-desglose { text-align: center; font-size: 15px; color: var(--tinta); min-height: 20px; margin-bottom: 10px; }
   .tarifa.inactiva { opacity: .5; }
 
+  /* ---------- Etapa 15: hijos y niños representados ---------- */
+  .rel { display: block; font-size: 14px; color: var(--tinta-suave); margin-top: 2px; }
+  .chip.repre { background: #DCE7F7; display: inline-block; }
+  .rel .chip.repre { margin-top: 4px; color: var(--tinta); }
+  .chip-rel { font: 600 14px var(--cond); padding: 2px 10px; border-radius: 12px; border: 1.5px dashed var(--borde); background: var(--papel-claro); margin-top: 4px; }
+  .chip-rel.hijo { background: #E3F3DA; border-style: solid; }
+  .modo-adulto { display: grid; gap: 8px; margin-bottom: 14px; }
+  .modo-adulto label { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 2px solid var(--borde); border-radius: 10px; background: var(--papel-claro); font-size: 16px; }
+  .modo-adulto input { width: 22px; height: 22px; flex: none; accent-color: var(--rojo); margin-top: 1px; }
+  .modo-adulto label:has(input:checked) { box-shadow: inset 0 0 0 2px var(--rojo); border-color: var(--rojo); }
+  .modo-adulto b { display: block; font: 700 18px var(--cond); }
+  .modo-adulto[hidden] { display: none; }
+  .inv-acc { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .inv-acc .enlace { margin: 4px 0 0; padding: 0; font-size: 15px; }
+
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 </head>
@@ -493,6 +508,9 @@
   <div id="c-tutores"></div>
   <button class="enlace" id="c-otro">Viene otro adulto</button>
   <div class="lineas" id="c-lineas"></div>
+  <button class="enlace" id="c-mas-nino">+ Añadir un niño de otra familia</button>
+  <div class="campo" id="c-apellidos-wrap" hidden><label for="c-apellidos" id="c-apellidos-label">Apellidos</label>
+    <input id="c-apellidos" autocomplete="off"><small>Obligatorio: trae a niños que no son de su familia.</small></div>
   <div class="total"><span>Total</span><span id="c-total"></span></div>
   <div class="campo" id="c-nota-wrap" hidden><label for="c-nota">Motivo de la invitación o descuento</label>
     <input id="c-nota" autocomplete="off" placeholder="Por ejemplo: invitación de la casa"><small>Queda guardado en el ticket.</small></div>
@@ -517,7 +535,7 @@
   <h2>Familia nueva</h2>
   <h3 class="seccion">Adulto que los trae</h3>
   <div class="campo"><label for="a-nombre">Nombre</label><input id="a-nombre" autocomplete="off"></div>
-  <div class="campo"><label for="a-apellidos">Apellidos</label><input id="a-apellidos" autocomplete="off"></div>
+  <div class="campo"><label for="a-apellidos">Apellidos</label><input id="a-apellidos" autocomplete="off"><small>Obligatorios si trae a niños que no son suyos.</small></div>
   <div class="campo"><label for="a-telefono">Teléfono</label><input id="a-telefono" type="tel" inputmode="tel" autocomplete="off"></div>
   <div class="campo"><label for="a-parentesco">Es su…</label><select id="a-parentesco" class="sel-parentesco"></select></div>
   <div class="campo"><label for="a-nacimiento">Fecha de nacimiento del adulto</label><input id="a-nacimiento" type="date"><small>Opcional. Solo se usa si acepta recibir promociones.</small></div>
@@ -736,6 +754,8 @@
   </div>
   <div class="campo"><label for="hf-cumple">¿Quién cumple años?</label><input id="hf-cumple" autocomplete="off"></div>
   <div class="campo"><label for="hf-org">Organizador (madre, padre…)</label><input id="hf-org" autocomplete="off"></div>
+  <div class="campo"><label for="hf-org-ap">Apellidos del organizador</label><input id="hf-org-ap" autocomplete="off">
+    <small>Es el responsable de los invitados que no son sus hijos. Si no los pones ahora, se los pedirá el enlace.</small></div>
   <div class="campo"><label for="hf-tel">Teléfono del organizador</label><input id="hf-tel" type="tel" inputmode="tel" autocomplete="off"></div>
   <div class="campo"><label for="hf-previstos">Niños previstos</label><input id="hf-previstos" type="number" inputmode="numeric" min="1" max="200"><small>Opcional.</small></div>
   <div class="campo"><label for="hf-obs">Notas</label><textarea id="hf-obs" placeholder="Menú, tarta, lo que haga falta recordar"></textarea></div>
@@ -753,12 +773,23 @@
   <div class="campo"><label for="iv-nombre">Nombre</label><input id="iv-nombre" autocomplete="off"></div>
   <div class="campo"><label for="iv-edad">Edad</label><input id="iv-edad" type="number" inputmode="numeric" min="0" max="17"></div>
   <div class="campo"><label for="iv-avisos">Alergias o avisos</label><input id="iv-avisos" autocomplete="off" placeholder="Opcional"></div>
+  <div class="campo"><label for="iv-relacion">¿Quién se responsabiliza?</label>
+    <select id="iv-relacion"><option value="REPRESENTADO">Invitado: lo representa el organizador</option><option value="HIJO">Hijo/a del organizador</option></select></div>
   <label class="interruptor"><input type="checkbox" id="iv-llegado"> Ya ha llegado</label>
   <div class="fila-botones">
     <button class="btn secundario" data-cerrar>Cancelar</button>
     <button class="btn" id="iv-guardar">Añadir</button>
   </div>
   <p class="mensaje" id="iv-msg"></p>
+</div>
+
+<!-- Hoja: enlazar un invitado de la fiesta con la ficha de un niño cliente -->
+<div class="hoja" id="hoja-buscar-ficha">
+  <h2>Buscar su ficha</h2>
+  <p class="intro" id="bf-texto"></p>
+  <div class="buscador"><input id="bf-q" type="search" placeholder="Nombre del niño o teléfono" autocomplete="off" aria-label="Buscar niño"></div>
+  <div class="lista" id="bf-res"></div>
+  <button class="btn secundario" data-cerrar style="margin-top:12px">Cancelar</button>
 </div>
 
 <!-- Hoja: reabrir caja -->
@@ -848,11 +879,14 @@
 <!-- Hoja: otro adulto -->
 <div class="hoja" id="hoja-adulto">
   <h2>Otro adulto</h2>
-  <p class="intro">Quedará guardado para estos niños y podrá traerlos otro día.</p>
+  <div class="modo-adulto" id="d-modo">
+    <label><input type="radio" name="d-modo" value="familia" checked><span><b>Es de su familia</b>Abuela, tío… Queda guardado y podrá traerlos otro día.</span></label>
+    <label><input type="radio" name="d-modo" value="hoy"><span><b>Solo los acompaña hoy</b>No es de su familia (amigo, vecino…). Los representa solo en esta visita.</span></label>
+  </div>
   <div class="campo"><label for="d-nombre">Nombre</label><input id="d-nombre" autocomplete="off"></div>
-  <div class="campo"><label for="d-apellidos">Apellidos</label><input id="d-apellidos" autocomplete="off"></div>
+  <div class="campo"><label for="d-apellidos" id="d-apellidos-label">Apellidos</label><input id="d-apellidos" autocomplete="off"></div>
   <div class="campo"><label for="d-telefono">Teléfono</label><input id="d-telefono" type="tel" inputmode="tel" autocomplete="off"></div>
-  <div class="campo"><label for="d-parentesco">Es su…</label><select id="d-parentesco" class="sel-parentesco"></select></div>
+  <div class="campo" id="d-parentesco-wrap"><label for="d-parentesco">Es su…</label><select id="d-parentesco" class="sel-parentesco"></select></div>
   <label class="consent"><input type="checkbox" id="d-c-servicio"><span>Acepta que Restaurante Brooklyn guarde estos datos para gestionar la ludoteca y llamarle si hace falta. <b>Obligatorio.</b></span></label>
   <label class="consent"><input type="checkbox" id="d-c-marketing"><span>Quiere recibir promociones y felicitaciones por WhatsApp. Opcional.</span></label>
   <div class="fila-botones">
@@ -1122,6 +1156,7 @@ document.querySelectorAll('.sel-parentesco').forEach(s =>
 let resultados = [];          // niños de la última búsqueda
 const seleccion = new Map();  // id → ficha del niño
 let tutorElegido = null;
+const tutoresExtra = new Map();  // adultos que traen a niños que no son suyos (no salen en sus fichas)
 let ultimoTicket = null;
 let ticketsHoy = [];
 let ticketEnHoja = null;
@@ -1145,7 +1180,7 @@ function textoEdad(fecha) {
 
 // ---------- Buscar ----------
 function abrirEntrada() {
-  seleccion.clear(); resultados = []; tutorElegido = null; llegadaActual = null;
+  seleccion.clear(); resultados = []; tutorElegido = null; llegadaActual = null; tutoresExtra.clear();
   $('e-q').value = '';
   pintarResultados(); pintarBarra();
   mostrar('entrada');
@@ -1281,7 +1316,8 @@ function añadirBloqueNino() {
     <div class="campo"><label>Nombre</label><input class="n-nombre" autocomplete="off"></div>
     <div class="campo"><label>Apellidos</label><input class="n-apellidos" autocomplete="off"></div>
     <div class="campo"><label>Fecha de nacimiento</label><input class="n-fecha" type="date"></div>
-    <div class="campo"><label>Avisos</label><textarea class="n-obs" placeholder="Alergias, quién no puede recogerlo…"></textarea></div>`;
+    <div class="campo"><label>Avisos</label><textarea class="n-obs" placeholder="Alergias, quién no puede recogerlo…"></textarea></div>
+    <label class="interruptor peq"><input type="checkbox" class="n-acomp"> No es su hijo/a: solo lo acompaña hoy</label>`;
   div.querySelector('.quitar').onclick = () => { div.remove(); renumerarNinos(); };
   $('a-ninos').appendChild(div);
   renumerarNinos();
@@ -1303,8 +1339,13 @@ $('a-guardar').onclick = async () => {
   };
   const ninos = [...$('a-ninos').children].map(b => ({
     nombre: b.querySelector('.n-nombre').value, apellidos: b.querySelector('.n-apellidos').value,
-    fecha_nacimiento: b.querySelector('.n-fecha').value, observaciones: b.querySelector('.n-obs').value
+    fecha_nacimiento: b.querySelector('.n-fecha').value, observaciones: b.querySelector('.n-obs').value,
+    acompanado: b.querySelector('.n-acomp').checked
   }));
+  const hayAcompanados = ninos.some(n => n.acompanado);
+  if (hayAcompanados && tutor.apellidos.trim().length < 2) {
+    $('a-msg').textContent = 'Trae a niños que no son suyos: escribe los apellidos del adulto.'; $('a-apellidos').focus(); return;
+  }
   if (!tutor.consentimiento_servicio) {
     $('a-msg').textContent = 'Marca el consentimiento obligatorio para poder guardar.'; return;
   }
@@ -1317,12 +1358,14 @@ $('a-guardar').onclick = async () => {
       const existente = e.datos?.tutorExistente;
       if (!existente) throw e;
       const quien = nombreCompleto(existente);
-      if (!confirm(`Ese teléfono ya es de ${quien}.\n\n¿Añadir estos niños a su familia?`)) throw new Error('Revisa el teléfono o busca a esa familia.');
-      r = await api('familias', { datos: { accion: 'alta', tutor: { id: existente.id, parentesco: tutor.parentesco }, ninos } });
+      const pregunta = ninos.every(n => n.acompanado) ? '¿Es la misma persona?' : '¿Añadir a su familia los niños que son suyos?';
+      if (!confirm(`Ese teléfono ya es de ${quien}.\n\n${pregunta}`)) throw new Error('Revisa el teléfono o busca a esa familia.');
+      r = await api('familias', { datos: { accion: 'alta', tutor: { id: existente.id, parentesco: tutor.parentesco, apellidos: tutor.apellidos }, ninos } });
     }
-    seleccion.clear();
+    // Se suman a los que ya estaban elegidos (por ejemplo, su hijo + un amigo nuevo)
     r.ninos.forEach(n => seleccion.set(n.id, n));
     resultados = r.ninos;
+    if (r.tutor) tutoresExtra.set(r.tutor.id, { ...r.tutor, parentesco: null });
     tutorElegido = r.tutor_id;
     aviso('Familia guardada');
     abrirCobro();
@@ -1334,7 +1377,16 @@ $('a-guardar').onclick = async () => {
 function tutoresDeSeleccion() {
   const mapa = new Map();
   seleccion.forEach(n => n.tutores.forEach(t => { if (!mapa.has(t.id)) mapa.set(t.id, t); }));
+  tutoresExtra.forEach(t => { if (!mapa.has(t.id)) mapa.set(t.id, t); });
   return [...mapa.values()];
+}
+// Qué es el niño para el adulto que lo trae: su familia (con el parentesco) o representado solo hoy
+const relacionCon = (n, tutorId) => n.tutores.find(t => t.id === tutorId) || null;
+const representados = tutorId => [...seleccion.values()].filter(n => tutorId && !relacionCon(n, tutorId));
+// ¿Hay que pedir los apellidos del adulto elegido?
+function faltanApellidos() {
+  const t = tutoresDeSeleccion().find(x => x.id === tutorElegido);
+  return !!t && representados(tutorElegido).length > 0 && (t.apellidos || '').trim().length < 2;
 }
 
 function abrirCobro() {
@@ -1346,6 +1398,7 @@ function abrirCobro() {
   $('c-msg').textContent = '';
   cobroTarifas.clear();
   $('c-nota').value = '';
+  $('c-apellidos').value = '';
   pintarCobro();
   mostrar('cobro');
   // Entradas que se pueden elegir (se recargan por si el administrador ha cambiado precios)
@@ -1369,8 +1422,12 @@ function tarifaDe(n) {
 function pintarCobro() {
   const tutores = tutoresDeSeleccion();
   $('c-tutores').innerHTML = tutores.length
-    ? tutores.map(t => `<button class="tutor-op ${t.id === tutorElegido ? 'sel' : ''}" data-t="${t.id}">
-        <span class="radio"></span><div><b>${esc(nombreCompleto(t))}</b><span>${esc(t.parentesco || 'Adulto')}, ${esc(telefonoBonito(t.telefono))}</span></div></button>`).join('')
+    ? tutores.map(t => {
+        const rep = representados(t.id).map(n => n.nombre);
+        const papel = t.parentesco || (rep.length === seleccion.size ? 'Acompañante' : 'Adulto');
+        return `<button class="tutor-op ${t.id === tutorElegido ? 'sel' : ''}" data-t="${t.id}">
+        <span class="radio"></span><div><b>${esc(nombreCompleto(t))}</b><span>${esc(papel)}, ${esc(telefonoBonito(t.telefono))}${rep.length ? `. Representa a ${esc(rep.join(', '))}` : ''}</span></div></button>`;
+      }).join('')
     : '<p class="intro">Estos niños no tienen ningún adulto guardado. Añade quién los trae.</p>';
 
   const ninos = [...seleccion.values()];
@@ -1384,12 +1441,20 @@ function pintarCobro() {
           ${opciones.map(o => `<option value="${esc(o.codigo)}" ${o.codigo === t.codigo ? 'selected' : ''}>${esc(o.nombre)}, ${o.precio === 0 ? 'gratis' : euros(o.precio)}${o.codigo === n.tarifa_codigo ? ' (la que toca)' : ''}</option>`).join('')}
         </select>`
       : `<small>${esc(t.nombre || '')}</small>`;
+    const rel = tutorElegido ? relacionCon(n, tutorElegido) : null;
+    const relTxt = !tutorElegido ? ''
+      : rel ? `<span class="rel">De su familia${rel.parentesco ? ` (${esc(rel.parentesco.toLowerCase())})` : ''}</span>`
+      : `<span class="rel"><span class="chip repre">Lo representa ${esc(tutoresDeSeleccion().find(t => t.id === tutorElegido)?.nombre || '')}: no es de su familia</span></span>`;
     return `<div class="linea linea-cobro">
-      <div><b>${esc(nombreCompleto(n))}</b>
+      <div><b>${esc(nombreCompleto(n))}</b>${relTxt}
       ${n.entrada_hoy ? `<small style="color:var(--rojo)">Ya entró hoy a las ${hora(n.entrada_hoy)}</small>` : ''}</div>
       <span class="precio">${t.precio === 0 ? 'Gratis' : euros(t.precio)}</span>
       ${selector}</div>`;
   }).join('');
+
+  const pedir = faltanApellidos();
+  $('c-apellidos-wrap').hidden = !pedir;
+  if (pedir) $('c-apellidos-label').textContent = `Apellidos de ${tutores.find(t => t.id === tutorElegido).nombre}`;
 
   const total = ninos.reduce((s, n) => s + tarifaDe(n).precio, 0);
   const debido = ninos.reduce((s, n) => s + n.precio, 0);
@@ -1414,10 +1479,19 @@ $('c-tutores').onclick = e => {
   const b = e.target.closest('.tutor-op'); if (!b) return;
   tutorElegido = Number(b.dataset.t); pintarCobro();
 };
+// Añadir a otro niño (por ejemplo, el amigo de su hijo): vuelve al buscador sin perder lo elegido
+$('c-mas-nino').onclick = () => {
+  $('e-q').value = ''; resultados = [];
+  mostrar('entrada'); pintarResultados(); pintarBarra();
+  setTimeout(() => $('e-q').focus(), 60);
+};
 
 $('c-pago').onclick = async e => {
   const b = e.target.closest('[data-pago]'); if (!b) return;
   if (!tutorElegido) { $('c-msg').textContent = 'Elige quién trae a los niños.'; return; }
+  if (faltanApellidos() && $('c-apellidos').value.trim().length < 2) {
+    $('c-msg').textContent = 'Trae a niños que no son de su familia: escribe sus apellidos.'; $('c-apellidos').focus(); return;
+  }
   const ninos = [...seleccion.values()];
   const total = ninos.reduce((s, n) => s + tarifaDe(n).precio, 0);
   const debido = ninos.reduce((s, n) => s + n.precio, 0);
@@ -1432,7 +1506,8 @@ $('c-pago').onclick = async e => {
   try {
     const r = await api('entradas', { datos: {
       tutor_id: tutorElegido, nino_ids: [...seleccion.keys()], metodo_pago: b.dataset.pago, llegada_id: llegadaActual,
-      tarifas: ninos.map(n => cobroTarifas.get(n.id) || null), nota: total < debido ? nota : null
+      tarifas: ninos.map(n => cobroTarifas.get(n.id) || null), nota: total < debido ? nota : null,
+      tutor_apellidos: faltanApellidos() ? $('c-apellidos').value.trim() : null
     } });
     llegadaActual = null;
     ultimoTicket = r.ticket;
@@ -1447,9 +1522,20 @@ $('c-pago').onclick = async e => {
 // Otro adulto
 let adultoParaFicha = false;
 $('c-otro').onclick = () => abrirHojaAdulto(false);
+function modoAdulto() { return document.querySelector('input[name="d-modo"]:checked').value; }
+function pintarModoAdulto() {
+  const hoy = modoAdulto() === 'hoy';
+  $('d-parentesco-wrap').hidden = hoy;
+  $('d-apellidos-label').textContent = hoy ? 'Apellidos (obligatorio)' : 'Apellidos';
+}
+$('d-modo').onchange = pintarModoAdulto;
 function abrirHojaAdulto(paraFicha) {
   adultoParaFicha = paraFicha;
   ['d-nombre', 'd-apellidos', 'd-telefono'].forEach(id => $(id).value = '');
+  // Desde la ficha siempre es un adulto de la familia
+  $('d-modo').hidden = paraFicha;
+  document.querySelector('input[name="d-modo"][value="familia"]').checked = true;
+  pintarModoAdulto();
   $('d-parentesco').value = 'Abuela';
   $('d-c-servicio').checked = false; $('d-c-marketing').checked = false;
   $('d-msg').textContent = '';
@@ -1462,22 +1548,28 @@ $('d-guardar').onclick = async () => {
     consentimiento_servicio: $('d-c-servicio').checked, consentimiento_marketing: $('d-c-marketing').checked
   };
   const nino_ids = adultoParaFicha ? [fichaActual.nino.id] : [...seleccion.keys()];
+  const soloHoy = !adultoParaFicha && modoAdulto() === 'hoy';
+  if (soloHoy && tutor.apellidos.trim().length < 2) {
+    $('d-msg').textContent = 'Si no es de su familia, escribe nombre y apellidos.'; $('d-apellidos').focus(); return;
+  }
   $('d-guardar').disabled = true; $('d-msg').textContent = '';
   try {
     let r;
     try {
-      r = await api('familias', { datos: { accion: 'vincular', nino_ids, tutor } });
+      r = await api('familias', { datos: { accion: 'vincular', nino_ids, tutor, solo_hoy: soloHoy } });
     } catch (e) {
       const existente = e.datos?.tutorExistente;
       if (!existente) throw e;
       if (!confirm(`Ese teléfono ya es de ${nombreCompleto(existente)}.\n\n¿Es la misma persona?`)) throw new Error('Revisa el teléfono.');
-      r = await api('familias', { datos: { accion: 'vincular', nino_ids, tutor: { id: existente.id, parentesco: tutor.parentesco } } });
+      r = await api('familias', { datos: { accion: 'vincular', nino_ids, solo_hoy: soloHoy,
+        tutor: { id: existente.id, parentesco: tutor.parentesco, apellidos: tutor.apellidos } } });
     }
-    cerrarHoja(); aviso('Adulto añadido');
+    cerrarHoja(); aviso(soloHoy ? 'Acompañante añadido para hoy' : 'Adulto añadido');
     if (adultoParaFicha) {
       abrirFicha(fichaActual.nino.id);
     } else {
       r.ninos.forEach(n => seleccion.set(n.id, n));
+      if (soloHoy && r.tutor) tutoresExtra.set(r.tutor.id, { ...r.tutor, parentesco: null });
       tutorElegido = r.tutor_id;
       pintarCobro();
     }
@@ -1489,10 +1581,11 @@ $('d-guardar').onclick = async () => {
 function htmlTicket(t) {
   return `<div class="tk-cab"><span>Ticket ${numTicket(t.numero)}</span><span>${hora(t.creado_at)}</span></div>
     <div class="lineas">${t.lineas.map(l => `<div class="linea">
-      <div><b>${esc(l.nino ? nombreCompleto(l.nino) : '')}</b><small>${esc(l.descripcion)}</small></div>
+      <div><b>${esc(l.nino ? nombreCompleto(l.nino) : '')}</b><small>${esc(l.descripcion)}${l.representado ? '. Representado' : ''}</small></div>
       <span class="precio">${l.precio === 0 ? 'Gratis' : euros(l.precio)}</span></div>`).join('')}</div>
     <div class="total"><span>Total</span><span>${euros(t.total)}</span></div>
     <p class="tk-pie">${METODOS[t.metodo_pago] || t.metodo_pago}. Trae: ${esc(t.tutor ? nombreCompleto(t.tutor) : '')}. Cobra: ${esc(t.usuario || '')}.</p>
+    ${t.lineas.some(l => l.representado) ? `<p class="tk-pie"><b>Representa a</b> ${esc(t.lineas.filter(l => l.representado).map(l => l.nino?.nombre).join(', '))} (no son de su familia).</p>` : ''}
     ${t.nota ? `<p class="tk-pie"><b>Motivo:</b> ${esc(t.nota)}</p>` : ''}
     ${t.anulado ? `<p class="tk-pie" style="color:var(--rojo);font-weight:600">Anulado: ${esc(t.anulado_motivo)}</p>` : ''}
     ${t.socio_hasta && !t.anulado ? `<p class="tk-pie"><b>Socio Kids Club del ${fechaDMY(t.socio_desde)} al ${fechaDMY(t.socio_hasta)}.</b></p>` : ''}
@@ -1597,6 +1690,7 @@ function textoWhatsApp(t) {
     `📅 ${fechaLarga(t.creado_at)}, ${hora(t.creado_at)}`,
     '',
     ...lineas,
+    ...(t.lineas.some(l => l.representado) ? ['', `👤 ${t.tutor ? nombreCompleto(t.tutor) : ''} acompaña como responsable a ${t.lineas.filter(l => l.representado).map(l => l.nino?.nombre).join(', ')} durante la visita.`] : []),
     '',
     `*Total: ${euros(t.total)}* (${METODOS[t.metodo_pago] || t.metodo_pago})`,
     ...(conEntrada ? ['Tiempo ilimitado.'] : []),
@@ -1722,7 +1816,7 @@ async function dibujarTicket(t) {
     const anchoPrecio = g.measureText(precio).width + 30;
     g.textAlign = 'left'; g.fillText(recortar(g, l.nino ? nombreCompleto(l.nino) : '', ANCHO - anchoPrecio), X, y);
     g.fillStyle = '#6B5E52'; g.font = `500 32px ${TXT}`;
-    g.fillText(recortar(g, l.descripcion, ANCHO), X, y + 44);
+    g.fillText(recortar(g, l.descripcion + (l.representado ? '. Representado' : ''), ANCHO), X, y + 44);
     g.strokeStyle = '#6B5E52'; g.lineWidth = 2; g.setLineDash([8, 8]);
     g.beginPath(); g.moveTo(X, y + 74); g.lineTo(X + ANCHO, y + 74); g.stroke(); g.setLineDash([]);
     y += ALTO_LINEA;
@@ -2727,16 +2821,19 @@ function pintarLlegadas() {
   }
   $('ll-lista').innerHTML = llegadasDatos.map(l => {
     const total = l.ninos.reduce((s, n) => s + n.precio, 0);
+    const esRep = n => !n.tutores.some(t => t.id === l.tutor.id);
+    const hayRep = l.ninos.some(esRep);
     return `<div class="llegada">
       <div class="llegada-cab"><b>${esc(nombreCompleto(l.tutor))}</b><span>${hora(l.created_at)}</span></div>
       <small>${esc(telefonoBonito(l.tutor.telefono))}</small>
       ${l.origen === 'CARTEL' ? '<div class="chips"><span class="chip aviso-chip">Alta con el cartel: confirma que el teléfono es suyo</span></div>'
         : l.origen === 'PANTALLA' ? '<div class="chips"><span class="chip neutro">Alta con el QR de la pantalla</span></div>'
         : l.origen === 'AUTOCHECKIN' ? '<div class="chips"><span class="chip socio">Cliente habitual: se ha apuntado solo</span></div>' : ''}
+      ${hayRep && (l.tutor.apellidos || '').trim().length < 2 ? '<div class="chips"><span class="chip alerta">Faltan sus apellidos: pídeselos al cobrar</span></div>' : ''}
       ${l.ninos.map(n => `<div class="llegada-nino">
         <div><b>${esc(nombreCompleto(n))}</b> <span class="edad">${textoEdad(n.fecha_nacimiento)}</span>
           ${n.observaciones ? `<span class="obs">⚠️ ${esc(n.observaciones)}</span>` : ''}
-          <div class="chips">${chipsSocio(n)}${n.entrada_hoy ? `<span class="chip ya">Ya entró hoy a las ${hora(n.entrada_hoy)}</span>` : ''}</div></div>
+          <div class="chips">${esRep(n) ? `<span class="chip repre">Lo representa ${esc(l.tutor.nombre)}</span>` : ''}${chipsSocio(n)}${n.entrada_hoy ? `<span class="chip ya">Ya entró hoy a las ${hora(n.entrada_hoy)}</span>` : ''}</div></div>
         <span class="precio">${n.precio === 0 ? 'Gratis' : euros(n.precio)}</span></div>`).join('')}
       <button class="btn" data-cobrar="${l.id}">Cobrar ${euros(total)}</button>
       <button class="enlace" data-descartar="${l.id}">No viene / quitar de la lista</button>
@@ -2748,9 +2845,11 @@ $('ll-lista').onclick = async e => {
   const d = e.target.closest('[data-descartar]');
   if (c) {
     const l = llegadasDatos.find(x => x.id === Number(c.dataset.cobrar));
-    seleccion.clear();
+    seleccion.clear(); tutoresExtra.clear();
     l.ninos.forEach(n => seleccion.set(n.id, n));
     resultados = l.ninos;
+    // El adulto puede no estar en la ficha de los niños que representa
+    tutoresExtra.set(l.tutor.id, { ...l.tutor, parentesco: null });
     tutorElegido = l.tutor.id;
     llegadaActual = l.id;
     abrirCobro();
@@ -2812,12 +2911,18 @@ function pintarFiesta() {
   const f = fiestaActual;
   const inv = f.invitados;
   const llegados = inv.filter(i => i.ha_llegado).length;
-  const conAvisos = inv.filter(i => i.avisos);
+  // Alergias: las que apunta el organizador y las de la ficha si el invitado es cliente
+  const avisosDe = i => [i.avisos, i.ficha?.observaciones].filter(Boolean).join('. ');
+  const conAvisos = inv.filter(i => avisosDe(i));
+  const organizador = `${f.organizador_nombre} ${f.organizador_apellidos || ''}`.trim();
+  const faltanAp = inv.some(i => i.relacion !== 'HIJO') && !(f.organizador_apellidos || '').trim();
   $('fi-titulo').textContent = `Fiesta de ${f.cumpleanero}`;
   $('fi-cont').innerHTML = `
     <div class="ticket grande">
       <div class="tk-cab"><span>${esc(fechaLargaDia(f.fecha))}</span><span>${esc(f.hora || '')}</span></div>
-      <p style="margin-top:8px"><b>Organiza:</b> ${esc(f.organizador_nombre)}, ${esc(telefonoBonito(f.organizador_telefono))}</p>
+      <p style="margin-top:8px"><b>Organiza:</b> ${esc(organizador)}, ${esc(telefonoBonito(f.organizador_telefono))}</p>
+      <p style="font-size:14px">Es el responsable de los invitados que no son sus hijos.</p>
+      ${faltanAp ? '<p style="color:var(--rojo);font-weight:600">Faltan sus apellidos: pídeselos o ponlos en «Editar datos».</p>' : ''}
       ${f.ninos_previstos ? `<p><b>Niños previstos:</b> ${f.ninos_previstos}</p>` : ''}
       ${f.observaciones ? `<p><b>Notas:</b> ${esc(f.observaciones)}</p>` : ''}
       ${f.anulada ? '<p style="color:var(--rojo);font-weight:600">Fiesta anulada</p>' : ''}
@@ -2827,7 +2932,7 @@ function pintarFiesta() {
       <p class="intro" style="font-size:14px;margin:0">Con el enlace, ${esc(f.organizador_nombre)} apunta a los niños desde su móvil. Si envías uno nuevo, el anterior deja de valer.</p>
       <div class="fila-botones"><a class="btn secundario" href="tel:${esc(f.organizador_telefono)}">Llamar</a><button class="btn secundario" id="fi-editar">Editar datos</button></div>
     </div>`}
-    ${conAvisos.length ? `<div class="aviso-caja" style="margin-top:16px">⚠️ Alergias y avisos: ${conAvisos.map(i => `<b>${esc(i.nombre)}</b> (${esc(i.avisos)})`).join(', ')}</div>` : ''}`;
+    ${conAvisos.length ? `<div class="aviso-caja" style="margin-top:16px">⚠️ Alergias y avisos: ${conAvisos.map(i => `<b>${esc(i.nombre)}</b> (${esc(avisosDe(i))})`).join(', ')}</div>` : ''}`;
   $('fi-resumen').textContent = inv.length
     ? `${inv.length} ${inv.length === 1 ? 'niño apuntado' : 'niños apuntados'}. Han llegado ${llegados}.`
     : 'Todavía no hay niños apuntados.';
@@ -2835,7 +2940,12 @@ function pintarFiesta() {
       <button class="inv-check" data-llegada="${i.id}" aria-pressed="${i.ha_llegado}" aria-label="Ha llegado ${esc(i.nombre)}">${i.ha_llegado ? '✓' : ''}</button>
       <div class="inv-datos"><b>${esc(i.nombre)}${i.es_cumpleanero ? ' 🎂' : ''}</b>
         <span class="edad">${i.edad !== null && i.edad !== undefined ? `${i.edad} ${i.edad === 1 ? 'año' : 'años'}` : 'Edad sin poner'}</span>
-        ${i.avisos ? `<span class="obs">⚠️ ${esc(i.avisos)}</span>` : ''}</div>
+        ${avisosDe(i) ? `<span class="obs">⚠️ ${esc(avisosDe(i))}</span>` : ''}
+        <div class="inv-acc">
+          <button class="chip-rel ${i.relacion === 'HIJO' ? 'hijo' : ''}" data-rel="${i.id}" aria-label="Cambiar quién se responsabiliza de ${esc(i.nombre)}">${i.relacion === 'HIJO' ? `Hijo/a de ${esc(f.organizador_nombre)}` : `Lo representa ${esc(f.organizador_nombre)}`}</button>
+          ${i.ficha ? `<span class="chip socio">Ficha: ${esc(nombreCompleto(i.ficha))}</span><button class="enlace" data-ficha-ver="${i.ficha.id}">Ver</button><button class="enlace" data-ficha-quitar="${i.id}">Quitar</button>`
+            : `<button class="enlace" data-ficha-buscar="${i.id}">Buscar su ficha</button>`}
+        </div></div>
       ${i.es_cumpleanero ? '' : `<button class="quitar" data-quitar-inv="${i.id}">Quitar</button>`}
     </div>`).join('');
   $('fi-pie').style.display = f.anulada ? 'none' : '';
@@ -2862,7 +2972,22 @@ async function enviarEnlaceFiesta() {
 $('fi-invitados').onclick = async e => {
   const c = e.target.closest('[data-llegada]');
   const q = e.target.closest('[data-quitar-inv]');
+  const rel = e.target.closest('[data-rel]');
+  const fb = e.target.closest('[data-ficha-buscar]');
+  const fv = e.target.closest('[data-ficha-ver]');
+  const fq = e.target.closest('[data-ficha-quitar]');
+  if (fb) { abrirBuscarFicha(fiestaActual.invitados.find(i => i.id === Number(fb.dataset.fichaBuscar))); return; }
+  if (fv) { abrirFicha(Number(fv.dataset.fichaVer)); return; }
   try {
+    if (rel) {
+      const inv = fiestaActual.invitados.find(i => i.id === Number(rel.dataset.rel));
+      const r = await api('fiestas', { datos: { accion: 'relacion', invitado_id: inv.id, relacion: inv.relacion === 'HIJO' ? 'REPRESENTADO' : 'HIJO' } });
+      fiestaActual = r.fiesta; pintarFiesta();
+    }
+    if (fq) {
+      const r = await api('fiestas', { datos: { accion: 'ficha', invitado_id: Number(fq.dataset.fichaQuitar), nino_id: null } });
+      fiestaActual = r.fiesta; pintarFiesta();
+    }
     if (c) {
       const inv = fiestaActual.invitados.find(i => i.id === Number(c.dataset.llegada));
       inv.ha_llegado = !inv.ha_llegado; pintarFiesta();   // se ve al instante
@@ -2881,6 +3006,7 @@ $('fi-invitados').onclick = async e => {
 // Añadir un niño a mano (por ejemplo, uno que llega sin estar en la lista)
 $('fi-anadir').onclick = () => {
   ['iv-nombre', 'iv-edad', 'iv-avisos'].forEach(id => $(id).value = '');
+  $('iv-relacion').value = 'REPRESENTADO';
   $('iv-llegado').checked = fiestaActual.fecha === hoyLocal();
   $('iv-msg').textContent = '';
   abrirHojaId('hoja-invitado');
@@ -2890,7 +3016,8 @@ $('iv-guardar').onclick = async () => {
   $('iv-guardar').disabled = true; $('iv-msg').textContent = '';
   try {
     const r = await api('fiestas', { datos: { accion: 'invitado', fiesta_id: fiestaActual.id,
-      nombre: $('iv-nombre').value, edad: $('iv-edad').value, avisos: $('iv-avisos').value, ha_llegado: $('iv-llegado').checked } });
+      nombre: $('iv-nombre').value, edad: $('iv-edad').value, avisos: $('iv-avisos').value, ha_llegado: $('iv-llegado').checked,
+      relacion: $('iv-relacion').value } });
     fiestaActual = r.fiesta; cerrarHoja(); pintarFiesta(); aviso('Niño añadido');
   } catch (e) { $('iv-msg').textContent = e.message; }
   $('iv-guardar').disabled = false;
@@ -2906,6 +3033,7 @@ function abrirHojaFiesta(f) {
   $('hf-hora').value = f?.hora || '';
   $('hf-cumple').value = f?.cumpleanero || '';
   $('hf-org').value = f?.organizador_nombre || '';
+  $('hf-org-ap').value = f?.organizador_apellidos || '';
   $('hf-tel').value = f ? telefonoBonito(f.organizador_telefono) : '';
   $('hf-previstos').value = f?.ninos_previstos ?? '';
   $('hf-obs').value = f?.observaciones || '';
@@ -2920,7 +3048,7 @@ $('hf-guardar').onclick = async () => {
   const datos = {
     accion: fiestaEditando ? 'editar' : 'crear', id: fiestaEditando?.id,
     fecha: $('hf-fecha').value, hora: $('hf-hora').value, cumpleanero: $('hf-cumple').value,
-    organizador_nombre: $('hf-org').value, organizador_telefono: $('hf-tel').value,
+    organizador_nombre: $('hf-org').value, organizador_apellidos: $('hf-org-ap').value, organizador_telefono: $('hf-tel').value,
     ninos_previstos: $('hf-previstos').value, observaciones: $('hf-obs').value
   };
   try {
@@ -2943,6 +3071,38 @@ $('hf-anular').onclick = async () => {
   } catch (e) { $('hf-msg').textContent = e.message; }
 };
 $('fi-volver').onclick = abrirFiestas;
+
+// Enlazar un invitado con la ficha de un niño que ya es cliente (para ver sus alergias y datos)
+let invitadoFicha = null;
+function abrirBuscarFicha(inv) {
+  invitadoFicha = inv;
+  $('bf-texto').textContent = `Si ${inv.nombre} ya ha venido a la ludoteca, búscalo y toca su nombre.`;
+  $('bf-q').value = inv.nombre; $('bf-res').innerHTML = '';
+  abrirHojaId('hoja-buscar-ficha');
+  buscarFicha();
+  setTimeout(() => $('bf-q').focus(), 250);
+}
+let tempFicha;
+$('bf-q').oninput = () => { clearTimeout(tempFicha); tempFicha = setTimeout(buscarFicha, 300); };
+async function buscarFicha() {
+  const q = $('bf-q').value.trim();
+  if (q.length < 2) { $('bf-res').innerHTML = ''; return; }
+  try {
+    const r = await api('familias?q=' + encodeURIComponent(q), { metodo: 'GET' });
+    if (q !== $('bf-q').value.trim()) return;
+    $('bf-res').innerHTML = r.ninos.length ? r.ninos.map(n => `<button class="fila" data-elegir-ficha="${n.id}">
+        <div><b>${esc(nombreCompleto(n))}</b><small>${textoEdad(n.fecha_nacimiento)}${n.tutores.length ? `. ${esc(n.tutores.map(t => `${t.parentesco || 'Adulto'}: ${t.nombre}`).join(', '))}` : ''}</small>
+        ${n.observaciones ? `<small style="color:var(--rojo);font-weight:600">⚠️ ${esc(n.observaciones)}</small>` : ''}</div></button>`).join('')
+      : `<p class="intro">No hay ningún niño con «${esc(q)}».</p>`;
+  } catch (e) { $('bf-res').innerHTML = `<p class="mensaje">${esc(e.message)}</p>`; }
+}
+$('bf-res').onclick = async e => {
+  const b = e.target.closest('[data-elegir-ficha]'); if (!b) return;
+  try {
+    const r = await api('fiestas', { datos: { accion: 'ficha', invitado_id: invitadoFicha.id, nino_id: Number(b.dataset.elegirFicha) } });
+    fiestaActual = r.fiesta; cerrarHoja(); pintarFiesta(); aviso('Ficha enlazada');
+  } catch (err) { aviso(err.message); }
+};
 
 // =====================================================================
 //  ETAPA 12 · ALTA CON QR: EN LA PANTALLA DEL PERSONAL Y EN UN CARTEL

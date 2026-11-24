@@ -101,7 +101,7 @@
     <h1>BROOKLYN</h1>
     <p class="sub">LUDOTECA</p>
     <span class="lema">Guía de la app para monitoras y administración</span>
-    <p class="version">Versión 14 · Actualizada el 24 de noviembre de 2026</p>
+    <p class="version">Versión 15 · Actualizada el 24 de noviembre de 2026</p>
   </div>
 
   <nav class="indice">
@@ -201,6 +201,19 @@
       <li><b style="color:var(--rojo)">⚠️ Texto en rojo</b> Alergias o avisos importantes (por ejemplo, quién no puede recogerlo). <b>Léelo siempre.</b></li>
     </ul>
     <div class="nota"><b>Hermanos con distinto apellido.</b> Los niños marcados se quedan arriba aunque busques otra cosa. Puedes buscar al primero, marcarlo, buscar al segundo y marcarlo también.</div>
+    <h3 id="representados">Trae a niños que no son suyos</h3>
+    <p>Un adulto puede traer a sus hijos y a otros niños: el amigo de su hijo, un primo, los invitados de un cumpleaños… La app distingue siempre <b>de quién es cada niño</b>:</p>
+    <ul>
+      <li><b>De su familia</b>: el niño está guardado con ese adulto (madre, padre, abuela…). Sale «De su familia (madre)».</li>
+      <li><b>Representado</b>: no es de su familia. Ese adulto se hace responsable de él <b>solo en esta visita</b>. Sale <span class="etiqueta" style="background:#DCE7F7">Lo representa María</span>. No pasa a ser familia del niño: otro día no aparecerá con él.</li>
+    </ul>
+    <ol class="pasos">
+      <li>Busca y marca a sus hijos. En el cobro, pulsa <b>+ Añadir un niño de otra familia</b>, busca al otro niño y márcalo (no se pierde lo que ya tenías marcado).</li>
+      <li>Si el otro niño no ha venido nunca, dale de alta y marca <b>No es su hijo/a: solo lo acompaña hoy</b> (<a href="#familia">punto 4</a>).</li>
+      <li>En <b>¿Quién los trae?</b> marca al adulto. Al lado de cada adulto pone a quién representa.</li>
+      <li>Si ese adulto no tiene apellidos guardados, la app pide <b>sus apellidos</b> y no deja cobrar sin ellos.</li>
+    </ol>
+    <div class="ojo"><b>Nombre y apellidos obligatorios.</b> Quien trae a niños que no son suyos tiene que estar identificado con nombre y apellidos. Una vez guardados, no se vuelven a pedir. En el ticket sale «Representado» en esos niños y «Representa a …» al pie, también en el WhatsApp.</div>
     <div class="pendiente"><b>Socio sin la pulsera.</b> La pulsera es obligatoria para entrar. Qué hacer si un socio viene sin ella está pendiente de decidir; mientras tanto, consulta con el encargado.</div>
     <a class="arriba" href="#inicio">↑ Volver al índice</a>
   </section>
@@ -213,21 +226,28 @@
       <li>Pulsa <span class="boton">Dar de alta una familia nueva</span>. Si habías buscado un teléfono, ya aparece escrito.</li>
       <li>Rellena los datos del <b>adulto que los trae</b>: nombre, teléfono y qué es del niño. La fecha de nacimiento y el email son opcionales.</li>
       <li>Rellena cada <b>niño</b>: nombre, apellidos y fecha de nacimiento. En <b>Avisos</b> apunta alergias o cualquier cosa importante. Con <b>Añadir otro niño</b> metes a los hermanos.</li>
+      <li>Si algún niño <b>no es suyo</b> (un amigo que viene por primera vez), marca en ese niño <b>No es su hijo/a: solo lo acompaña hoy</b>. Se guarda el niño, pero no como familia de ese adulto. Entonces los <b>apellidos del adulto son obligatorios</b>.</li>
       <li>Pregunta al adulto por los <b>consentimientos</b> y márcalos (<a href="#datos">ver punto 12</a>).</li>
       <li>Pulsa <span class="boton rojo">Guardar y cobrar</span>. Pasas directamente al cobro con todo ya seleccionado.</li>
     </ol>
-    <div class="nota"><b>«Ese teléfono ya es de…»</b> Si el teléfono ya estaba guardado, la app pregunta si quieres añadir estos niños a esa familia. Si es la misma persona, di que sí. Si no, revisa el número.</div>
+    <div class="nota"><b>«Ese teléfono ya es de…»</b> Si el teléfono ya estaba guardado, la app pregunta si quieres añadir estos niños a esa familia. Si es la misma persona, di que sí. Si no, revisa el número. Los niños marcados como «no es su hijo/a» no se añaden a su familia.</div>
+    <p>Los niños que ya tenías marcados en el buscador (por ejemplo, su hijo) siguen marcados al guardar: pasas al cobro con todos.</p>
     <a class="arriba" href="#inicio">↑ Volver al índice</a>
   </section>
 
   <!-- 5 -->
   <section id="adulto">
     <h2 class="titulo"><span class="n">5.</span> Viene otro adulto</h2>
-    <p>Cuando trae a los niños alguien que no está guardado (la abuela, un tío…):</p>
+    <p>Cuando trae a los niños alguien que no está guardado con ellos:</p>
     <ol class="pasos">
       <li>En la pantalla de cobro, pulsa <b>Viene otro adulto</b>.</li>
-      <li>Rellena nombre, teléfono, qué es del niño y los consentimientos.</li>
-      <li>Pulsa <span class="boton rojo">Guardar</span>. Queda seleccionado para el cobro y guardado para próximas veces.</li>
+      <li>Elige qué es:
+        <ul>
+          <li><b>Es de su familia</b> (la abuela, un tío…): queda guardado con los niños y podrá traerlos otro día.</li>
+          <li><b>Solo los acompaña hoy</b> (un amigo, un vecino…): los representa solo en esta visita. No se guarda como familia de los niños. <b>Nombre y apellidos obligatorios.</b></li>
+        </ul></li>
+      <li>Rellena nombre, apellidos, teléfono y los consentimientos (y, si es de la familia, qué es del niño).</li>
+      <li>Pulsa <span class="boton rojo">Guardar</span>. Queda seleccionado para el cobro.</li>
     </ol>
     <p>También se puede añadir desde la ficha del niño (<a href="#ficha">punto 10</a>).</p>
     <a class="arriba" href="#inicio">↑ Volver al índice</a>
@@ -260,12 +280,19 @@
     <p>El enlace es <b>personal</b>: vale <b>24 horas</b> y <b>una sola vez</b>. Si el cliente lo pierde o caduca, envíale otro.</p>
     <h3>Lo que hace el cliente</h3>
     <p>Abre el enlace y rellena sus datos, los de cada niño (nombre, fecha de nacimiento y alergias) y marca los permisos: el obligatorio para la ludoteca y, si quiere, el de promociones. Al enviarlo le sale «¡Listo! Avisa al personal».</p>
+    <p>En cada niño marca <b>Es mi hijo/a</b> o <b>No es mío: lo acompaño</b>. Si trae a niños que no son suyos:</p>
+    <ul>
+      <li>Sus <b>apellidos son obligatorios</b>, y el formulario le avisa de que se hace responsable de esos niños en la visita y confirma que su familia está de acuerdo.</li>
+      <li>Al escribir el nombre y la fecha de nacimiento, el formulario <b>busca si ese niño ya ha venido</b>: «✓ Ya ha venido a la ludoteca: usaremos su ficha» o «No lo encontramos: se registrará ahora». Así no se duplican niños. Al cliente nunca se le enseña ningún dato del otro niño, solo sí o no.</li>
+      <li>En Llegadas, esos niños salen con <span class="etiqueta" style="background:#DCE7F7">Lo representa Carmen</span>.</li>
+    </ul>
     <div class="nota"><b>Si ya estaban registrados.</b> Si el teléfono ya existe, la app usa esa familia y no duplica a los niños que ya tenía; solo añade los nuevos. Los datos guardados no se cambian desde el enlace: para corregirlos, usa la ficha del niño.</div>
     <h3>Clientes habituales: se apuntan solos (autocheck-in)</h3>
     <p>Una familia que ya está registrada no tiene que volver a rellenar nada. Escanea el <b>cartel</b> o el <b>QR de tu pantalla</b>, pulsa <b>Sí, ya estamos registrados</b> y aparece directamente en <b>Llegadas</b>.</p>
     <ol class="pasos">
       <li><b>La primera vez</b> se identifica con su <b>teléfono</b> y la <b>fecha de nacimiento de uno de sus hijos</b>.</li>
       <li>Marca qué niños vienen hoy (salen todos marcados) y pulsa <b>Ya estamos aquí</b>.</li>
+      <li>Si trae a algún niño que no es suyo, pulsa <b>+ Traigo a otro niño que no es mío</b> y escribe su nombre y fecha de nacimiento. Igual que en el alta, se busca su ficha, y si el cliente no tiene apellidos guardados se le piden.</li>
       <li>Su móvil queda <b>recordado durante un año</b>: las siguientes veces, al escanear le sale «¡Hola, María!» con sus hijos, sin escribir nada.</li>
     </ol>
     <p>En Llegadas sale con el aviso <span class="etiqueta e-socio">Cliente habitual: se ha apuntado solo</span>. Se cobra igual que cualquier otra llegada.</p>
@@ -406,17 +433,25 @@
     <h3>Crear la fiesta</h3>
     <ol class="pasos">
       <li>En el inicio, <b>🎉 Fiestas de cumpleaños</b> y pulsa <span class="boton rojo">Nueva fiesta</span>.</li>
-      <li>Rellena el día, la hora, quién cumple años, el organizador y su teléfono. Los niños previstos y las notas son opcionales.</li>
+      <li>Rellena el día, la hora, quién cumple años, el organizador (nombre y apellidos) y su teléfono. Los niños previstos y las notas son opcionales. Si no sabes los apellidos del organizador, se los pedirá el enlace.</li>
       <li>Pulsa <b>Crear fiesta</b> y después <span class="boton wa">Enviar enlace por WhatsApp</span>.</li>
     </ol>
     <h3>Lo que hace el organizador</h3>
     <p>Abre el enlace y apunta a cada niño: <b>nombre, edad y alergias</b>. Puede volver al enlace y cambiar la lista <b>las veces que quiera hasta el mismo día</b> de la fiesta. El niño que cumple ya sale el primero.</p>
+    <ul>
+      <li>En cada niño marca si es <b>Mi hijo/a</b> o <b>Invitado</b>. El cumpleañero sale ya como su hijo.</li>
+      <li>El organizador es el <b>responsable de los invitados</b> que no son sus hijos: tiene que poner sus <b>apellidos</b> para guardar la lista.</li>
+      <li>Si un invitado ya ha venido a la ludoteca, puede poner su <b>fecha de nacimiento</b> y queda enlazado con su ficha («✓ Enlazado con su ficha de la ludoteca»). La fecha solo sirve para buscarlo; no se guarda en la lista.</li>
+    </ul>
     <div class="nota"><b>Solo lo necesario.</b> De los invitados se guarda nombre, edad y alergias, sin teléfonos ni datos de sus familias, porque el organizador no puede dar permiso por otras familias. Las listas se borran solas un mes después de la fiesta.</div>
     <h3>El día de la fiesta</h3>
     <ul>
       <li>Abre la fiesta: arriba salen en rojo <b>todas las alergias y avisos</b>.</li>
       <li>Cuando llega cada niño, toca su cuadro y se pone en verde ✓. Arriba se ve cuántos han llegado.</li>
-      <li>Si llega un niño que no está apuntado, pulsa <b>Añadir un niño</b>.</li>
+      <li>Si llega un niño que no está apuntado, pulsa <b>Añadir un niño</b> y elige si es hijo del organizador o invitado.</li>
+      <li>Debajo de cada niño pone <b>Hijo/a de Rosa</b> o <b>Lo representa Rosa</b>. Si está mal, tócalo y cambia.</li>
+      <li>Con <b>Buscar su ficha</b> enlazas a un invitado con su ficha de la ludoteca. Sus alergias de la ficha salen también en el aviso rojo de arriba. Con <b>Ver</b> abres su ficha; con <b>Quitar</b> deshaces el enlace.</li>
+      <li>Si faltan los apellidos del organizador, sale un aviso en rojo: pídeselos o ponlos en <b>Editar datos</b>.</li>
     </ul>
     <p>Con <b>Editar datos</b> cambias la fecha, la hora o el teléfono, y desde ahí también puedes <b>anular la fiesta</b>. Si cambias la fecha, o envías el enlace otra vez, el enlace anterior deja de valer: manda el nuevo.</p>
     <a class="arriba" href="#inicio">↑ Volver al índice</a>
@@ -543,6 +578,16 @@
   <section id="cambios">
     <h2 class="titulo"><span class="n">20.</span> Historial de cambios</h2>
     <div class="cambios">
+      <div class="cambio">
+        <p class="fecha">Versión 15 <span>· 24 de noviembre de 2026</span></p>
+        <ul>
+          <li><b>Hijos y niños representados</b>: si un adulto trae a niños que no son suyos, la app lo deja claro en el cobro, en Llegadas, en el ticket y en las fiestas. Los representa solo en esa visita.</li>
+          <li>Quien trae a niños que no son suyos tiene que dar <b>nombre y apellidos</b>.</li>
+          <li>En el cobro, <b>+ Añadir un niño de otra familia</b>. En «Viene otro adulto», la opción <b>Solo los acompaña hoy</b>.</li>
+          <li>El cliente, en el formulario, el autocheck-in y la lista de la fiesta, puede marcar a niños que no son suyos y <b>buscar si ya son clientes</b> con su nombre y fecha de nacimiento.</li>
+          <li>Fiestas: hijo o invitado, apellidos del organizador y enlace de invitados con su ficha.</li>
+        </ul>
+      </div>
       <div class="cambio">
         <p class="fecha">Versión 14 <span>· 24 de noviembre de 2026</span></p>
         <ul>

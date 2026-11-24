@@ -1,7 +1,10 @@
 // /.netlify/functions/familias
 // GET  ?q=texto                       → niños encontrados con tutores, tarifa de hoy y si ya entraron
 // POST { accion:'alta', tutor, ninos } → alta de familia nueva (o niños nuevos para un tutor existente)
+//      ninos[].acompanado = true → no es suyo: se da de alta el niño SIN vincularlo al adulto (lo representa hoy)
 // POST { accion:'vincular', nino_ids, tutor } → añade otro adulto (abuela, tío...) a esos niños
+// POST { accion:'vincular', nino_ids, tutor, solo_hoy:true } → adulto que solo los acompaña hoy (representante):
+//      se guarda el adulto pero no se vincula a los niños. Nombre y apellidos obligatorios.
 // GET  ?id=N                                  → ficha completa del niño (datos, adultos, socio, visitas)
 // POST { accion:'editar_nino', id, ... }       → corrige datos del niño
 // POST { accion:'editar_tutor', id, nino_id, ... } → corrige datos de un adulto
@@ -81,6 +84,25 @@ async function obtenerOCrearTutor(t = {}) {
   }).select('id').single();
   if (error) throw error;
   return { id: data.id, creado: true };
+}
+
+// Datos del adulto para la pantalla de cobro
+async function datosTutor(id) {
+  const { data, error } = await supabase.from('tutores').select('id, nombre, apellidos, telefono').eq('id', id).single();
+  if (error) throw error;
+  return data;
+}
+
+// Quien trae a niños que no son suyos tiene que dar nombre y apellidos.
+// Si el adulto ya existía sin apellidos, se guardan los que se escriben ahora.
+const MENSAJE_APELLIDOS = 'Para traer a niños que no son suyos, el adulto tiene que dar nombre y apellidos.';
+async function asegurarApellidos(tutorId, apellidos) {
+  const nuevos = texto(apellidos);
+  const { data } = await supabase.from('tutores').select('apellidos').eq('id', tutorId).single();
+  if ((data?.apellidos || '').trim().length >= 2) return;
+  if (!nuevos || nuevos.length < 2) throw errorHttp(400, MENSAJE_APELLIDOS);
+  const { error } = await supabase.from('tutores').update({ apellidos: nuevos }).eq('id', tutorId);
+  if (error) throw error;
 }
 
 // Todo lo que muestra la pantalla de ficha
@@ -165,17 +187,28 @@ exports.handler = async (event) => {
           observaciones: texto(n.observaciones, 300)
         };
       });
+      const acompanados = lista.map(n => !!n.acompanado);
+      const hayAcompanados = acompanados.some(Boolean);
+      // Adulto nuevo que trae a niños que no son suyos: apellidos obligatorios antes de guardar nada
+      if (hayAcompanados && !body.tutor?.id && (texto(body.tutor?.apellidos) || '').length < 2) {
+        throw errorHttp(400, MENSAJE_APELLIDOS);
+      }
 
       const tutor = await obtenerOCrearTutor(body.tutor);
       try {
+        if (hayAcompanados) await asegurarApellidos(tutor.id, body.tutor?.apellidos);
         const { data: nuevos, error } = await supabase.from('ninos').insert(filas).select('id');
         if (error) throw error;
         const ids = nuevos.map(n => n.id);
-        const { error: e2 } = await supabase.from('nino_tutor').insert(ids.map(id => ({
-          nino_id: id, tutor_id: tutor.id, parentesco: texto(body.tutor?.parentesco, 30), principal: true
-        })));
-        if (e2) { await supabase.from('ninos').delete().in('id', ids); throw e2; }
-        return respuesta(200, { tutor_id: tutor.id, ninos: await fichas(ids) });
+        // Solo se vinculan al adulto sus propios niños; los acompañados quedan sin vincular
+        const suyos = ids.filter((_, i) => !acompanados[i]);
+        if (suyos.length) {
+          const { error: e2 } = await supabase.from('nino_tutor').insert(suyos.map(id => ({
+            nino_id: id, tutor_id: tutor.id, parentesco: texto(body.tutor?.parentesco, 30), principal: true
+          })));
+          if (e2) { await supabase.from('ninos').delete().in('id', ids); throw e2; }
+        }
+        return respuesta(200, { tutor_id: tutor.id, tutor: await datosTutor(tutor.id), ninos: await fichas(ids) });
       } catch (e) {
         if (tutor.creado) await supabase.from('tutores').delete().eq('id', tutor.id);
         throw e;
@@ -186,13 +219,20 @@ exports.handler = async (event) => {
     if (body.accion === 'vincular') {
       const ids = [...new Set((body.nino_ids || []).map(Number).filter(Boolean))];
       if (!ids.length) throw errorHttp(400, 'No hay niños seleccionados.');
+      if (body.solo_hoy) {
+        // Solo los acompaña hoy: se guarda el adulto (para el ticket y llamarle), sin vincularlo a los niños
+        if (!body.tutor?.id && (texto(body.tutor?.apellidos) || '').length < 2) throw errorHttp(400, MENSAJE_APELLIDOS);
+        const tutor = await obtenerOCrearTutor(body.tutor);
+        await asegurarApellidos(tutor.id, body.tutor?.apellidos);
+        return respuesta(200, { tutor_id: tutor.id, tutor: await datosTutor(tutor.id), ninos: await fichas(ids) });
+      }
       const tutor = await obtenerOCrearTutor(body.tutor);
       const { error } = await supabase.from('nino_tutor').upsert(
         ids.map(id => ({ nino_id: id, tutor_id: tutor.id, parentesco: texto(body.tutor?.parentesco, 30), principal: false })),
         { onConflict: 'nino_id,tutor_id', ignoreDuplicates: true }
       );
       if (error) throw error;
-      return respuesta(200, { tutor_id: tutor.id, ninos: await fichas(ids) });
+      return respuesta(200, { tutor_id: tutor.id, tutor: await datosTutor(tutor.id), ninos: await fichas(ids) });
     }
 
     // ---------- Editar niño ----------

@@ -1,7 +1,9 @@
 // /.netlify/functions/entradas
 // GET                                              → tickets de hoy + tipo de día (LJ / FINDE) + si la caja está cerrada
 // GET ?tarifas=1                                    → entradas que se pueden elegir al cobrar (normales, socio, invitación...)
-// POST { tutor_id, nino_ids, metodo_pago, llegada_id?, tarifas?, nota? } → cobra la entrada y devuelve el ticket
+// POST { tutor_id, nino_ids, metodo_pago, llegada_id?, tarifas?, nota?, tutor_apellidos? } → cobra la entrada y devuelve el ticket
+//      Los niños que no son de la familia del adulto van "representados": entonces el adulto tiene que tener apellidos
+//      (tutor_apellidos los guarda si aún no los tenía).
 //      tarifas: una por niño (null = la que toca). Si el total baja de lo que tocaba, la nota (motivo) es obligatoria.
 //                                                     (si viene de una llegada del enlace, la marca como cobrada)
 // POST { accion:'anular', ticket_id, motivo }       → anula un ticket
@@ -15,7 +17,7 @@ const SELECT_TICKET = `
   id, numero, fecha, creado_at, total, metodo_pago, anulado, anulado_motivo, enviado_whatsapp, nota,
   tutores ( id, nombre, apellidos, telefono, consentimiento_marketing ),
   usuarios ( nombre ),
-  ticket_lineas ( id, descripcion, precio, tarifa_codigo, tarifa_manual, ninos ( id, nombre, apellidos, numero_pulsera ) ),
+  ticket_lineas ( id, descripcion, precio, tarifa_codigo, tarifa_manual, representado, ninos ( id, nombre, apellidos, numero_pulsera ) ),
   membresias ( fecha_alta, fecha_caducidad, activo )
 `;
 
@@ -31,7 +33,7 @@ function formato(t, cajaCerrada = false) {
     caja_cerrada: cajaCerrada,
     lineas: (t.ticket_lineas || [])
       .sort((a, b) => a.id - b.id)
-      .map(l => ({ descripcion: l.descripcion, precio: Number(l.precio), tarifa_codigo: l.tarifa_codigo, tarifa_manual: !!l.tarifa_manual, nino: l.ninos }))
+      .map(l => ({ descripcion: l.descripcion, precio: Number(l.precio), tarifa_codigo: l.tarifa_codigo, tarifa_manual: !!l.tarifa_manual, representado: !!l.representado, nino: l.ninos }))
   };
 }
 
@@ -51,7 +53,8 @@ const ERRORES_SQL = {
   PULSERA_EN_USO: 'Esa pulsera ya está asignada a otro niño.',
   CAJA_CERRADA: 'La caja de hoy ya está cerrada: no se puede cobrar ni anular. Pide al administrador que la reabra.',
   TARIFA_NO_VALIDA: 'Esa entrada ya no está disponible. Vuelve a abrir el cobro.',
-  NOTA_OBLIGATORIA: 'Escribe el motivo de la invitación o del descuento.'
+  NOTA_OBLIGATORIA: 'Escribe el motivo de la invitación o del descuento.',
+  APELLIDOS_OBLIGATORIOS: 'Trae a niños que no son de su familia: escribe sus apellidos.'
 };
 
 function errorSql(error) {
@@ -142,6 +145,14 @@ exports.handler = async (event) => {
     const ninoIds = [...new Set((body.nino_ids || []).map(Number).filter(Boolean))];
     if (!tutorId) throw errorHttp(400, 'Elige quién trae a los niños.');
     if (!ninoIds.length) throw errorHttp(400, 'No hay niños seleccionados.');
+
+    // Si trae a niños que no son suyos hacen falta sus apellidos: se guardan si aún no los tenía
+    const apellidos = texto(body.tutor_apellidos, 80);
+    if (apellidos && apellidos.length >= 2) {
+      const { error: eA } = await supabase.from('tutores').update({ apellidos })
+        .eq('id', tutorId).or('apellidos.is.null,apellidos.eq.');
+      if (eA) throw eA;
+    }
 
     // Tarifa elegida para cada niño (en el mismo orden); null = la que le toca
     const elegidas = Array.isArray(body.tarifas) ? body.tarifas : [];

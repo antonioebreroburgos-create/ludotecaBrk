@@ -76,6 +76,15 @@
   .peque[aria-pressed="true"] { background: #E3F3DA; border-color: #1E7A3C; }
   .peque[aria-pressed="true"] .marca-check { background: var(--verde); }
   .enlace-texto { display: block; margin: 14px auto 0; padding: 8px; font: 600 17px var(--cond); color: var(--rojo); text-decoration: underline; }
+  /* Hijos y niños que acompaño */
+  .segmento { display: grid; grid-template-columns: 1fr 1fr; border: 2px solid var(--tinta); border-radius: 10px; overflow: hidden; margin-bottom: 12px; }
+  .segmento button { padding: 9px 6px; font: 600 16px/1.15 var(--cond); background: var(--papel-claro); }
+  .segmento button + button { border-left: 2px solid var(--tinta); }
+  .segmento button[aria-pressed="true"] { background: var(--tinta); color: var(--papel); }
+  .busca-estado { font-size: 14px; min-height: 20px; margin: -6px 0 12px; color: var(--tinta-suave); }
+  .busca-estado.si { color: #1E7A3C; font-weight: 600; }
+  .nota-resp { font-size: 14px; background: #FFF3D1; border: 1.5px solid var(--mostaza); border-radius: 10px; padding: 10px 12px; margin: 0 0 14px; }
+  .cliente-ok { display: inline-block; font: 600 14px var(--cond); color: #1E7A3C; margin: -4px 0 12px; }
   [hidden] { display: none !important; }
 </style>
 </head>
@@ -119,9 +128,13 @@
     <h2 id="ck-hola"></h2>
     <p class="intro">¿Quién viene hoy a la ludoteca? Toca para quitar a quien no venga.</p>
     <div id="ck-ninos"></div>
+    <div id="ck-acomp"></div>
+    <div class="campo" id="ck-apellidos-wrap" hidden><label for="ck-apellidos">Tus apellidos</label><input id="ck-apellidos" autocomplete="family-name">
+      <small>Obligatorios: traes a niños que no son tuyos.</small></div>
+    <p class="nota-resp" id="ck-nota" hidden>Te haces responsable de los niños que no son tuyos durante la visita, y confirmas que su familia está de acuerdo.</p>
+    <button class="btn secundario" id="ck-mas" type="button" style="margin-bottom:14px">+ Traigo a otro niño que no es mío</button>
     <button class="btn" id="ck-enviar">Ya estamos aquí</button>
     <p class="mensaje" id="ck-msg"></p>
-    <p class="legal" style="text-align:center">Si viene algún niño nuevo, díselo al personal.</p>
     <button class="enlace-texto" id="ck-otro">No soy yo / usar otros datos</button>
   </section>
 
@@ -143,6 +156,7 @@
       <div class="campo"><label for="r-nombre">Nombre</label><input id="r-nombre" autocomplete="given-name"></div>
       <div class="campo"><label for="r-apellidos">Apellidos</label><input id="r-apellidos" autocomplete="family-name"></div>
     </div>
+    <p class="campo" style="margin-top:-8px"><small id="r-apellidos-nota">Obligatorios si traes a niños que no son tuyos.</small></p>
     <div class="campo"><label for="r-telefono">Teléfono</label><input id="r-telefono" type="tel" inputmode="tel" autocomplete="tel">
       <small>Te escribiremos aquí el ticket, y te llamaremos si los niños necesitan algo.</small></div>
     <div class="campo"><label for="r-parentesco">Eres su…</label>
@@ -151,7 +165,9 @@
       <small>Opcional. Solo para felicitarte si aceptas recibir promociones.</small></div>
 
     <h3>Los niños</h3>
+    <p class="intro" style="margin-bottom:12px">Apunta a tus hijos y, si traes a otros niños (amigos, primos…), márcalos como «No es mío».</p>
     <div id="r-ninos"></div>
+    <p class="nota-resp" id="r-nota" hidden>Te haces responsable de los niños que no son tuyos durante la visita, y confirmas que su familia está de acuerdo.</p>
     <button class="btn secundario" id="r-mas" type="button">Añadir otro niño</button>
 
     <h3>Uso de los datos</h3>
@@ -181,6 +197,8 @@
     <h2>🎉 Fiesta de <span id="f-nombre"></span></h2>
     <div class="ticket" id="f-datos"></div>
     <p class="intro">Apunta a los niños que vienen. Puedes volver a este enlace y cambiar la lista las veces que quieras hasta el mismo día.</p>
+    <div class="campo"><label for="f-apellidos">Tus apellidos</label><input id="f-apellidos" autocomplete="family-name">
+      <small>Eres el responsable de los invitados que no son tus hijos durante la fiesta.</small></div>
     <div id="f-lista"></div>
     <button class="btn secundario" id="f-mas" type="button">Añadir otro niño</button>
     <div class="contador">
@@ -188,7 +206,7 @@
       <p class="guardado" id="f-ok"></p>
       <p class="mensaje" id="f-msg" style="margin-top:4px"></p>
     </div>
-    <p class="legal">Solo se guarda lo necesario para cuidar de los niños durante la fiesta (nombre, edad y alergias). La lista se borra un mes después.</p>
+    <p class="legal">Solo se guarda lo necesario para cuidar de los niños durante la fiesta (nombre, edad y alergias). La fecha de nacimiento solo se usa para encontrar su ficha si ya ha venido a la ludoteca, y no se guarda. La lista se borra un mes después. Al apuntar a niños que no son tus hijos confirmas que sus familias están de acuerdo.</p>
   </section>
 </main>
 
@@ -218,6 +236,44 @@ async function api(datos) {
   const json = await res.json().catch(() => ({ error: 'No hay conexión. Inténtalo otra vez.' }));
   if (!res.ok) { const e = new Error(json.error || 'Algo ha fallado. Inténtalo otra vez.'); e.status = res.status; e.datos = json; throw e; }
   return json;
+}
+
+// ---------- Niños que no son míos: ¿ya es cliente? ----------
+// Cuando hay nombre y fecha de nacimiento, se comprueba (solo responde sí o no)
+function vigilarBusqueda(div, selNombre, selApellidos, selFecha, activo = () => true) {
+  const estado = div.querySelector('.busca-estado');
+  let ultima = '', temp;
+  const comprobar = async () => {
+    const nombre = div.querySelector(selNombre).value.trim();
+    const fecha = div.querySelector(selFecha).value;
+    const apellidos = selApellidos ? div.querySelector(selApellidos).value.trim() : '';
+    const clave = `${nombre}|${apellidos}|${fecha}`;
+    if (!activo() || !nombre || !fecha) { estado.textContent = ''; estado.className = 'busca-estado'; ultima = ''; return; }
+    if (clave === ultima) return;
+    ultima = clave;
+    estado.textContent = 'Buscando…'; estado.className = 'busca-estado';
+    try {
+      const r = await api({ accion: 'buscar_nino', nombre, apellidos, fecha_nacimiento: fecha });
+      if (clave !== ultima) return;
+      estado.textContent = r.encontrado ? '✓ Ya ha venido a la ludoteca: usaremos su ficha.' : 'No lo encontramos: se registrará ahora.';
+      estado.className = 'busca-estado' + (r.encontrado ? ' si' : '');
+    } catch (e) { estado.textContent = e.status === 429 ? e.message : ''; ultima = ''; }
+  };
+  div.addEventListener('input', () => { clearTimeout(temp); temp = setTimeout(comprobar, 600); });
+  div.addEventListener('change', comprobar);
+  return comprobar;
+}
+// Interruptor «Es mi hijo/a | No es mío»
+function segmento(opciones, valor, alCambiar) {
+  const d = document.createElement('div');
+  d.className = 'segmento';
+  d.innerHTML = opciones.map(([v, t]) => `<button type="button" data-v="${v}" aria-pressed="${v === valor}">${t}</button>`).join('');
+  d.onclick = e => {
+    const b = e.target.closest('[data-v]'); if (!b) return;
+    d.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b));
+    alCambiar(b.dataset.v);
+  };
+  return d;
 }
 
 // ---------- Arranque ----------
@@ -261,17 +317,45 @@ function mostrarFamilia(f) {
   familia = f;
   vienen.clear(); f.ninos.forEach(n => vienen.add(n.id));
   $('ck-hola').textContent = `¡Hola, ${f.nombre}! 👋`;
+  $('ck-acomp').innerHTML = ''; $('ck-apellidos').value = '';
   pintarPeques();
   $('ck-msg').textContent = '';
   ver('v-checkin');
 }
+const bloquesAcomp = () => [...$('ck-acomp').children];
 function pintarPeques() {
   $('ck-ninos').innerHTML = familia.ninos.map(n => `<button class="peque" data-nino="${n.id}" aria-pressed="${vienen.has(n.id)}">
       <span class="marca-check">${vienen.has(n.id) ? '✓' : ''}</span>${esc(n.nombre)}</button>`).join('')
     || '<p class="intro">No tenéis niños registrados. Díselo al personal.</p>';
-  $('ck-enviar').disabled = !vienen.size;
-  $('ck-enviar').textContent = vienen.size ? 'Ya estamos aquí' : 'Marca quién viene';
+  const hayAcomp = bloquesAcomp().length > 0;
+  $('ck-apellidos-wrap').hidden = !(hayAcomp && !familia.apellidos_ok);
+  $('ck-nota').hidden = !hayAcomp;
+  const n = vienen.size + bloquesAcomp().length;
+  $('ck-enviar').disabled = !n;
+  $('ck-enviar').textContent = n ? 'Ya estamos aquí' : 'Marca quién viene';
+  $('ck-mas').hidden = bloquesAcomp().length >= 8;
 }
+// Niño que no es suyo y lo trae hoy
+function añadirAcompanado() {
+  const div = document.createElement('div');
+  div.className = 'bloque';
+  div.innerHTML = `
+    <div class="bloque-cab"><span>Niño que acompaño</span><button class="quitar" type="button">Quitar</button></div>
+    <div class="doble">
+      <div class="campo"><label>Nombre</label><input class="a-nombre" autocomplete="off"></div>
+      <div class="campo"><label>Apellidos</label><input class="a-apellidos" autocomplete="off"></div>
+    </div>
+    <div class="campo"><label>Fecha de nacimiento</label><input class="a-fecha" type="date" max="${hoyISO()}"></div>
+    <p class="busca-estado"></p>
+    <div class="campo"><label>Alergias o algo que debamos saber</label><textarea class="a-obs" placeholder="Opcional"></textarea></div>`;
+  div.querySelector('.quitar').onclick = () => { div.remove(); pintarPeques(); };
+  vigilarBusqueda(div, '.a-nombre', '.a-apellidos', '.a-fecha');
+  $('ck-acomp').appendChild(div);
+  pintarPeques();
+  div.querySelector('.a-nombre').focus({ preventScroll: true });
+  div.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+$('ck-mas').onclick = añadirAcompanado;
 $('ck-ninos').onclick = e => {
   const b = e.target.closest('[data-nino]'); if (!b) return;
   const id = Number(b.dataset.nino);
@@ -279,15 +363,29 @@ $('ck-ninos').onclick = e => {
   pintarPeques();
 };
 $('ck-enviar').onclick = async () => {
-  $('ck-enviar').disabled = true; $('ck-msg').textContent = '';
+  $('ck-msg').textContent = '';
+  const acompanados = bloquesAcomp().map(b => ({
+    nombre: b.querySelector('.a-nombre').value, apellidos: b.querySelector('.a-apellidos').value,
+    fecha_nacimiento: b.querySelector('.a-fecha').value, observaciones: b.querySelector('.a-obs').value
+  }));
+  if (acompanados.some(a => !a.nombre.trim() || !a.fecha_nacimiento)) {
+    $('ck-msg').textContent = 'Escribe el nombre y la fecha de nacimiento de cada niño que acompañas.'; return;
+  }
+  if (!$('ck-apellidos-wrap').hidden && $('ck-apellidos').value.trim().length < 2) {
+    $('ck-msg').textContent = 'Escribe tus apellidos: traes a niños que no son tuyos.'; $('ck-apellidos').focus(); return;
+  }
+  $('ck-enviar').disabled = true;
   try {
-    const r = await api({ accion: 'checkin', dispositivo: leerMovil(), nino_ids: [...vienen] });
+    const r = await api({ accion: 'checkin', dispositivo: leerMovil(), nino_ids: [...vienen], acompanados, apellidos: $('ck-apellidos').value });
     const n = r.ninos;
     $('ckh-texto').textContent = n.length === 1 ? `${n[0]} ya está en la lista de llegadas.` : `${n.slice(0, -1).join(', ')} y ${n[n.length - 1]} ya están en la lista de llegadas.`;
     ver('v-ck-hecho');
   } catch (e) {
     if (e.status === 401) { guardarMovil(null); ver('v-identificar'); $('id-msg').textContent = e.message; }
-    else $('ck-msg').textContent = e.message;
+    else {
+      if (e.datos?.pedir_apellidos) { familia.apellidos_ok = false; pintarPeques(); $('ck-apellidos').focus(); }
+      $('ck-msg').textContent = e.message;
+    }
   }
   $('ck-enviar').disabled = false;
 };
@@ -331,10 +429,23 @@ function añadirNino() {
       <div class="campo"><label>Apellidos</label><input class="n-apellidos" autocomplete="off"></div>
     </div>
     <div class="campo"><label>Fecha de nacimiento</label><input class="n-fecha" type="date" max="${hoyISO()}"></div>
+    <p class="busca-estado"></p>
     <div class="campo"><label>Alergias o algo que debamos saber</label><textarea class="n-obs" placeholder="Por ejemplo: alérgico a los frutos secos"></textarea></div>`;
-  div.querySelector('.quitar').onclick = () => { div.remove(); renumerar(); };
+  const comprobar = vigilarBusqueda(div, '.n-nombre', '.n-apellidos', '.n-fecha', () => div.dataset.acomp === '1');
+  div.querySelector('.bloque-cab').after(segmento([['hijo', 'Es mi hijo/a'], ['acomp', 'No es mío: lo acompaño']], 'hijo', v => {
+    div.dataset.acomp = v === 'acomp' ? '1' : '';
+    comprobar(); pintarResponsable();
+  }));
+  div.querySelector('.quitar').onclick = () => { div.remove(); renumerar(); pintarResponsable(); };
   $('r-ninos').appendChild(div);
   renumerar();
+}
+// Si hay niños que no son suyos: apellidos obligatorios y aviso de responsabilidad
+function pintarResponsable() {
+  const hay = [...$('r-ninos').children].some(b => b.dataset.acomp === '1');
+  $('r-nota').hidden = !hay;
+  $('r-apellidos-nota').textContent = hay ? 'Obligatorios: traes a niños que no son tuyos.' : 'Obligatorios si traes a niños que no son tuyos.';
+  $('r-apellidos-nota').style.color = hay ? 'var(--rojo)' : '';
 }
 function renumerar() {
   const b = [...$('r-ninos').children];
@@ -351,8 +462,12 @@ $('r-enviar').onclick = async () => {
   if (!$('r-c-servicio').checked) { $('r-msg').textContent = 'Para registraros hay que marcar la casilla obligatoria.'; return; }
   const ninos = [...$('r-ninos').children].map(b => ({
     nombre: b.querySelector('.n-nombre').value, apellidos: b.querySelector('.n-apellidos').value,
-    fecha_nacimiento: b.querySelector('.n-fecha').value, observaciones: b.querySelector('.n-obs').value
+    fecha_nacimiento: b.querySelector('.n-fecha').value, observaciones: b.querySelector('.n-obs').value,
+    acompanado: b.dataset.acomp === '1'
   }));
+  if (ninos.some(n => n.acompanado) && $('r-apellidos').value.trim().length < 2) {
+    $('r-msg').textContent = 'Escribe tus apellidos: traes a niños que no son tuyos.'; $('r-apellidos').focus(); return;
+  }
   $('r-enviar').disabled = true;
   try {
     const r = await api({ accion: 'registro', ninos, web: $('r-web').value, tutor: {
@@ -377,8 +492,9 @@ function iniciarFiesta(f) {
   $('f-nombre').textContent = f.cumpleanero;
   $('f-datos').innerHTML = `<b>${esc(fechaLarga(f.fecha))}${f.hora ? `, ${esc(f.hora)}` : ''}</b>
     <p>Restaurante Brooklyn</p>${f.ninos_previstos ? `<p>Niños previstos: ${f.ninos_previstos}</p>` : ''}`;
+  $('f-apellidos').value = f.organizador_apellidos || '';
   $('f-lista').innerHTML = '';
-  (f.invitados.length ? f.invitados : [{ nombre: f.cumpleanero, es_cumpleanero: true }]).forEach(i => añadirInvitado(i));
+  (f.invitados.length ? f.invitados : [{ nombre: f.cumpleanero, es_cumpleanero: true, relacion: 'HIJO' }]).forEach(i => añadirInvitado(i));
   cambiosSinGuardar = false;
   ver('v-fiesta');
 }
@@ -387,6 +503,7 @@ function añadirInvitado(i = {}) {
   div.className = 'bloque';
   if (i.id) div.dataset.id = i.id;
   if (i.es_cumpleanero) div.dataset.cumple = '1';
+  div.dataset.relacion = i.relacion || (i.es_cumpleanero ? 'HIJO' : 'REPRESENTADO');
   div.innerHTML = `
     <div class="bloque-cab"><span><span class="inv-num"></span><span class="inv-titulo"></span>${i.es_cumpleanero ? '<span class="chip">Cumpleañero</span>' : ''}</span>
       ${i.es_cumpleanero ? '' : '<button class="quitar" type="button">Quitar</button>'}</div>
@@ -394,7 +511,15 @@ function añadirInvitado(i = {}) {
       <div class="campo"><label>Nombre</label><input class="i-nombre" value="${esc(i.nombre || '')}" autocomplete="off"></div>
       <div class="campo"><label>Edad</label><input class="i-edad" type="number" inputmode="numeric" min="0" max="17" value="${i.edad ?? ''}"></div>
     </div>
-    <div class="campo"><label>Alergias o avisos</label><input class="i-avisos" value="${esc(i.avisos || '')}" placeholder="Opcional" autocomplete="off"></div>`;
+    <div class="campo"><label>Alergias o avisos</label><input class="i-avisos" value="${esc(i.avisos || '')}" placeholder="Opcional" autocomplete="off"></div>
+    ${i.cliente ? '<span class="cliente-ok">✓ Enlazado con su ficha de la ludoteca</span>' : `
+    <div class="campo"><label>Fecha de nacimiento</label><input class="i-fecha" type="date" max="${hoyISO()}">
+      <small>Opcional. Si ya ha venido a la ludoteca, así encontramos su ficha.</small></div>
+    <p class="busca-estado"></p>`}`;
+  div.querySelector('.bloque-cab').after(segmento([['REPRESENTADO', 'Invitado'], ['HIJO', 'Mi hijo/a']], div.dataset.relacion, v => {
+    div.dataset.relacion = v; cambiosSinGuardar = true; $('f-ok').textContent = '';
+  }));
+  if (!i.cliente) vigilarBusqueda(div, '.i-nombre', null, '.i-fecha');
   const q = div.querySelector('.quitar');
   if (q) q.onclick = () => { div.remove(); renumerarInvitados(); cambiosSinGuardar = true; };
   div.addEventListener('input', () => { cambiosSinGuardar = true; $('f-ok').textContent = ''; });
@@ -407,6 +532,7 @@ function renumerarInvitados() {
     b.querySelector('.inv-titulo').textContent = b.dataset.cumple ? '' : 'Invitado';
   });
 }
+$('f-apellidos').addEventListener('input', () => { cambiosSinGuardar = true; $('f-ok').textContent = ''; });
 $('f-mas').onclick = () => {
   añadirInvitado(); cambiosSinGuardar = true;
   const ult = $('f-lista').lastElementChild;
@@ -418,12 +544,16 @@ $('f-guardar').onclick = async () => {
   const invitados = [...$('f-lista').children]
     .map(b => ({
       id: b.dataset.id ? Number(b.dataset.id) : null, es_cumpleanero: !!b.dataset.cumple,
-      nombre: b.querySelector('.i-nombre').value.trim(), edad: b.querySelector('.i-edad').value, avisos: b.querySelector('.i-avisos').value
+      nombre: b.querySelector('.i-nombre').value.trim(), edad: b.querySelector('.i-edad').value, avisos: b.querySelector('.i-avisos').value,
+      relacion: b.dataset.relacion, fecha_nacimiento: b.querySelector('.i-fecha')?.value || null
     }))
     .filter(i => i.nombre || i.es_cumpleanero || i.edad || i.avisos);
+  if (invitados.some(i => i.relacion !== 'HIJO') && $('f-apellidos').value.trim().length < 2) {
+    $('f-msg').textContent = 'Escribe tus apellidos: eres el responsable de los invitados.'; $('f-apellidos').focus(); return;
+  }
   $('f-guardar').disabled = true;
   try {
-    const r = await api({ accion: 'invitados', invitados });
+    const r = await api({ accion: 'invitados', invitados, organizador_apellidos: $('f-apellidos').value });
     iniciarFiesta(r.fiesta);
     const n = r.fiesta.invitados.length;
     $('f-ok').textContent = `✓ Lista guardada: ${n} ${n === 1 ? 'niño' : 'niños'}`;
