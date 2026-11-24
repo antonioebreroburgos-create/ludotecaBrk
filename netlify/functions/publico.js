@@ -1,18 +1,42 @@
 // /.netlify/functions/publico   — SIN PIN: lo usa el cliente desde el enlace de WhatsApp
 // GET  ?t=CODIGO                                → qué enlace es y si sigue valiendo (+ datos de la fiesta)
 // POST { t, accion:'registro', tutor, ninos }   → la familia se da de alta y queda en "Llegadas" para cobrar
+//      (enlace personal de WhatsApp: un solo uso; QR del cartel o de la pantalla: varias familias, con límites)
 // POST { t, accion:'invitados', invitados }     → el organizador guarda la lista de niños de la fiesta
 // Solo funciona con un código válido, que crea el personal desde la app.
 const {
-  supabase, respuesta, leerBody, normalizarTelefono, fechaValida, texto, errorHttp, responderError
+  supabase, respuesta, leerBody, normalizarTelefono, fechaValida, texto, errorHttp, responderError, ipCliente
 } = require('./_lib');
 const { leerEnlace } = require('./_enlaces');
 
 const MAX_NINOS = 8;
 const MAX_INVITADOS = 60;
+const TIPOS_ALTA = ['REGISTRO', 'CARTEL', 'PANTALLA'];
+// Límites de las altas con QR (se pueden usar por varias familias)
+const LIMITES = {
+  CARTEL:   { porMovilHora: 3, porDia: 40 },
+  PANTALLA: { porMovilHora: 3, total: 6 }
+};
+
+async function comprobarLimites(enlace, ip) {
+  const lim = LIMITES[enlace.tipo];
+  if (!lim) return;
+  const haceUnaHora = new Date(Date.now() - 3600e3).toISOString();
+  const { count: deEsteMovil } = await supabase.from('altas_publicas').select('id', { count: 'exact', head: true })
+    .eq('ip', ip).gte('created_at', haceUnaHora);
+  if (deEsteMovil >= lim.porMovilHora) {
+    throw errorHttp(429, 'Se han hecho varias altas seguidas desde este móvil. Pide ayuda al personal del restaurante.');
+  }
+  let q = supabase.from('altas_publicas').select('id', { count: 'exact', head: true }).eq('enlace_id', enlace.id);
+  if (lim.porDia) q = q.gte('created_at', new Date(Date.now() - 24 * 3600e3).toISOString());
+  const { count: delEnlace } = await q;
+  if (delEnlace >= (lim.porDia || lim.total)) {
+    throw errorHttp(429, 'Ahora mismo no se pueden hacer más altas con este código. Pide ayuda al personal del restaurante.');
+  }
+}
 const MENSAJES_ESTADO = {
   USADO: 'Este enlace ya se ha usado. Si necesitas cambiar algo, díselo al personal del restaurante.',
-  CADUCADO: 'Este enlace ha caducado. Pide uno nuevo al personal del restaurante.',
+  CADUCADO: 'Este enlace ha caducado. Pide uno nuevo al personal del restaurante (o que te enseñe otra vez el código QR).',
   ANULADO: 'Este enlace ya no está activo. Pide uno nuevo al personal del restaurante.'
 };
 
@@ -27,7 +51,11 @@ async function datosFiesta(fiestaId) {
 }
 
 // ---------- Alta de la familia ----------
-async function registro(enlace, body) {
+async function registro(enlace, body, ip) {
+  // Campo trampa invisible: solo lo rellenan los programas automáticos
+  if (body.web) return { ok: true, ninos: [] };
+  const unSoloUso = enlace.tipo === 'REGISTRO';
+  if (!unSoloUso) await comprobarLimites(enlace, ip);
   const t = body.tutor || {};
   const nombre = texto(t.nombre);
   const telefono = normalizarTelefono(t.telefono);
@@ -47,11 +75,13 @@ async function registro(enlace, body) {
     return { nombre: nn, apellidos: texto(n.apellidos), fecha_nacimiento: n.fecha_nacimiento, observaciones: texto(n.observaciones, 300) };
   });
 
-  // Reservar el enlace (un solo uso) antes de guardar nada
-  const { data: reservado, error: eR } = await supabase.from('enlaces')
-    .update({ usado_at: new Date().toISOString() }).eq('id', enlace.id).is('usado_at', null).select('id');
-  if (eR) throw eR;
-  if (!reservado.length) throw errorHttp(409, MENSAJES_ESTADO.USADO);
+  // Enlace personal: se reserva (un solo uso) antes de guardar nada
+  if (unSoloUso) {
+    const { data: reservado, error: eR } = await supabase.from('enlaces')
+      .update({ usado_at: new Date().toISOString() }).eq('id', enlace.id).is('usado_at', null).select('id');
+    if (eR) throw eR;
+    if (!reservado.length) throw errorHttp(409, MENSAJES_ESTADO.USADO);
+  }
 
   try {
     const ahora = new Date().toISOString();
@@ -101,13 +131,15 @@ async function registro(enlace, body) {
     }
 
     // Queda en "Llegadas" para que el personal cobre
-    const { error: eL } = await supabase.from('llegadas').insert({ tutor_id: tutorId, nino_ids: ids, enlace_id: enlace.id });
+    const origen = unSoloUso ? 'ENLACE' : enlace.tipo;
+    const { error: eL } = await supabase.from('llegadas').insert({ tutor_id: tutorId, nino_ids: ids, enlace_id: enlace.id, origen });
     if (eL) throw eL;
+    if (!unSoloUso) await supabase.from('altas_publicas').insert({ enlace_id: enlace.id, ip });
 
     return { ok: true, ninos: ninos.map(n => n.nombre) };
   } catch (e) {
-    // Si algo falla, el enlace vuelve a quedar libre para intentarlo otra vez
-    await supabase.from('enlaces').update({ usado_at: null }).eq('id', enlace.id);
+    // Si algo falla, el enlace personal vuelve a quedar libre para intentarlo otra vez
+    if (unSoloUso) await supabase.from('enlaces').update({ usado_at: null }).eq('id', enlace.id);
     throw e;
   }
 }
@@ -156,9 +188,10 @@ exports.handler = async (event) => {
     const { enlace, estado } = await leerEnlace(token);
 
     if (event.httpMethod === 'GET') {
-      const base = { tipo: enlace.tipo, estado, mensaje: MENSAJES_ESTADO[estado] || null };
+      const esAlta = TIPOS_ALTA.includes(enlace.tipo);
+      const base = { tipo: esAlta ? 'REGISTRO' : enlace.tipo, origen: enlace.tipo, estado, mensaje: MENSAJES_ESTADO[estado] || null };
       if (estado !== 'OK') return respuesta(200, base);
-      if (enlace.tipo === 'REGISTRO') return respuesta(200, { ...base, telefono: enlace.telefono });
+      if (esAlta) return respuesta(200, { ...base, telefono: enlace.telefono });
       return respuesta(200, { ...base, fiesta: await datosFiesta(enlace.fiesta_id) });
     }
 
@@ -166,7 +199,7 @@ exports.handler = async (event) => {
     if (estado !== 'OK') throw errorHttp(410, MENSAJES_ESTADO[estado]);
     const body = leerBody(event);
 
-    if (body.accion === 'registro' && enlace.tipo === 'REGISTRO') return respuesta(200, await registro(enlace, body));
+    if (body.accion === 'registro' && TIPOS_ALTA.includes(enlace.tipo)) return respuesta(200, await registro(enlace, body, ipCliente(event)));
     if (body.accion === 'invitados' && enlace.tipo === 'FIESTA') return respuesta(200, await invitados(enlace, body));
     throw errorHttp(400, 'Acción no válida para este enlace.');
   } catch (e) {

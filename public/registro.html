@@ -103,6 +103,10 @@
     <label class="consent"><input type="checkbox" id="r-c-servicio"><span>Acepto que Restaurante Brooklyn guarde estos datos para gestionar la ludoteca y llamarme si hace falta. <b>Obligatorio.</b></span></label>
     <label class="consent"><input type="checkbox" id="r-c-marketing"><span>Quiero recibir por WhatsApp promociones y felicitaciones de cumpleaños del restaurante. Opcional.</span></label>
 
+    <!-- Campo trampa: invisible para las personas; si se rellena, es un programa automático -->
+    <div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden">
+      <label for="r-web">No rellenar</label><input id="r-web" name="web" tabindex="-1" autocomplete="off">
+    </div>
     <button class="btn" id="r-enviar">Enviar</button>
     <p class="mensaje" id="r-msg"></p>
     <p class="legal">Responsable: Restaurante Brooklyn SL. Los datos solo se usan para la ludoteca y, si lo aceptas, para enviarte promociones. Puedes pedir que se borren o dejar de recibir mensajes cuando quieras hablando con el personal.</p>
@@ -218,13 +222,13 @@ $('r-enviar').onclick = async () => {
   }));
   $('r-enviar').disabled = true;
   try {
-    const r = await api({ accion: 'registro', ninos, tutor: {
+    const r = await api({ accion: 'registro', ninos, web: $('r-web').value, tutor: {
       nombre: $('r-nombre').value, apellidos: $('r-apellidos').value, telefono: $('r-telefono').value,
       parentesco: $('r-parentesco').value, fecha_nacimiento: $('r-nacimiento').value || null,
       consentimiento_servicio: true, consentimiento_marketing: $('r-c-marketing').checked
     } });
     const n = r.ninos;
-    $('h-texto').textContent = n.length === 1
+    $('h-texto').textContent = !n.length ? 'Ya estáis registrados en la ludoteca.' : n.length === 1
       ? `${n[0]} ya está registrado en la ludoteca.`
       : `${n.slice(0, -1).join(', ')} y ${n[n.length - 1]} ya están registrados en la ludoteca.`;
     ver('v-hecho');

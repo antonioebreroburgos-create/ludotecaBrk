@@ -7,6 +7,7 @@
 <title>Ludoteca Brooklyn</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script src="qrcode.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -376,6 +377,22 @@
   .inv-datos .obs { display: block; font-size: 14px; font-weight: 600; color: var(--rojo); }
   .inv-fila.llego .inv-datos b { color: #1E7A3C; }
 
+  /* ---------- Etapa 12: QR de alta ---------- */
+  .qr-grande { position: relative; align-self: center; width: min(78vw, 330px); aspect-ratio: 1; background: #fff;
+    padding: 16px; border: 3px solid var(--borde); border-radius: 16px; box-shadow: 0 5px 0 var(--borde); margin: 8px auto 0; }
+  .qr-grande svg { width: 100%; height: 100%; display: block; }
+  .qr-grande.caducado svg { opacity: .12; }
+  .qr-caducado { position: absolute; inset: 0; display: grid; place-items: center; font: 400 34px var(--slab); color: var(--rojo); }
+  .qr-caducado[hidden] { display: none; }
+  .qr-tiempo { text-align: center; font: 700 22px var(--cond); margin: 16px 0 14px; }
+  .cartel-info { display: flex; gap: 14px; align-items: center; padding: 12px; background: var(--papel-claro);
+    border: 2px solid var(--borde); border-radius: 12px; }
+  .cartel-info b { display: block; font: 700 20px var(--cond); }
+  .cartel-info small { font-size: 14px; color: var(--tinta-suave); }
+  .cartel-qr { width: 84px; height: 84px; flex: none; background: #fff; padding: 5px; border: 1.5px solid var(--borde); border-radius: 6px; }
+  .cartel-qr svg { width: 100%; height: 100%; display: block; }
+  .llegada .chips { margin: 2px 0 6px; }
+
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 </head>
@@ -565,6 +582,8 @@
   <button class="volver" data-ir="inicio">‹ Inicio</button>
   <h2>Precios y festivos</h2>
   <p class="intro" id="cf-hoy">&nbsp;</p>
+  <h3 class="seccion">Cartel de alta con QR</h3>
+  <div id="cf-cartel"></div>
   <h3 class="seccion">Fondo de caja</h3>
   <button class="tarifa" id="cf-fondo"><div><b>Fondo de cambio</b><small>Con el que empieza la caja cada día</small></div><span class="precio" id="cf-fondo-val"></span></button>
   <h3 class="seccion">Precios</h3>
@@ -628,6 +647,17 @@
   <p class="intro">Familias que se han registrado con el enlace y esperan a que se les cobre la entrada. Se actualiza sola.</p>
   <button class="btn secundario" id="ll-enlace">📲 Enviar enlace de registro</button>
   <div class="lista" id="ll-lista"></div>
+</section>
+
+<!-- QR de alta en pantalla -->
+<section class="pantalla" id="p-qr">
+  <button class="volver" data-ir="inicio">‹ Inicio</button>
+  <h2>QR de alta</h2>
+  <p class="intro">Enseña la pantalla al cliente: lo escanea con la cámara de su móvil y rellena sus datos. Cuando termine, aparecerá en <b>Llegadas</b>. Pueden escanearlo varias familias.</p>
+  <div class="qr-grande" id="qr-caja"><div id="qr-img" style="width:100%;height:100%"></div><div class="qr-caducado" id="qr-caducado" hidden>Caducado</div></div>
+  <p class="qr-tiempo" id="qr-tiempo"></p>
+  <button class="btn secundario" id="qr-nuevo">Generar otro QR</button>
+  <p class="mensaje" id="qr-msg"></p>
 </section>
 
 <!-- Fiestas de cumpleaños: lista -->
@@ -940,7 +970,8 @@ function irInicio() {
   $('rol').className = 'rol ' + u.rol;
   const opciones = [
     { ico: '🛎️', t: 'Llegadas', d: 'Familias registradas con el enlace, para cobrar', ir: 'llegadas', badge: true },
-    { ico: '📲', t: 'Enviar enlace de registro', d: 'El cliente se da de alta desde su móvil', ir: 'enlace' },
+    { ico: '📱', t: 'Mostrar QR de alta', d: 'El cliente lo escanea y se da de alta', ir: 'qr' },
+    { ico: '📲', t: 'Enviar enlace de registro', d: 'Por WhatsApp, a un teléfono', ir: 'enlace' },
     { ico: '🎟️', t: 'Nueva entrada', d: 'Buscar al niño y cobrar', ir: 'entrada' },
     { ico: '📋', t: 'Entradas de hoy', d: 'Quién ha entrado y anulaciones', ir: 'hoy' },
     { ico: '🎉', t: 'Fiestas de cumpleaños', d: 'Lista de niños de cada fiesta', ir: 'fiestas' }
@@ -948,7 +979,7 @@ function irInicio() {
   if (personalSala) opciones.push({ ico: '💶', t: 'Caja de hoy', d: 'Efectivo, tarjeta y cierre del día', ir: 'caja' });
   if (u.rol === 'ADMIN') opciones.push(
     { ico: '👥', t: 'Usuarios', d: 'Monitoras, camareros y administradores', ir: 'usuarios' },
-    { ico: '⚙️', t: 'Precios y festivos', d: 'Tarifas, fondo de caja y festivos', ir: 'config' },
+    { ico: '⚙️', t: 'Precios y festivos', d: 'Tarifas, cartel QR, fondo de caja y festivos', ir: 'config' },
     { ico: '📊', t: 'Estadísticas', d: 'Visitas, niños, ingresos y edades', ir: 'stats' }
   );
   if (personalSala) opciones.push({ ico: '🎂', t: 'Felicitar cumpleaños', d: 'Invitar a celebrarlo en el restaurante', ir: 'cumple' });
@@ -974,6 +1005,7 @@ document.addEventListener('click', e => {
   if (ir === 'stats') abrirStats();
   if (ir === 'llegadas') abrirLlegadas();
   if (ir === 'enlace') abrirHojaEnlace();
+  if (ir === 'qr') abrirQr();
   if (ir === 'fiestas') abrirFiestas();
 });
 
@@ -2145,6 +2177,7 @@ async function abrirConfig() {
   try {
     configActual = await api('config', { metodo: 'GET' });
     pintarConfig();
+    cargarCartel();
   } catch (e) { $('cf-tarifas').innerHTML = `<p class="mensaje">${esc(e.message)}</p>`; }
 }
 
@@ -2628,6 +2661,8 @@ function pintarLlegadas() {
     return `<div class="llegada">
       <div class="llegada-cab"><b>${esc(nombreCompleto(l.tutor))}</b><span>${hora(l.created_at)}</span></div>
       <small>${esc(telefonoBonito(l.tutor.telefono))}</small>
+      ${l.origen === 'CARTEL' ? '<div class="chips"><span class="chip aviso-chip">Alta con el cartel: confirma que el teléfono es suyo</span></div>'
+        : l.origen === 'PANTALLA' ? '<div class="chips"><span class="chip neutro">Alta con el QR de la pantalla</span></div>' : ''}
       ${l.ninos.map(n => `<div class="llegada-nino">
         <div><b>${esc(nombreCompleto(n))}</b> <span class="edad">${textoEdad(n.fecha_nacimiento)}</span>
           ${n.observaciones ? `<span class="obs">⚠️ ${esc(n.observaciones)}</span>` : ''}
@@ -2838,6 +2873,82 @@ $('hf-anular').onclick = async () => {
   } catch (e) { $('hf-msg').textContent = e.message; }
 };
 $('fi-volver').onclick = abrirFiestas;
+
+// =====================================================================
+//  ETAPA 12 · ALTA CON QR: EN LA PANTALLA DEL PERSONAL Y EN UN CARTEL
+// =====================================================================
+function svgQR(url) {
+  const qr = qrcode(0, 'M');
+  qr.addData(url); qr.make();
+  return qr.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
+}
+
+// ---------- QR en la pantalla del móvil del personal (vale 10 minutos) ----------
+let qrCaduca = null;
+let qrBloqueo = null;   // para que la pantalla no se apague mientras se enseña el QR
+async function abrirQr() {
+  mostrar('qr');
+  await generarQr();
+}
+async function generarQr() {
+  $('qr-msg').textContent = ''; $('qr-img').innerHTML = ''; $('qr-caducado').hidden = true; $('qr-tiempo').textContent = 'Generando…';
+  $('qr-caja').classList.remove('caducado');
+  try {
+    const r = await api('enlaces', { datos: { accion: 'pantalla' } });
+    $('qr-img').innerHTML = svgQR(r.url);
+    qrCaduca = new Date(r.caduca_at).getTime();
+    tickQr();
+    try { qrBloqueo = await navigator.wakeLock?.request('screen'); } catch {}
+  } catch (e) { $('qr-tiempo').textContent = ''; $('qr-msg').textContent = e.message; }
+}
+function tickQr() {
+  if (!qrCaduca) return;
+  const quedan = Math.max(0, Math.round((qrCaduca - Date.now()) / 1000));
+  if (quedan <= 0) {
+    $('qr-tiempo').textContent = 'Este QR ha caducado.';
+    $('qr-caducado').hidden = false; $('qr-caja').classList.add('caducado');
+    qrCaduca = null;
+    try { qrBloqueo?.release(); } catch {}
+    return;
+  }
+  const m = Math.floor(quedan / 60), s = String(quedan % 60).padStart(2, '0');
+  $('qr-tiempo').textContent = `Vale durante ${m}:${s} minutos`;
+}
+setInterval(() => { if ($('p-qr').classList.contains('activa')) tickQr(); }, 1000);
+$('qr-nuevo').onclick = generarQr;
+
+// ---------- Cartel imprimible (solo administrador, en Precios y festivos) ----------
+let cartelDatos = null;
+async function cargarCartel() {
+  $('cf-cartel').innerHTML = '<p class="intro">Cargando…</p>';
+  try {
+    cartelDatos = (await api('enlaces?cartel=1', { metodo: 'GET' })).cartel;
+    pintarCartel();
+  } catch (e) { $('cf-cartel').innerHTML = `<p class="mensaje">${esc(e.message)}</p>`; }
+}
+function pintarCartel() {
+  if (!cartelDatos) {
+    $('cf-cartel').innerHTML = `<p class="intro">Un cartel con un QR para que los clientes se den de alta solos («¿Quieres darte de alta en nuestra ludoteca?»). Ponlo en la puerta, en las mesas o en la barra.</p>
+      <button class="btn" data-cartel="crear">Crear el cartel</button>`;
+    return;
+  }
+  const t = new URL(cartelDatos.url).searchParams.get('t');
+  $('cf-cartel').innerHTML = `<div class="cartel-info">
+      <div class="cartel-qr">${svgQR(cartelDatos.url)}</div>
+      <div><b>Cartel activo</b><small>Creado el ${fechaDMY(cartelDatos.creado.slice(0, 10))}. ${cartelDatos.altas} ${cartelDatos.altas === 1 ? 'alta hecha' : 'altas hechas'} con él.</small></div>
+    </div>
+    <a class="btn" href="cartel.html?t=${encodeURIComponent(t)}" target="_blank" rel="noopener" style="margin-top:12px">Abrir cartel para imprimir</a>
+    <button class="enlace" data-cartel="cambiar">Cambiar el QR (el cartel impreso dejará de funcionar)</button>`;
+}
+$('cf-cartel').onclick = async e => {
+  const b = e.target.closest('[data-cartel]'); if (!b) return;
+  if (b.dataset.cartel === 'cambiar' &&
+      !confirm('¿Cambiar el QR del cartel?\n\nEl cartel que esté impreso dejará de funcionar y habrá que imprimir y poner el nuevo. Úsalo solo si el cartel se está usando mal.')) return;
+  try {
+    cartelDatos = (await api('enlaces', { datos: { accion: 'cartel_nuevo' } })).cartel;
+    pintarCartel(); aviso(b.dataset.cartel === 'crear' ? 'Cartel creado. Ábrelo para imprimirlo' : 'QR cambiado. Imprime el cartel nuevo');
+  } catch (err) { aviso(err.message); }
+};
 
 construirTeclado(); pintarPuntos(); arrancar();
 </script>

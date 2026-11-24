@@ -101,7 +101,7 @@
     <h1>BROOKLYN</h1>
     <p class="sub">LUDOTECA</p>
     <span class="lema">Guía de la app para monitoras y administración</span>
-    <p class="version">Versión 11 · Actualizada el 24 de noviembre de 2026</p>
+    <p class="version">Versión 12 · Actualizada el 24 de noviembre de 2026</p>
   </div>
 
   <nav class="indice">
@@ -112,7 +112,7 @@
       <li><a href="#entrada">Cobrar una entrada</a></li>
       <li><a href="#familia">Familia nueva</a></li>
       <li><a href="#adulto">Viene otro adulto</a></li>
-      <li><a href="#enlace">Enlace de registro y llegadas</a></li>
+      <li><a href="#enlace">Alta del cliente: QR, cartel y enlace</a></li>
       <li><a href="#whatsapp">Ticket por WhatsApp y llamar</a></li>
       <li><a href="#hoy">Entradas de hoy y anular</a></li>
       <li><a href="#caja">Caja del día y cierre</a></li>
@@ -122,7 +122,7 @@
       <li><a href="#fiestas">Fiestas de cumpleaños</a></li>
       <li><a href="#cumple">Felicitar cumpleaños</a></li>
       <li><a href="#usuarios">Usuarios</a></li>
-      <li><a href="#config">Precios, fondo de caja y festivos</a></li>
+      <li><a href="#config">Precios, cartel QR, fondo de caja y festivos</a></li>
       <li><a href="#stats">Estadísticas</a></li>
       <li><a href="#problemas">Problemas y dudas</a></li>
       <li><a href="#proximamente">Pendiente de decidir</a></li>
@@ -222,9 +222,23 @@
 
   <!-- Enlace de registro -->
   <section id="enlace">
-    <h2 class="titulo"><span class="n">6.</span> Enlace de registro y llegadas</h2>
-    <p>Cuando hay poco personal, el cliente puede darse de alta él mismo desde su móvil: sus datos, los de sus hijos y los permisos. Así no hay que rellenar nada en la app.</p>
-    <h3>Enviar el enlace</h3>
+    <h2 class="titulo"><span class="n">6.</span> Alta del cliente: QR, cartel y enlace</h2>
+    <p>Cuando hay poco personal, el cliente puede darse de alta él mismo desde su móvil: sus datos, los de sus hijos y los permisos. Así no hay que rellenar nada en la app. Hay tres formas, y las tres llevan al mismo formulario y a la misma lista de <b>Llegadas</b>:</p>
+    <ul>
+      <li><b>📱 QR en tu pantalla</b>: el cliente está delante. Lo más rápido.</li>
+      <li><b>Cartel con QR</b>: en la puerta, las mesas o la barra. El cliente lo hace solo, sin que nadie del personal intervenga.</li>
+      <li><b>📲 Enlace por WhatsApp</b>: para un cliente concreto, aunque no esté delante (por ejemplo, el día antes).</li>
+    </ul>
+    <h3>QR en tu pantalla</h3>
+    <ol class="pasos">
+      <li>En el inicio, pulsa <b>📱 Mostrar QR de alta</b>.</li>
+      <li>Enseña la pantalla al cliente: lo escanea con la cámara de su móvil y se le abre el formulario.</li>
+      <li>El QR vale <b>10 minutos</b> y lo pueden usar varias familias, por ejemplo una mesa con dos familias. Si caduca, pulsa <b>Generar otro QR</b>.</li>
+    </ol>
+    <h3>Cartel con QR</h3>
+    <p>Un cartel impreso con «¿Quieres darte de alta en nuestra ludoteca?» y un QR. El cliente lo escanea y rellena el formulario. Lo crea e imprime el administrador (<a href="#config">ver punto 16</a>).</p>
+    <div class="ojo"><b>Comprueba el teléfono.</b> Como cualquiera puede escanear el cartel, esas altas salen en Llegadas con el aviso <span class="etiqueta e-caduca">Alta con el cartel: confirma que el teléfono es suyo</span>. Al cobrar, pregúntale si el número es el suyo; el ticket le llegará ahí.</div>
+    <h3>Enviar el enlace por WhatsApp</h3>
     <ol class="pasos">
       <li>En el inicio, pulsa <b>📲 Enviar enlace de registro</b>.</li>
       <li>Escribe el <b>teléfono del cliente</b> y pulsa <span class="boton wa">Enviar por WhatsApp</span>.</li>
@@ -416,7 +430,7 @@
 
   <!-- Precios y festivos -->
   <section id="config">
-    <h2 class="titulo"><span class="n">16.</span> Precios, fondo de caja y festivos <span class="etiqueta e-admin">Solo administrador</span></h2>
+    <h2 class="titulo"><span class="n">16.</span> Precios, cartel QR, fondo de caja y festivos <span class="etiqueta e-admin">Solo administrador</span></h2>
     <p>En el inicio, <b>⚙️ Precios y festivos</b>. Arriba indica qué tarifa se está cobrando hoy.</p>
     <h3>Fondo de caja</h3>
     <p>Es el dinero de cambio con el que empieza la caja cada día (al principio, <b>30 €</b>). Toca <b>Fondo de cambio</b>, escribe el importe nuevo y guarda. Se aplica desde el siguiente cierre; los días ya cerrados no cambian.</p>
@@ -435,6 +449,15 @@
       <li>Pulsa <span class="boton">Añadir festivo</span>.</li>
       <li>Para quitar uno, pulsa <b style="color:var(--rojo)">Quitar</b> a su lado.</li>
     </ol>
+    <h3>Cartel de alta con QR</h3>
+    <ol class="pasos">
+      <li>En <b>Cartel de alta con QR</b>, pulsa <span class="boton rojo">Crear el cartel</span> (solo la primera vez).</li>
+      <li>Pulsa <span class="boton rojo">Abrir cartel para imprimir</span> y después <b>Imprimir</b>. Elige <b>A4</b>, <b>sin márgenes</b> y activa <b>gráficos de fondo</b> para que salga con color.</li>
+      <li>Puedes imprimir varias copias: todas llevan el mismo QR.</li>
+    </ol>
+    <p>Ahí mismo ves cuántas altas se han hecho con el cartel.</p>
+    <div class="nota"><b>Protecciones.</b> Desde un mismo móvil solo se pueden hacer unas pocas altas seguidas, y hay un máximo de altas al día por el cartel. Así nadie puede llenar la app de familias falsas.</div>
+    <div class="ojo"><b>Cambiar el QR.</b> Si el cartel se usa mal, pulsa <b>Cambiar el QR</b>. El cartel impreso deja de funcionar al momento y hay que imprimir y poner el nuevo.</div>
     <div class="admin"><b>Cada año.</b> La Junta publica en primavera los festivos del año siguiente y el ayuntamiento sus dos fiestas locales. Conviene añadirlos antes de que empiece el año.</div>
     <a class="arriba" href="#inicio">↑ Volver al índice</a>
   </section>
@@ -494,6 +517,14 @@
   <section id="cambios">
     <h2 class="titulo"><span class="n">20.</span> Historial de cambios</h2>
     <div class="cambios">
+      <div class="cambio">
+        <p class="fecha">Versión 12 <span>· 24 de noviembre de 2026</span></p>
+        <ul>
+          <li><b>📱 Mostrar QR de alta</b>: el cliente escanea la pantalla del personal y se da de alta. El QR vale 10 minutos.</li>
+          <li><b>Cartel de alta con QR</b> para imprimir, con protecciones contra abusos y opción de cambiar el QR.</li>
+          <li>Llegadas indica si el alta vino del cartel o de la pantalla.</li>
+        </ul>
+      </div>
       <div class="cambio">
         <p class="fecha">Versión 11 <span>· 24 de noviembre de 2026</span></p>
         <ul>

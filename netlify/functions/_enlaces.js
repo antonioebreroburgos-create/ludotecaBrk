@@ -17,11 +17,12 @@ function baseUrl(event) {
 }
 
 // Crea un enlace y devuelve { id, token, url }
-async function nuevoEnlace(event, { tipo, telefono = null, fiestaId = null, caducaAt, usuarioId }) {
+async function nuevoEnlace(event, { tipo, telefono = null, fiestaId = null, caducaAt, usuarioId, visible = false }) {
   const token = crypto.randomBytes(18).toString('base64url');
   const { data, error } = await supabase.from('enlaces').insert({
     token_hash: hashToken(token), tipo, telefono, fiesta_id: fiestaId,
-    caduca_at: caducaAt, creado_por: usuarioId
+    caduca_at: caducaAt, creado_por: usuarioId,
+    token_visible: visible ? token : null      // solo el cartel: su QR va impreso en un papel público
   }).select('id').single();
   if (error) throw error;
   return { id: data.id, token, url: `${baseUrl(event)}/registro.html?t=${token}` };
