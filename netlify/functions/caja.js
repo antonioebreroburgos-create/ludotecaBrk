@@ -183,7 +183,7 @@ async function registrar(fecha, accion, usuarioId, motivo, antes, despues) {
 }
 
 exports.handler = async (event) => {
-  const { usuario, error: errAuth } = await requerirUsuario(event);
+  const { usuario, error: errAuth } = await requerirUsuario(event, ['ADMIN', 'MONITORA']);
   if (errAuth) return errAuth;
   const esAdmin = usuario.rol === 'ADMIN';
   const hoy = hoyMadrid();

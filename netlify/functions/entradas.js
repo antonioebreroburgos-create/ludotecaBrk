@@ -1,6 +1,7 @@
 // /.netlify/functions/entradas
 // GET                                              → tickets de hoy + tipo de día (LJ / FINDE) + si la caja está cerrada
-// POST { tutor_id, nino_ids, metodo_pago }          → cobra la entrada y devuelve el ticket
+// POST { tutor_id, nino_ids, metodo_pago, llegada_id? } → cobra la entrada y devuelve el ticket
+//                                                     (si viene de una llegada del enlace, la marca como cobrada)
 // POST { accion:'anular', ticket_id, motivo }       → anula un ticket
 // POST { accion:'marcar_enviado', ticket_id }       → apunta que se envió por WhatsApp
 // POST { accion:'servicio', nino_id, tutor_id, codigo, metodo_pago, numero_pulsera } → cuota de socio o reposición de pulsera
@@ -137,6 +138,13 @@ exports.handler = async (event) => {
       p_usuario_id: usuario.id
     });
     if (error) throw errorSql(error);
+
+    const llegadaId = Number(body.llegada_id);
+    if (llegadaId) {
+      await supabase.from('llegadas')
+        .update({ estado: 'COBRADA', ticket_id: ticketId, resuelta_at: new Date().toISOString(), resuelta_por: usuario.id })
+        .eq('id', llegadaId).eq('estado', 'PENDIENTE');
+    }
     return respuesta(200, { ticket: await leerTicket(ticketId) });
   } catch (e) {
     return responderError(e, 'entradas');

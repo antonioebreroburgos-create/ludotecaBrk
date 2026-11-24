@@ -6,7 +6,7 @@ const {
   supabase, respuesta, leerBody, pinValido, hashPin, pinEnUso, requerirUsuario
 } = require('./_lib');
 
-const ROLES = ['ADMIN', 'MONITORA'];
+const ROLES = ['ADMIN', 'MONITORA', 'CAMARERO'];
 
 async function adminsActivos(excluirId) {
   const { data } = await supabase.from('usuarios').select('id').eq('rol', 'ADMIN').eq('activo', true);

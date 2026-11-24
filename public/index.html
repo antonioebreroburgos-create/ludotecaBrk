@@ -349,6 +349,33 @@
   table.tabla-st th { font: 700 15px var(--cond); color: var(--tinta-suave); }
   table.tabla-st td.num, table.tabla-st th.num { text-align: right; white-space: nowrap; }
 
+  /* ---------- Etapa 11: llegadas, fiestas y camarero ---------- */
+  .rol.CAMARERO { background: var(--carton); }
+  .opcion { position: relative; }
+  .opcion span.badge, .badge { position: absolute; top: 10px; right: 12px; min-width: 28px; height: 28px; padding: 0 8px; border-radius: 14px;
+    background: var(--rojo); color: #fff; border: 2px solid var(--borde); font: 700 17px/24px var(--cond); text-align: center; }
+  .opcion span.badge[hidden] { display: none; }
+  .llegada { padding: 14px; background: var(--papel-claro); border: 2px solid var(--borde); border-radius: 14px; box-shadow: 0 4px 0 var(--borde); }
+  .llegada-cab { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .llegada-cab b { font: 700 22px var(--cond); }
+  .llegada-cab span { font: 600 16px var(--cond); color: var(--tinta-suave); }
+  .llegada > small { display: block; color: var(--tinta-suave); font-size: 14px; margin-bottom: 6px; }
+  .llegada-nino { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-top: 1px dashed var(--tinta-suave); }
+  .llegada-nino b { font: 700 19px var(--cond); }
+  .llegada-nino .obs { display: block; font-size: 14px; font-weight: 600; color: var(--rojo); }
+  .llegada .btn { margin-top: 10px; }
+  .fiesta-fila small { display: block; font-size: 14px; color: var(--tinta-suave); }
+  .fiesta-fila b { font: 700 19px/1.2 var(--cond); }
+  .inv-fila { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px dashed var(--tinta-suave); }
+  .inv-check { width: 44px; height: 44px; flex: none; border: 2px solid var(--borde); border-radius: 10px; background: var(--papel-claro);
+    font: 700 26px/1 var(--cond); color: #fff; }
+  .inv-fila.llego .inv-check { background: var(--verde); color: var(--tinta); }
+  .inv-datos { flex: 1; min-width: 0; }
+  .inv-datos b { display: block; font: 700 20px/1.15 var(--cond); }
+  .inv-datos .edad { font-size: 14px; color: var(--tinta-suave); }
+  .inv-datos .obs { display: block; font-size: 14px; font-weight: 600; color: var(--rojo); }
+  .inv-fila.llego .inv-datos b { color: #1E7A3C; }
+
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 </head>
@@ -594,7 +621,81 @@
   <div id="st-cont"></div>
 </section>
 
+<!-- Llegadas (familias registradas con el enlace) -->
+<section class="pantalla" id="p-llegadas">
+  <button class="volver" data-ir="inicio">‹ Inicio</button>
+  <h2>Llegadas</h2>
+  <p class="intro">Familias que se han registrado con el enlace y esperan a que se les cobre la entrada. Se actualiza sola.</p>
+  <button class="btn secundario" id="ll-enlace">📲 Enviar enlace de registro</button>
+  <div class="lista" id="ll-lista"></div>
+</section>
+
+<!-- Fiestas de cumpleaños: lista -->
+<section class="pantalla" id="p-fiestas">
+  <button class="volver" data-ir="inicio">‹ Inicio</button>
+  <h2>Fiestas de cumpleaños</h2>
+  <p class="intro">Crea la fiesta y envía el enlace al organizador para que apunte a los niños que vienen.</p>
+  <button class="btn" id="fs-nueva">Nueva fiesta</button>
+  <div id="fs-lista"></div>
+</section>
+
+<!-- Fiesta: detalle -->
+<section class="pantalla" id="p-fiesta">
+  <button class="volver" id="fi-volver">‹ Fiestas</button>
+  <h2 id="fi-titulo"></h2>
+  <div id="fi-cont"></div>
+  <h3 class="seccion">Niños</h3>
+  <p class="resumen-hoy" id="fi-resumen"></p>
+  <p class="intro" style="font-size:15px;margin-bottom:4px">Toca el cuadro cuando llegue cada niño.</p>
+  <div id="fi-invitados"></div>
+  <div id="fi-pie"><button class="btn secundario" id="fi-anadir" style="margin-top:14px">Añadir un niño</button></div>
+</section>
+
 <div class="fondo" id="fondo"></div>
+
+<!-- Hoja: enviar enlace de registro -->
+<div class="hoja" id="hoja-enlace">
+  <h2>Enlace de registro</h2>
+  <p class="intro">El cliente rellena sus datos y los de sus hijos desde su móvil. Cuando termine, aparecerá en <b>Llegadas</b> para cobrarle. El enlace vale 24 horas y una sola vez.</p>
+  <div class="campo"><label for="en-telefono">Teléfono del cliente</label><input id="en-telefono" type="tel" inputmode="tel" autocomplete="off" placeholder="600 00 00 00"></div>
+  <button class="btn whatsapp" id="en-enviar">Enviar por WhatsApp</button>
+  <button class="enlace" data-cerrar>Cancelar</button>
+  <p class="mensaje" id="en-msg"></p>
+</div>
+
+<!-- Hoja: crear / editar fiesta -->
+<div class="hoja" id="hoja-fiesta">
+  <h2 id="hf-titulo">Nueva fiesta</h2>
+  <div class="fila-botones" style="margin-top:0">
+    <div class="campo"><label for="hf-fecha">Día</label><input type="date" id="hf-fecha"></div>
+    <div class="campo"><label for="hf-hora">Hora</label><input type="time" id="hf-hora"></div>
+  </div>
+  <div class="campo"><label for="hf-cumple">¿Quién cumple años?</label><input id="hf-cumple" autocomplete="off"></div>
+  <div class="campo"><label for="hf-org">Organizador (madre, padre…)</label><input id="hf-org" autocomplete="off"></div>
+  <div class="campo"><label for="hf-tel">Teléfono del organizador</label><input id="hf-tel" type="tel" inputmode="tel" autocomplete="off"></div>
+  <div class="campo"><label for="hf-previstos">Niños previstos</label><input id="hf-previstos" type="number" inputmode="numeric" min="1" max="200"><small>Opcional.</small></div>
+  <div class="campo"><label for="hf-obs">Notas</label><textarea id="hf-obs" placeholder="Menú, tarta, lo que haga falta recordar"></textarea></div>
+  <div class="fila-botones">
+    <button class="btn secundario" data-cerrar>Cancelar</button>
+    <button class="btn" id="hf-guardar">Crear fiesta</button>
+  </div>
+  <button class="enlace" id="hf-anular">Anular esta fiesta</button>
+  <p class="mensaje" id="hf-msg"></p>
+</div>
+
+<!-- Hoja: añadir invitado a mano -->
+<div class="hoja" id="hoja-invitado">
+  <h2>Añadir un niño</h2>
+  <div class="campo"><label for="iv-nombre">Nombre</label><input id="iv-nombre" autocomplete="off"></div>
+  <div class="campo"><label for="iv-edad">Edad</label><input id="iv-edad" type="number" inputmode="numeric" min="0" max="17"></div>
+  <div class="campo"><label for="iv-avisos">Alergias o avisos</label><input id="iv-avisos" autocomplete="off" placeholder="Opcional"></div>
+  <label class="interruptor"><input type="checkbox" id="iv-llegado"> Ya ha llegado</label>
+  <div class="fila-botones">
+    <button class="btn secundario" data-cerrar>Cancelar</button>
+    <button class="btn" id="iv-guardar">Añadir</button>
+  </div>
+  <p class="mensaje" id="iv-msg"></p>
+</div>
 
 <!-- Hoja: reabrir caja -->
 <div class="hoja" id="hoja-reabrir">
@@ -714,7 +815,7 @@
   <h2 id="h-titulo">Nuevo usuario</h2>
   <div class="campo"><label for="h-nombre">Nombre</label><input id="h-nombre" autocomplete="off"></div>
   <div class="campo"><label for="h-rol">Permisos</label>
-    <select id="h-rol"><option value="MONITORA">Monitora: cobrar y ver la caja del día</option><option value="ADMIN">Administrador: todo, incluidos precios y usuarios</option></select>
+    <select id="h-rol"><option value="MONITORA">Monitora: cobrar y ver la caja del día</option><option value="CAMARERO">Camarero: enviar enlaces, ver llegadas y cobrar</option><option value="ADMIN">Administrador: todo, incluidos precios y usuarios</option></select>
   </div>
   <div class="campo"><label for="h-pin" id="h-pin-label">PIN</label><input id="h-pin" type="password" inputmode="numeric" maxlength="6" autocomplete="off"><small id="h-pin-ayuda">Entre 4 y 6 números.</small></div>
   <label class="interruptor" id="h-activo-wrap"><input type="checkbox" id="h-activo"> Puede entrar en la app</label>
@@ -833,25 +934,30 @@ async function entrar() {
 // ---------- Inicio ----------
 function irInicio() {
   const u = sesion.usuario;
+  const personalSala = u.rol === 'ADMIN' || u.rol === 'MONITORA';
   $('saludo').textContent = `Hola, ${u.nombre}`;
-  $('rol').textContent = u.rol === 'ADMIN' ? 'Administrador' : 'Monitora';
+  $('rol').textContent = nombreRol(u.rol);
   $('rol').className = 'rol ' + u.rol;
   const opciones = [
+    { ico: '🛎️', t: 'Llegadas', d: 'Familias registradas con el enlace, para cobrar', ir: 'llegadas', badge: true },
+    { ico: '📲', t: 'Enviar enlace de registro', d: 'El cliente se da de alta desde su móvil', ir: 'enlace' },
     { ico: '🎟️', t: 'Nueva entrada', d: 'Buscar al niño y cobrar', ir: 'entrada' },
     { ico: '📋', t: 'Entradas de hoy', d: 'Quién ha entrado y anulaciones', ir: 'hoy' },
-    { ico: '💶', t: 'Caja de hoy', d: 'Efectivo, tarjeta y cierre del día', ir: 'caja' },
+    { ico: '🎉', t: 'Fiestas de cumpleaños', d: 'Lista de niños de cada fiesta', ir: 'fiestas' }
   ];
+  if (personalSala) opciones.push({ ico: '💶', t: 'Caja de hoy', d: 'Efectivo, tarjeta y cierre del día', ir: 'caja' });
   if (u.rol === 'ADMIN') opciones.push(
-    { ico: '👥', t: 'Usuarios', d: 'Monitoras y administradores', ir: 'usuarios' },
+    { ico: '👥', t: 'Usuarios', d: 'Monitoras, camareros y administradores', ir: 'usuarios' },
     { ico: '⚙️', t: 'Precios y festivos', d: 'Tarifas, fondo de caja y festivos', ir: 'config' },
     { ico: '📊', t: 'Estadísticas', d: 'Visitas, niños, ingresos y edades', ir: 'stats' }
   );
-  opciones.push({ ico: '🎂', t: 'Cumpleaños', d: 'Invitar a celebrarlo en el restaurante', ir: 'cumple' });
+  if (personalSala) opciones.push({ ico: '🎂', t: 'Felicitar cumpleaños', d: 'Invitar a celebrarlo en el restaurante', ir: 'cumple' });
   opciones.push({ ico: '📖', t: 'Guía de uso', d: 'Cómo funciona cada pantalla', ir: 'guia' });
   $('menu').innerHTML = opciones.map(o =>
     `<button class="opcion ${o.pronto ? 'pronto' : ''}" ${o.ir ? `data-ir="${o.ir}"` : 'disabled'}>
-      <span class="ico">${o.ico}</span><div><b>${o.t}</b><span>${o.d}</span></div></button>`).join('');
+      <span class="ico">${o.ico}</span><div><b>${o.t}</b><span>${o.d}</span></div>${o.badge ? '<span class="badge" hidden></span>' : ''}</button>`).join('');
   mostrar('inicio');
+  actualizarContadorLlegadas();
 }
 $('salir').onclick = cerrarSesion;
 document.addEventListener('click', e => {
@@ -866,6 +972,9 @@ document.addEventListener('click', e => {
   if (ir === 'config') abrirConfig();
   if (ir === 'cumple') abrirCumple();
   if (ir === 'stats') abrirStats();
+  if (ir === 'llegadas') abrirLlegadas();
+  if (ir === 'enlace') abrirHojaEnlace();
+  if (ir === 'fiestas') abrirFiestas();
 });
 
 // ---------- Usuarios ----------
@@ -877,7 +986,7 @@ async function abrirUsuarios() {
     $('u-lista').innerHTML = usuarios.map(u =>
       `<button class="fila ${u.activo ? '' : 'inactivo'}" data-u='${JSON.stringify(u).replace(/'/g, '&#39;')}'>
         <b>${u.nombre}${u.activo ? '' : ' (sin acceso)'}</b>
-        <span class="rol ${u.rol}">${u.rol === 'ADMIN' ? 'Administrador' : 'Monitora'}</span></button>`).join('');
+        <span class="rol ${u.rol}">${nombreRol(u.rol)}</span></button>`).join('');
   } catch (e) { $('u-lista').innerHTML = `<p class="mensaje">${e.message}</p>`; }
 }
 $('u-lista').onclick = e => {
@@ -950,7 +1059,7 @@ function textoEdad(fecha) {
 
 // ---------- Buscar ----------
 function abrirEntrada() {
-  seleccion.clear(); resultados = []; tutorElegido = null;
+  seleccion.clear(); resultados = []; tutorElegido = null; llegadaActual = null;
   $('e-q').value = '';
   pintarResultados(); pintarBarra();
   mostrar('entrada');
@@ -1184,7 +1293,8 @@ $('c-pago').onclick = async e => {
   $('c-pago').querySelectorAll('button').forEach(x => x.disabled = true);
   $('c-msg').textContent = '';
   try {
-    const r = await api('entradas', { datos: { tutor_id: tutorElegido, nino_ids: [...seleccion.keys()], metodo_pago: b.dataset.pago } });
+    const r = await api('entradas', { datos: { tutor_id: tutorElegido, nino_ids: [...seleccion.keys()], metodo_pago: b.dataset.pago, llegada_id: llegadaActual } });
+    llegadaActual = null;
     ultimoTicket = r.ticket;
     pintarHecho();
     mostrar('hecho');
@@ -2433,6 +2543,301 @@ $('st-ver').onclick = () => {
   $('st-filtros').querySelectorAll('.filtro').forEach(x => x.classList.remove('sel'));
   cargarStats(d, h);
 };
+
+// =====================================================================
+//  ETAPA 11 · ENLACES PARA CLIENTES, LLEGADAS, FIESTAS Y ROL CAMARERO
+// =====================================================================
+let llegadaActual = null;     // id de la llegada que se está cobrando
+let llegadasDatos = [];
+let fiestasDatos = null;
+let fiestaActual = null;
+let enlaceFiestaListo = null; // { fiestaId, url, mensaje, telefono } recién creado, para enviar sin esperar
+
+function nombreRol(rol) {
+  return { ADMIN: 'Administrador', MONITORA: 'Monitora', CAMARERO: 'Camarero' }[rol] || rol;
+}
+
+// Abre WhatsApp con un mensaje. Si hay que pedir antes el enlace al servidor, la ventana se abre
+// ya dentro del toque (si no, el móvil la bloquea) y se le pone la dirección cuando llega.
+function urlWhatsApp(telefono, mensaje) {
+  return `https://wa.me/${soloDigitos(telefono)}?text=${encodeURIComponent(mensaje)}`;
+}
+async function whatsAppTrasPedir(pedir) {
+  const ventana = window.open('', '_blank');
+  try {
+    const { telefono, mensaje } = await pedir();
+    const url = urlWhatsApp(telefono, mensaje);
+    if (ventana) ventana.location.href = url; else location.href = url;
+    return true;
+  } catch (e) {
+    if (ventana) ventana.close();
+    throw e;
+  }
+}
+
+// ---------- Contador de llegadas en el menú ----------
+async function actualizarContadorLlegadas() {
+  const el = document.querySelector('[data-ir="llegadas"] .badge');
+  if (!el) return;
+  try {
+    const { llegadas } = await api('enlaces?llegadas=1', { metodo: 'GET' });
+    llegadasDatos = llegadas;
+    el.textContent = llegadas.length;
+    el.hidden = !llegadas.length;
+  } catch { el.hidden = true; }
+}
+
+// ---------- Enviar enlace de registro ----------
+function abrirHojaEnlace() {
+  $('en-telefono').value = ''; $('en-msg').textContent = '';
+  abrirHojaId('hoja-enlace');
+  setTimeout(() => $('en-telefono').focus(), 250);
+}
+$('en-enviar').onclick = async () => {
+  const tel = $('en-telefono').value.trim();
+  if (soloDigitos(tel).length < 9) { $('en-msg').textContent = 'Escribe el teléfono del cliente (9 números).'; return; }
+  $('en-enviar').disabled = true; $('en-msg').textContent = '';
+  try {
+    await whatsAppTrasPedir(() => api('enlaces', { datos: { accion: 'registro', telefono: tel } }));
+    cerrarHoja();
+    aviso('Enlace enviado. Cuando lo rellene, aparecerá en Llegadas');
+  } catch (e) { $('en-msg').textContent = e.message; }
+  $('en-enviar').disabled = false;
+};
+$('ll-enlace').onclick = abrirHojaEnlace;
+
+// ---------- Llegadas ----------
+async function abrirLlegadas() {
+  mostrar('llegadas');
+  await cargarLlegadas();
+}
+async function cargarLlegadas() {
+  try {
+    const { llegadas } = await api('enlaces?llegadas=1', { metodo: 'GET' });
+    llegadasDatos = llegadas;
+    pintarLlegadas();
+  } catch (e) { $('ll-lista').innerHTML = `<p class="mensaje">${esc(e.message)}</p>`; }
+}
+function pintarLlegadas() {
+  if (!llegadasDatos.length) {
+    $('ll-lista').innerHTML = '<p class="intro">No hay nadie esperando. Cuando una familia rellene el enlace, aparecerá aquí.</p>';
+    return;
+  }
+  $('ll-lista').innerHTML = llegadasDatos.map(l => {
+    const total = l.ninos.reduce((s, n) => s + n.precio, 0);
+    return `<div class="llegada">
+      <div class="llegada-cab"><b>${esc(nombreCompleto(l.tutor))}</b><span>${hora(l.created_at)}</span></div>
+      <small>${esc(telefonoBonito(l.tutor.telefono))}</small>
+      ${l.ninos.map(n => `<div class="llegada-nino">
+        <div><b>${esc(nombreCompleto(n))}</b> <span class="edad">${textoEdad(n.fecha_nacimiento)}</span>
+          ${n.observaciones ? `<span class="obs">⚠️ ${esc(n.observaciones)}</span>` : ''}
+          <div class="chips">${chipsSocio(n)}${n.entrada_hoy ? `<span class="chip ya">Ya entró hoy a las ${hora(n.entrada_hoy)}</span>` : ''}</div></div>
+        <span class="precio">${n.precio === 0 ? 'Gratis' : euros(n.precio)}</span></div>`).join('')}
+      <button class="btn" data-cobrar="${l.id}">Cobrar ${euros(total)}</button>
+      <button class="enlace" data-descartar="${l.id}">No viene / quitar de la lista</button>
+    </div>`;
+  }).join('');
+}
+$('ll-lista').onclick = async e => {
+  const c = e.target.closest('[data-cobrar]');
+  const d = e.target.closest('[data-descartar]');
+  if (c) {
+    const l = llegadasDatos.find(x => x.id === Number(c.dataset.cobrar));
+    seleccion.clear();
+    l.ninos.forEach(n => seleccion.set(n.id, n));
+    resultados = l.ninos;
+    tutorElegido = l.tutor.id;
+    llegadaActual = l.id;
+    abrirCobro();
+  }
+  if (d) {
+    const l = llegadasDatos.find(x => x.id === Number(d.dataset.descartar));
+    if (!confirm(`¿Quitar a ${nombreCompleto(l.tutor)} de la lista de llegadas?\n\nLa familia queda registrada; solo deja de estar pendiente de cobro.`)) return;
+    try {
+      const r = await api('enlaces', { datos: { accion: 'descartar', id: l.id } });
+      llegadasDatos = r.llegadas; pintarLlegadas(); aviso('Quitada de la lista');
+    } catch (err) { aviso(err.message); }
+  }
+};
+// Mientras la pantalla está abierta se actualiza sola
+setInterval(() => {
+  if (sesion && $('p-llegadas').classList.contains('activa') && !document.querySelector('.hoja.abierta')) cargarLlegadas();
+}, 20000);
+
+// ---------- Fiestas de cumpleaños ----------
+async function abrirFiestas() {
+  mostrar('fiestas');
+  $('fs-lista').innerHTML = '<p class="intro">Cargando…</p>';
+  try {
+    fiestasDatos = await api('fiestas', { metodo: 'GET' });
+    pintarFiestas();
+  } catch (e) { $('fs-lista').innerHTML = `<p class="mensaje">${esc(e.message)}</p>`; }
+}
+function filaFiesta(f) {
+  const esHoy = f.fecha === fiestasDatos.hoy;
+  const previstos = f.ninos_previstos ? ` de ${f.ninos_previstos} previstos` : '';
+  return `<button class="fila fiesta-fila ${f.anulada ? 'inactivo' : ''}" data-fiesta="${f.id}">
+    <div><b>${esHoy ? 'Hoy' : `${diaSemana(f.fecha)} ${fechaDMY(f.fecha)}`}${f.hora ? `, ${esc(f.hora)}` : ''}: ${esc(f.cumpleanero)}</b>
+      <small>Organiza ${esc(f.organizador_nombre)}. ${f.invitados} ${f.invitados === 1 ? 'niño apuntado' : 'niños apuntados'}${previstos}${esHoy && f.invitados ? `, han llegado ${f.llegados}` : ''}${f.anulada ? '. Anulada' : ''}</small></div>
+    <span class="precio">🎉</span></button>`;
+}
+function pintarFiestas() {
+  const { hoy, fiestas } = fiestasDatos;
+  const deHoy = fiestas.filter(f => f.fecha === hoy);
+  const proximas = fiestas.filter(f => f.fecha > hoy);
+  const pasadas = fiestas.filter(f => f.fecha < hoy).reverse();
+  const grupo = (t, l) => l.length ? `<h3 class="seccion">${t}</h3><div class="lista" style="margin-top:0">${l.map(filaFiesta).join('')}</div>` : '';
+  $('fs-lista').innerHTML = (grupo('Hoy', deHoy) + grupo('Próximas', proximas) + grupo('Última semana', pasadas))
+    || '<p class="intro" style="margin-top:16px">No hay fiestas apuntadas.</p>';
+}
+$('fs-lista').onclick = e => {
+  const b = e.target.closest('[data-fiesta]'); if (b) abrirFiesta(Number(b.dataset.fiesta));
+};
+
+async function abrirFiesta(id) {
+  mostrar('fiesta');
+  $('fi-cont').innerHTML = '<p class="intro">Cargando…</p>'; $('fi-invitados').innerHTML = '';
+  try {
+    const r = await api('fiestas?id=' + id, { metodo: 'GET' });
+    fiestaActual = r.fiesta;
+    pintarFiesta();
+  } catch (e) { $('fi-cont').innerHTML = `<p class="mensaje">${esc(e.message)}</p>`; }
+}
+function pintarFiesta() {
+  const f = fiestaActual;
+  const inv = f.invitados;
+  const llegados = inv.filter(i => i.ha_llegado).length;
+  const conAvisos = inv.filter(i => i.avisos);
+  $('fi-titulo').textContent = `Fiesta de ${f.cumpleanero}`;
+  $('fi-cont').innerHTML = `
+    <div class="ticket grande">
+      <div class="tk-cab"><span>${esc(fechaLargaDia(f.fecha))}</span><span>${esc(f.hora || '')}</span></div>
+      <p style="margin-top:8px"><b>Organiza:</b> ${esc(f.organizador_nombre)}, ${esc(telefonoBonito(f.organizador_telefono))}</p>
+      ${f.ninos_previstos ? `<p><b>Niños previstos:</b> ${f.ninos_previstos}</p>` : ''}
+      ${f.observaciones ? `<p><b>Notas:</b> ${esc(f.observaciones)}</p>` : ''}
+      ${f.anulada ? '<p style="color:var(--rojo);font-weight:600">Fiesta anulada</p>' : ''}
+    </div>
+    ${f.anulada ? '' : `<div class="acciones">
+      <button class="btn whatsapp" id="fi-enviar">Enviar enlace por WhatsApp</button>
+      <p class="intro" style="font-size:14px;margin:0">Con el enlace, ${esc(f.organizador_nombre)} apunta a los niños desde su móvil. Si envías uno nuevo, el anterior deja de valer.</p>
+      <div class="fila-botones"><a class="btn secundario" href="tel:${esc(f.organizador_telefono)}">Llamar</a><button class="btn secundario" id="fi-editar">Editar datos</button></div>
+    </div>`}
+    ${conAvisos.length ? `<div class="aviso-caja" style="margin-top:16px">⚠️ Alergias y avisos: ${conAvisos.map(i => `<b>${esc(i.nombre)}</b> (${esc(i.avisos)})`).join(', ')}</div>` : ''}`;
+  $('fi-resumen').textContent = inv.length
+    ? `${inv.length} ${inv.length === 1 ? 'niño apuntado' : 'niños apuntados'}. Han llegado ${llegados}.`
+    : 'Todavía no hay niños apuntados.';
+  $('fi-invitados').innerHTML = inv.map(i => `<div class="inv-fila ${i.ha_llegado ? 'llego' : ''}">
+      <button class="inv-check" data-llegada="${i.id}" aria-pressed="${i.ha_llegado}" aria-label="Ha llegado ${esc(i.nombre)}">${i.ha_llegado ? '✓' : ''}</button>
+      <div class="inv-datos"><b>${esc(i.nombre)}${i.es_cumpleanero ? ' 🎂' : ''}</b>
+        <span class="edad">${i.edad !== null && i.edad !== undefined ? `${i.edad} ${i.edad === 1 ? 'año' : 'años'}` : 'Edad sin poner'}</span>
+        ${i.avisos ? `<span class="obs">⚠️ ${esc(i.avisos)}</span>` : ''}</div>
+      ${i.es_cumpleanero ? '' : `<button class="quitar" data-quitar-inv="${i.id}">Quitar</button>`}
+    </div>`).join('');
+  $('fi-pie').style.display = f.anulada ? 'none' : '';
+  // Enlace recién creado: se puede enviar sin esperar al servidor
+  const b = $('fi-enviar');
+  if (b) b.onclick = enviarEnlaceFiesta;
+  const ed = $('fi-editar');
+  if (ed) ed.onclick = () => abrirHojaFiesta(fiestaActual);
+}
+
+async function enviarEnlaceFiesta() {
+  const f = fiestaActual;
+  try {
+    if (enlaceFiestaListo && enlaceFiestaListo.fiestaId === f.id) {
+      const url = urlWhatsApp(enlaceFiestaListo.telefono, enlaceFiestaListo.mensaje);
+      const v = window.open(url, '_blank'); if (!v) location.href = url;
+      enlaceFiestaListo = null;   // el siguiente toque crea uno nuevo
+    } else {
+      await whatsAppTrasPedir(async () => (await api('fiestas', { datos: { accion: 'enlace', id: f.id } })).enlace);
+    }
+  } catch (e) { aviso(e.message); }
+}
+
+$('fi-invitados').onclick = async e => {
+  const c = e.target.closest('[data-llegada]');
+  const q = e.target.closest('[data-quitar-inv]');
+  try {
+    if (c) {
+      const inv = fiestaActual.invitados.find(i => i.id === Number(c.dataset.llegada));
+      inv.ha_llegado = !inv.ha_llegado; pintarFiesta();   // se ve al instante
+      const r = await api('fiestas', { datos: { accion: 'llegada', invitado_id: inv.id, ha_llegado: inv.ha_llegado } });
+      fiestaActual = r.fiesta; pintarFiesta();
+    }
+    if (q) {
+      const inv = fiestaActual.invitados.find(i => i.id === Number(q.dataset.quitarInv));
+      if (!confirm(`¿Quitar a ${inv.nombre} de la lista?`)) return;
+      const r = await api('fiestas', { datos: { accion: 'quitar_invitado', invitado_id: inv.id } });
+      fiestaActual = r.fiesta; pintarFiesta();
+    }
+  } catch (err) { aviso(err.message); abrirFiesta(fiestaActual.id); }
+};
+
+// Añadir un niño a mano (por ejemplo, uno que llega sin estar en la lista)
+$('fi-anadir').onclick = () => {
+  ['iv-nombre', 'iv-edad', 'iv-avisos'].forEach(id => $(id).value = '');
+  $('iv-llegado').checked = fiestaActual.fecha === hoyLocal();
+  $('iv-msg').textContent = '';
+  abrirHojaId('hoja-invitado');
+  setTimeout(() => $('iv-nombre').focus(), 250);
+};
+$('iv-guardar').onclick = async () => {
+  $('iv-guardar').disabled = true; $('iv-msg').textContent = '';
+  try {
+    const r = await api('fiestas', { datos: { accion: 'invitado', fiesta_id: fiestaActual.id,
+      nombre: $('iv-nombre').value, edad: $('iv-edad').value, avisos: $('iv-avisos').value, ha_llegado: $('iv-llegado').checked } });
+    fiestaActual = r.fiesta; cerrarHoja(); pintarFiesta(); aviso('Niño añadido');
+  } catch (e) { $('iv-msg').textContent = e.message; }
+  $('iv-guardar').disabled = false;
+};
+
+// Crear / editar fiesta
+let fiestaEditando = null;
+function abrirHojaFiesta(f) {
+  fiestaEditando = f;
+  $('hf-titulo').textContent = f ? 'Editar fiesta' : 'Nueva fiesta';
+  $('hf-fecha').value = f ? f.fecha : '';
+  $('hf-fecha').min = f ? '' : hoyLocal();
+  $('hf-hora').value = f?.hora || '';
+  $('hf-cumple').value = f?.cumpleanero || '';
+  $('hf-org').value = f?.organizador_nombre || '';
+  $('hf-tel').value = f ? telefonoBonito(f.organizador_telefono) : '';
+  $('hf-previstos').value = f?.ninos_previstos ?? '';
+  $('hf-obs').value = f?.observaciones || '';
+  $('hf-anular').style.display = f && !f.anulada ? '' : 'none';
+  $('hf-guardar').textContent = f ? 'Guardar' : 'Crear fiesta';
+  $('hf-msg').textContent = '';
+  abrirHojaId('hoja-fiesta');
+}
+$('fs-nueva').onclick = () => abrirHojaFiesta(null);
+$('hf-guardar').onclick = async () => {
+  $('hf-guardar').disabled = true; $('hf-msg').textContent = '';
+  const datos = {
+    accion: fiestaEditando ? 'editar' : 'crear', id: fiestaEditando?.id,
+    fecha: $('hf-fecha').value, hora: $('hf-hora').value, cumpleanero: $('hf-cumple').value,
+    organizador_nombre: $('hf-org').value, organizador_telefono: $('hf-tel').value,
+    ninos_previstos: $('hf-previstos').value, observaciones: $('hf-obs').value
+  };
+  try {
+    const r = await api('fiestas', { datos });
+    if (r.enlace) enlaceFiestaListo = { fiestaId: r.fiesta.id, ...r.enlace };
+    cerrarHoja();
+    fiestaActual = r.fiesta;
+    mostrar('fiesta'); pintarFiesta();
+    if (!fiestaEditando) aviso('Fiesta creada. Ahora envía el enlace al organizador');
+    else if (r.enlace) aviso('Ha cambiado la fecha: envía el enlace nuevo, el anterior ya no vale');
+    else aviso('Fiesta guardada');
+  } catch (e) { $('hf-msg').textContent = e.message; }
+  $('hf-guardar').disabled = false;
+};
+$('hf-anular').onclick = async () => {
+  if (!confirm(`¿Anular la fiesta de ${fiestaEditando.cumpleanero}?\n\nEl enlace del organizador dejará de funcionar.`)) return;
+  try {
+    const r = await api('fiestas', { datos: { accion: 'anular', id: fiestaEditando.id } });
+    cerrarHoja(); fiestaActual = r.fiesta; pintarFiesta(); aviso('Fiesta anulada');
+  } catch (e) { $('hf-msg').textContent = e.message; }
+};
+$('fi-volver').onclick = abrirFiestas;
 
 construirTeclado(); pintarPuntos(); arrancar();
 </script>
