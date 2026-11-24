@@ -1,6 +1,8 @@
 // /.netlify/functions/entradas
 // GET                                              → tickets de hoy + tipo de día (LJ / FINDE) + si la caja está cerrada
-// POST { tutor_id, nino_ids, metodo_pago, llegada_id? } → cobra la entrada y devuelve el ticket
+// GET ?tarifas=1                                    → entradas que se pueden elegir al cobrar (normales, socio, invitación...)
+// POST { tutor_id, nino_ids, metodo_pago, llegada_id?, tarifas?, nota? } → cobra la entrada y devuelve el ticket
+//      tarifas: una por niño (null = la que toca). Si el total baja de lo que tocaba, la nota (motivo) es obligatoria.
 //                                                     (si viene de una llegada del enlace, la marca como cobrada)
 // POST { accion:'anular', ticket_id, motivo }       → anula un ticket
 // POST { accion:'marcar_enviado', ticket_id }       → apunta que se envió por WhatsApp
@@ -10,10 +12,10 @@ const {
 } = require('./_lib');
 
 const SELECT_TICKET = `
-  id, numero, fecha, creado_at, total, metodo_pago, anulado, anulado_motivo, enviado_whatsapp,
+  id, numero, fecha, creado_at, total, metodo_pago, anulado, anulado_motivo, enviado_whatsapp, nota,
   tutores ( id, nombre, apellidos, telefono, consentimiento_marketing ),
   usuarios ( nombre ),
-  ticket_lineas ( id, descripcion, precio, tarifa_codigo, ninos ( id, nombre, apellidos, numero_pulsera ) ),
+  ticket_lineas ( id, descripcion, precio, tarifa_codigo, tarifa_manual, ninos ( id, nombre, apellidos, numero_pulsera ) ),
   membresias ( fecha_alta, fecha_caducidad, activo )
 `;
 
@@ -22,13 +24,14 @@ function formato(t, cajaCerrada = false) {
     id: t.id, numero: t.numero, fecha: t.fecha, creado_at: t.creado_at,
     total: Number(t.total), metodo_pago: t.metodo_pago,
     anulado: t.anulado, anulado_motivo: t.anulado_motivo, enviado_whatsapp: t.enviado_whatsapp,
+    nota: t.nota || null,
     tutor: t.tutores, usuario: t.usuarios?.nombre || null,
     socio_desde: t.membresias?.[0]?.fecha_alta || null,
     socio_hasta: t.membresias?.[0]?.fecha_caducidad || null,
     caja_cerrada: cajaCerrada,
     lineas: (t.ticket_lineas || [])
       .sort((a, b) => a.id - b.id)
-      .map(l => ({ descripcion: l.descripcion, precio: Number(l.precio), tarifa_codigo: l.tarifa_codigo, nino: l.ninos }))
+      .map(l => ({ descripcion: l.descripcion, precio: Number(l.precio), tarifa_codigo: l.tarifa_codigo, tarifa_manual: !!l.tarifa_manual, nino: l.ninos }))
   };
 }
 
@@ -46,7 +49,9 @@ const ERRORES_SQL = {
   NINO_NO_EXISTE: 'Ese niño ya no existe.',
   FALTA_PULSERA: 'Escribe el número de la pulsera.',
   PULSERA_EN_USO: 'Esa pulsera ya está asignada a otro niño.',
-  CAJA_CERRADA: 'La caja de hoy ya está cerrada: no se puede cobrar ni anular. Pide al administrador que la reabra.'
+  CAJA_CERRADA: 'La caja de hoy ya está cerrada: no se puede cobrar ni anular. Pide al administrador que la reabra.',
+  TARIFA_NO_VALIDA: 'Esa entrada ya no está disponible. Vuelve a abrir el cobro.',
+  NOTA_OBLIGATORIA: 'Escribe el motivo de la invitación o del descuento.'
 };
 
 function errorSql(error) {
@@ -60,6 +65,13 @@ exports.handler = async (event) => {
 
   try {
     // ---------- Tickets de hoy ----------
+    if (event.httpMethod === 'GET' && event.queryStringParameters?.tarifas) {
+      const { data, error } = await supabase.from('tarifas').select('codigo, nombre, precio, orden')
+        .eq('tipo', 'ENTRADA').eq('activo', true).order('orden');
+      if (error) throw error;
+      return respuesta(200, { tarifas: data.map(t => ({ ...t, precio: Number(t.precio) })) });
+    }
+
     if (event.httpMethod === 'GET') {
       const hoy = hoyMadrid();
       const [rT, rD, rC] = await Promise.all([
@@ -131,11 +143,16 @@ exports.handler = async (event) => {
     if (!tutorId) throw errorHttp(400, 'Elige quién trae a los niños.');
     if (!ninoIds.length) throw errorHttp(400, 'No hay niños seleccionados.');
 
+    // Tarifa elegida para cada niño (en el mismo orden); null = la que le toca
+    const elegidas = Array.isArray(body.tarifas) ? body.tarifas : [];
+    const tarifas = ninoIds.map((_, i) => (typeof elegidas[i] === 'string' && /^[A-Z0-9_]{2,40}$/.test(elegidas[i])) ? elegidas[i] : null);
     const { data: ticketId, error } = await supabase.rpc('crear_ticket_entrada', {
       p_tutor_id: tutorId,
       p_ninos: ninoIds,
       p_metodo: body.metodo_pago || null,
-      p_usuario_id: usuario.id
+      p_usuario_id: usuario.id,
+      p_tarifas: tarifas,
+      p_nota: texto(body.nota, 200)
     });
     if (error) throw errorSql(error);
 

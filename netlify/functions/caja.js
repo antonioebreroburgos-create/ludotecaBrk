@@ -33,7 +33,7 @@ async function fondoFijo() {
 }
 
 const SELECT_TICKET = `
-  id, numero, fecha, creado_at, total, metodo_pago, anulado, anulado_motivo, enviado_whatsapp,
+  id, numero, fecha, creado_at, total, metodo_pago, anulado, anulado_motivo, enviado_whatsapp, nota,
   tutores ( id, nombre, apellidos, telefono, consentimiento_marketing ),
   usuarios ( nombre ),
   ticket_lineas ( id, nino_id, descripcion, precio, tarifa_codigo, ninos ( id, nombre, apellidos, numero_pulsera ) ),
@@ -46,6 +46,7 @@ function formatoTicket(t, cajaCerrada) {
     id: t.id, numero: t.numero, fecha: t.fecha, creado_at: t.creado_at,
     total: Number(t.total), metodo_pago: t.metodo_pago,
     anulado: t.anulado, anulado_motivo: t.anulado_motivo, enviado_whatsapp: t.enviado_whatsapp,
+    nota: t.nota || null,
     tutor: t.tutores, usuario: t.usuarios?.nombre || null,
     socio_desde: t.membresias?.[0]?.fecha_alta || null,
     socio_hasta: t.membresias?.[0]?.fecha_caducidad || null,
