@@ -3,15 +3,24 @@
 // POST { t, accion:'registro', tutor, ninos }   → la familia se da de alta y queda en "Llegadas" para cobrar
 //      (enlace personal de WhatsApp: un solo uso; QR del cartel o de la pantalla: varias familias, con límites)
 // POST { t, accion:'invitados', invitados }     → el organizador guarda la lista de niños de la fiesta
+// Autocheck-in (solo con el QR del cartel o de la pantalla, es decir, estando en el restaurante):
+// POST { t, accion:'identificar', telefono, fecha_nino } → cliente habitual: teléfono + fecha de nacimiento de un hijo
+// POST { t, accion:'familia', dispositivo }             → móvil recordado: quién es y qué niños tiene
+// POST { t, accion:'checkin', dispositivo, nino_ids }   → "ya estamos aquí": entra en la cola de Llegadas
+// POST { accion:'olvidar', dispositivo }                → este móvil deja de estar recordado
 // Solo funciona con un código válido, que crea el personal desde la app.
+const crypto = require('crypto');
 const {
-  supabase, respuesta, leerBody, normalizarTelefono, fechaValida, texto, errorHttp, responderError, ipCliente
+  supabase, respuesta, leerBody, normalizarTelefono, fechaValida, texto, errorHttp, responderError, ipCliente, hoyMadrid
 } = require('./_lib');
-const { leerEnlace } = require('./_enlaces');
+const { leerEnlace, hashToken } = require('./_enlaces');
 
 const MAX_NINOS = 8;
 const MAX_INVITADOS = 60;
 const TIPOS_ALTA = ['REGISTRO', 'CARTEL', 'PANTALLA'];
+const TIPOS_CHECKIN = ['CARTEL', 'PANTALLA'];      // el QR prueba que el cliente está en el restaurante
+const DIAS_MOVIL_RECORDADO = 365;
+const MAX_FALLOS_IDENTIFICAR = 5;                  // por móvil cada 15 minutos
 // Límites de las altas con QR (se pueden usar por varias familias)
 const LIMITES = {
   CARTEL:   { porMovilHora: 3, porDia: 40 },
@@ -48,6 +57,85 @@ async function datosFiesta(fiestaId) {
   for (const r of [rF, rI]) if (r.error) throw r.error;
   if (!rF.data || rF.data.anulada) throw errorHttp(404, 'Esta fiesta ya no está activa. Habla con el restaurante.');
   return { ...rF.data, invitados: rI.data };
+}
+
+// ---------- Móvil recordado de una familia ----------
+async function crearDispositivo(tutorId) {
+  const token = crypto.randomBytes(24).toString('base64url');
+  const { error } = await supabase.from('dispositivos_familia').insert({ token_hash: hashToken(token), tutor_id: tutorId });
+  if (error) throw error;
+  return token;
+}
+// Devuelve el tutor_id si el código del móvil es válido, o null
+async function leerDispositivo(token) {
+  if (!/^[A-Za-z0-9_-]{30,40}$/.test(String(token || ''))) return null;
+  const { data } = await supabase.from('dispositivos_familia')
+    .select('id, tutor_id, created_at, anulado').eq('token_hash', hashToken(token)).maybeSingle();
+  if (!data || data.anulado) return null;
+  if (new Date(data.created_at) < new Date(Date.now() - DIAS_MOVIL_RECORDADO * 86400e3)) return null;
+  await supabase.from('dispositivos_familia').update({ ultimo_uso: new Date().toISOString() }).eq('id', data.id);
+  return data.tutor_id;
+}
+// Solo lo justo para saludar y elegir niños: nombres de pila
+async function familiaDe(tutorId) {
+  const [rT, rN] = await Promise.all([
+    supabase.from('tutores').select('nombre').eq('id', tutorId).maybeSingle(),
+    supabase.from('nino_tutor').select('ninos(id, nombre, activo)').eq('tutor_id', tutorId)
+  ]);
+  for (const r of [rT, rN]) if (r.error) throw r.error;
+  if (!rT.data) return null;
+  const ninos = (rN.data || []).map(x => x.ninos).filter(n => n && n.activo)
+    .map(n => ({ id: n.id, nombre: n.nombre })).sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+  return { nombre: rT.data.nombre, ninos };
+}
+
+// ---------- Autocheck-in ----------
+async function identificar(body, ip) {
+  const hace15 = new Date(Date.now() - 15 * 60e3).toISOString();
+  const { count: fallos } = await supabase.from('identificacion_intentos').select('id', { count: 'exact', head: true })
+    .eq('ip', ip).eq('ok', false).gte('created_at', hace15);
+  if (fallos >= MAX_FALLOS_IDENTIFICAR) {
+    throw errorHttp(429, 'Demasiados intentos. Espera unos minutos o pide ayuda al personal del restaurante.');
+  }
+  const telefono = normalizarTelefono(body.telefono);
+  if (!telefono || !fechaValida(body.fecha_nino)) {
+    throw errorHttp(400, 'Escribe tu teléfono y la fecha de nacimiento de uno de tus hijos.');
+  }
+  const { data: tutor } = await supabase.from('tutores').select('id').eq('telefono', telefono).maybeSingle();
+  let ok = false;
+  if (tutor) {
+    const { data: suyos } = await supabase.from('nino_tutor').select('ninos(fecha_nacimiento, activo)').eq('tutor_id', tutor.id);
+    ok = (suyos || []).some(x => x.ninos && x.ninos.activo && x.ninos.fecha_nacimiento === body.fecha_nino);
+  }
+  await supabase.from('identificacion_intentos').insert({ ip, ok });
+  if (!ok) {
+    throw errorHttp(404, 'No encontramos ninguna familia con esos datos. Revisa el teléfono y la fecha, o date de alta si es vuestra primera vez.');
+  }
+  return { familia: await familiaDe(tutor.id), dispositivo: await crearDispositivo(tutor.id) };
+}
+
+async function checkin(enlace, body) {
+  const tutorId = await leerDispositivo(body.dispositivo);
+  if (!tutorId) throw errorHttp(401, 'No te hemos reconocido. Vuelve a identificarte.', { olvidar: true });
+  const familia = await familiaDe(tutorId);
+  if (!familia) throw errorHttp(401, 'No te hemos reconocido. Vuelve a identificarte.', { olvidar: true });
+  const pedidos = new Set((body.nino_ids || []).map(Number));
+  const ids = familia.ninos.filter(n => pedidos.has(n.id)).map(n => n.id);
+  if (!ids.length) throw errorHttp(400, 'Marca qué niños vienen hoy.');
+
+  // Si ya estaban en la cola de hoy, se actualiza esa llegada en vez de repetirla
+  const { data: pendiente } = await supabase.from('llegadas').select('id, nino_ids')
+    .eq('tutor_id', tutorId).eq('fecha', hoyMadrid()).eq('estado', 'PENDIENTE')
+    .order('created_at', { ascending: false }).limit(1).maybeSingle();
+  if (pendiente) {
+    const union = [...new Set([...pendiente.nino_ids.map(Number), ...ids])];
+    const { error } = await supabase.from('llegadas').update({ nino_ids: union }).eq('id', pendiente.id);
+    if (error) throw error;
+  } else {
+    const { error } = await supabase.from('llegadas').insert({ tutor_id: tutorId, nino_ids: ids, enlace_id: enlace.id, origen: 'AUTOCHECKIN' });
+    if (error) throw error;
+  }
+  return { ok: true, ninos: familia.ninos.filter(n => ids.includes(n.id)).map(n => n.nombre) };
 }
 
 // ---------- Alta de la familia ----------
@@ -136,7 +224,8 @@ async function registro(enlace, body, ip) {
     if (eL) throw eL;
     if (!unSoloUso) await supabase.from('altas_publicas').insert({ enlace_id: enlace.id, ip });
 
-    return { ok: true, ninos: ninos.map(n => n.nombre) };
+    // El móvil de quien se da de alta queda recordado para el autocheck-in de las próximas veces
+    return { ok: true, ninos: ninos.map(n => n.nombre), dispositivo: await crearDispositivo(tutorId) };
   } catch (e) {
     // Si algo falla, el enlace personal vuelve a quedar libre para intentarlo otra vez
     if (unSoloUso) await supabase.from('enlaces').update({ usado_at: null }).eq('id', enlace.id);
@@ -184,12 +273,22 @@ async function invitados(enlace, body) {
 
 exports.handler = async (event) => {
   try {
-    const token = event.httpMethod === 'GET' ? event.queryStringParameters?.t : leerBody(event).t;
+    const cuerpo = event.httpMethod === 'POST' ? leerBody(event) : {};
+    // Olvidar este móvil: no necesita un QR válido
+    if (cuerpo.accion === 'olvidar') {
+      if (/^[A-Za-z0-9_-]{30,40}$/.test(String(cuerpo.dispositivo || ''))) {
+        await supabase.from('dispositivos_familia').update({ anulado: true }).eq('token_hash', hashToken(cuerpo.dispositivo));
+      }
+      return respuesta(200, { ok: true });
+    }
+
+    const token = event.httpMethod === 'GET' ? event.queryStringParameters?.t : cuerpo.t;
     const { enlace, estado } = await leerEnlace(token);
 
     if (event.httpMethod === 'GET') {
       const esAlta = TIPOS_ALTA.includes(enlace.tipo);
-      const base = { tipo: esAlta ? 'REGISTRO' : enlace.tipo, origen: enlace.tipo, estado, mensaje: MENSAJES_ESTADO[estado] || null };
+      const base = { tipo: esAlta ? 'REGISTRO' : enlace.tipo, origen: enlace.tipo, estado, mensaje: MENSAJES_ESTADO[estado] || null,
+        checkin: TIPOS_CHECKIN.includes(enlace.tipo) };
       if (estado !== 'OK') return respuesta(200, base);
       if (esAlta) return respuesta(200, { ...base, telefono: enlace.telefono });
       return respuesta(200, { ...base, fiesta: await datosFiesta(enlace.fiesta_id) });
@@ -201,6 +300,16 @@ exports.handler = async (event) => {
 
     if (body.accion === 'registro' && TIPOS_ALTA.includes(enlace.tipo)) return respuesta(200, await registro(enlace, body, ipCliente(event)));
     if (body.accion === 'invitados' && enlace.tipo === 'FIESTA') return respuesta(200, await invitados(enlace, body));
+    if (TIPOS_CHECKIN.includes(enlace.tipo)) {
+      if (body.accion === 'identificar') return respuesta(200, await identificar(body, ipCliente(event)));
+      if (body.accion === 'familia') {
+        const tutorId = await leerDispositivo(body.dispositivo);
+        const familia = tutorId ? await familiaDe(tutorId) : null;
+        if (!familia) throw errorHttp(401, 'No te hemos reconocido. Vuelve a identificarte.', { olvidar: true });
+        return respuesta(200, { familia });
+      }
+      if (body.accion === 'checkin') return respuesta(200, await checkin(enlace, body));
+    }
     throw errorHttp(400, 'Acción no válida para este enlace.');
   } catch (e) {
     return responderError(e, 'publico');

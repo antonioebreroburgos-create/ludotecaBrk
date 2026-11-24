@@ -678,7 +678,7 @@
 <section class="pantalla" id="p-llegadas">
   <button class="volver" data-ir="inicio">‹ Inicio</button>
   <h2>Llegadas</h2>
-  <p class="intro">Familias que se han registrado con el enlace y esperan a que se les cobre la entrada. Se actualiza sola.</p>
+  <p class="intro">Familias que se han apuntado con el QR, el cartel o el enlace y esperan a que se les cobre la entrada. Se actualiza sola.</p>
   <button class="btn secundario" id="ll-enlace">📲 Enviar enlace de registro</button>
   <div class="lista" id="ll-lista"></div>
 </section>
@@ -2731,7 +2731,8 @@ function pintarLlegadas() {
       <div class="llegada-cab"><b>${esc(nombreCompleto(l.tutor))}</b><span>${hora(l.created_at)}</span></div>
       <small>${esc(telefonoBonito(l.tutor.telefono))}</small>
       ${l.origen === 'CARTEL' ? '<div class="chips"><span class="chip aviso-chip">Alta con el cartel: confirma que el teléfono es suyo</span></div>'
-        : l.origen === 'PANTALLA' ? '<div class="chips"><span class="chip neutro">Alta con el QR de la pantalla</span></div>' : ''}
+        : l.origen === 'PANTALLA' ? '<div class="chips"><span class="chip neutro">Alta con el QR de la pantalla</span></div>'
+        : l.origen === 'AUTOCHECKIN' ? '<div class="chips"><span class="chip socio">Cliente habitual: se ha apuntado solo</span></div>' : ''}
       ${l.ninos.map(n => `<div class="llegada-nino">
         <div><b>${esc(nombreCompleto(n))}</b> <span class="edad">${textoEdad(n.fecha_nacimiento)}</span>
           ${n.observaciones ? `<span class="obs">⚠️ ${esc(n.observaciones)}</span>` : ''}
@@ -3165,6 +3166,13 @@ $('tf-guardar').onclick = async () => {
   } catch (e) { $('tf-msg').textContent = e.message; }
   $('tf-guardar').disabled = false;
 };
+
+// =====================================================================
+//  ETAPA 14 · AUTOCHECK-IN: el contador de Llegadas del menú se actualiza solo
+// =====================================================================
+setInterval(() => {
+  if (sesion && $('p-inicio').classList.contains('activa')) actualizarContadorLlegadas();
+}, 30000);
 
 construirTeclado(); pintarPuntos(); arrancar();
 </script>
