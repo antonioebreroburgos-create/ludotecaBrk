@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F3E6CC">
+<title>Guía de uso · Ludoteca Brooklyn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --papel: #F3E6CC; --papel-claro: #FBF4E4; --carton: #E9CD95;
+    --tinta: #1F1A17; --tinta-suave: #6B5E52;
+    --rojo: #C4262E; --mostaza: #EFA91B; --verde: #6BBE45; --wa: #25D366;
+    --slab: 'Alfa Slab One', 'Rockwell', Georgia, serif;
+    --cond: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    --texto: 'Barlow', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; scroll-padding-top: 70px; }
+  body { background: var(--papel); color: var(--tinta); font: 400 17px/1.55 var(--texto); padding-bottom: env(safe-area-inset-bottom); }
+  a { color: var(--rojo); }
+  .barra {
+    position: sticky; top: 0; z-index: 5; display: flex; justify-content: space-between; align-items: center;
+    padding: calc(10px + env(safe-area-inset-top)) 18px 10px; background: var(--papel); border-bottom: 2px solid var(--tinta);
+  }
+  .barra b { font: 400 18px var(--slab); }
+  .barra a { font: 600 16px var(--cond); text-decoration: none; }
+  main { max-width: 720px; margin: 0 auto; padding: 22px 18px 60px; }
+
+  .portada { text-align: center; padding: 18px 0 26px; }
+  .portada h1 { font: 400 46px/0.95 var(--slab); }
+  .portada .sub { font: 700 22px var(--cond); color: var(--rojo); letter-spacing: 3px; margin-top: 6px; }
+  .portada .lema { display: inline-block; margin-top: 14px; padding: 4px 14px; background: var(--tinta); color: var(--papel); font: 600 17px var(--cond); }
+  .version { font-size: 14px; color: var(--tinta-suave); margin-top: 12px; }
+
+  .indice { background: var(--papel-claro); border: 2px solid var(--tinta); border-radius: 14px; padding: 16px 18px; margin-bottom: 30px; box-shadow: 0 4px 0 var(--tinta); }
+  .indice h2 { font: 700 22px var(--cond); margin-bottom: 8px; }
+  .indice ol { padding-left: 22px; columns: 2 220px; column-gap: 24px; }
+  .indice li { margin: 3px 0; break-inside: avoid; }
+  .indice a { color: var(--tinta); text-decoration: none; font-weight: 500; }
+  .indice a:hover { text-decoration: underline; }
+
+  section { margin-bottom: 38px; }
+  h2.titulo { font: 400 27px/1.15 var(--slab); padding-bottom: 6px; border-bottom: 3px solid var(--tinta); margin-bottom: 14px; }
+  h2.titulo .n { color: var(--rojo); }
+  h3 { font: 700 21px var(--cond); margin: 20px 0 8px; }
+  p { margin: 8px 0; }
+  ul, ol { padding-left: 24px; margin: 8px 0; }
+  li { margin: 5px 0; }
+
+  .pasos { counter-reset: paso; list-style: none; padding: 0; }
+  .pasos > li { counter-increment: paso; position: relative; padding: 10px 12px 10px 52px; margin: 8px 0; background: var(--papel-claro); border: 1.5px solid var(--tinta); border-radius: 10px; }
+  .pasos > li::before {
+    content: counter(paso); position: absolute; left: 12px; top: 10px; width: 28px; height: 28px; border-radius: 50%;
+    background: var(--rojo); color: #fff; font: 700 17px/28px var(--cond); text-align: center;
+  }
+
+  .nota, .ojo, .admin, .pendiente { border-radius: 10px; padding: 12px 14px; margin: 14px 0; border: 2px solid var(--tinta); }
+  .nota { background: var(--papel-claro); }
+  .ojo { background: #FCE3D9; border-color: var(--rojo); }
+  .admin { background: #FFF1C7; border-color: var(--mostaza); }
+  .pendiente { background: transparent; border-style: dashed; }
+  .nota b:first-child, .ojo b:first-child, .admin b:first-child, .pendiente b:first-child { font-family: var(--cond); font-size: 18px; }
+
+  .etiqueta { display: inline-block; font: 600 14px var(--cond); padding: 1px 9px; border-radius: 12px; border: 1.5px solid var(--tinta); vertical-align: 1px; }
+  .e-socio { background: var(--verde); } .e-caduca { background: var(--mostaza); } .e-ya { background: var(--mostaza); }
+  .e-alerta { background: var(--rojo); color: #fff; } .e-neutro { background: var(--papel); }
+  .e-admin { background: var(--mostaza); }
+  .boton { display: inline-block; font: 700 15px var(--cond); padding: 1px 10px; border: 1.5px solid var(--tinta); border-radius: 7px; background: var(--papel-claro); white-space: nowrap; }
+  .boton.rojo { background: var(--rojo); color: #fff; } .boton.wa { background: var(--wa); }
+  .boton.verde { background: var(--verde); } .boton.mostaza { background: var(--mostaza); }
+
+  .tabla { overflow-x: auto; margin: 12px 0; }
+  table { width: 100%; border-collapse: collapse; background: var(--papel-claro); border: 2px solid var(--tinta); }
+  th, td { padding: 9px 10px; text-align: left; border-bottom: 1px solid var(--tinta-suave); }
+  th { font: 700 17px var(--cond); background: var(--tinta); color: var(--papel); }
+  td.precio { font: 700 19px var(--cond); white-space: nowrap; }
+  td.club { color: var(--rojo); font: 700 19px var(--cond); }
+
+  details { background: var(--papel-claro); border: 1.5px solid var(--tinta); border-radius: 10px; margin: 8px 0; }
+  summary { cursor: pointer; padding: 11px 14px; font: 700 18px var(--cond); }
+  details > div { padding: 0 14px 12px; }
+
+  .cambios { border-left: 3px solid var(--tinta); padding-left: 16px; }
+  .cambio { margin-bottom: 18px; }
+  .cambio .fecha { font: 700 18px var(--cond); }
+  .cambio .fecha span { color: var(--tinta-suave); font-weight: 500; }
+
+  .arriba { display: block; text-align: right; font: 600 15px var(--cond); margin-top: 6px; text-decoration: none; }
+  footer { text-align: center; font: 600 16px var(--cond); color: var(--tinta-suave); padding: 10px 0 30px; }
+</style>
+</head>
+<body>
+
+<div class="barra"><b>Guía de uso</b><a href="/">Abrir la app ›</a></div>
+
+<main id="inicio">
+  <div class="portada">
+    <h1>BROOKLYN</h1>
+    <p class="sub">LUDOTECA</p>
+    <span class="lema">Guía de la app para monitoras y administración</span>
+    <p class="version">Versión 16 · Actualizada el 25 de noviembre de 2026</p>
+  </div>
+
+  <nav class="indice">
+    <h2>Contenido</h2>
+    <ol>
+      <li><a href="#entrar">Entrar en la app</a></li>
+      <li><a href="#precios">Precios</a></li>
+      <li><a href="#entrada">Cobrar una entrada</a></li>
+      <li><a href="#familia">Familia nueva</a></li>
+      <li><a href="#adulto">Viene otro adulto</a></li>
+      <li><a href="#enlace">Alta del cliente: QR, cartel y enlace</a></li>
+      <li><a href="#whatsapp">Ticket por WhatsApp y llamar</a></li>
+      <li><a href="#hoy">Entradas de hoy y anular</a></li>
+      <li><a href="#caja">Caja del día y cierre</a></li>
+      <li><a href="#ficha">Ficha del niño</a></li>
+      <li><a href="#club">Brooklyn Kids Club</a></li>
+      <li><a href="#datos">Datos y consentimientos</a></li>
+      <li><a href="#fiestas">Fiestas de cumpleaños</a></li>
+      <li><a href="#cumple">Felicitar cumpleaños</a></li>
+      <li><a href="#usuarios">Usuarios</a></li>
+      <li><a href="#config">Precios, cartel QR, fondo de caja y festivos</a></li>
+      <li><a href="#stats">Estadísticas</a></li>
+      <li><a href="#problemas">Problemas y dudas</a></li>
+      <li><a href="#proximamente">Pendiente de decidir</a></li>
+      <li><a href="#cambios">Historial de cambios</a></li>
+    </ol>
+  </nav>
+
+  <!-- 1 -->
+  <section id="entrar">
+    <h2 class="titulo"><span class="n">1.</span> Entrar en la app</h2>
+    <p>Cada persona entra con <b>su propio PIN</b> de 4 a 6 números. Así, cada cobro queda apuntado a nombre de quien lo hizo.</p>
+    <ol class="pasos">
+      <li>Abre la app en el móvil de la ludoteca.</li>
+      <li>Escribe tu PIN en el teclado y pulsa <span class="boton rojo">Entrar</span>.</li>
+      <li>La sesión dura toda la jornada, hasta las <b>6:00 de la mañana</b>. Después tendrás que volver a escribir el PIN.</li>
+    </ol>
+    <div class="ojo"><b>Cuidado con los fallos.</b> Si se escribe mal el PIN 5 veces seguidas, el móvil queda bloqueado 15 minutos. Es una protección, porque la app guarda datos de menores.</div>
+    <div class="nota"><b>Tenerla a mano.</b> En el navegador del móvil, usa «Añadir a pantalla de inicio» (en Chrome está en el menú ⋮; en iPhone, en el botón Compartir). Aparecerá como una app más.</div>
+    <p>Para salir, pulsa <b>Salir</b> arriba a la derecha. Hazlo si otra persona va a cobrar después de ti.</p>
+    <a class="arriba" href="#inicio">↑ Volver al índice</a>
+  </section>
+
+  <!-- 2 -->
+  <section id="precios">
+    <h2 class="titulo"><span class="n">2.</span> Precios</h2>
+    <p>La app <b>calcula sola</b> el precio según el día y si el niño es socio. No hay que elegir tarifa.</p>
+    <div class="tabla"><table>
+      <tr><th>Día</th><th>Sin club</th><th>Con club</th></tr>
+      <tr><td>Lunes a jueves<br><small>sin monitora</small></td><td class="precio">2,00 €</td><td class="club">Gratis</td></tr>
+      <tr><td>Viernes, sábado, domingo y festivos<br><small>con monitora</small></td><td class="precio">3,50 €</td><td class="club">1,50 €</td></tr>
+    </table></div>
+    <div class="tabla"><table>
+      <tr><th>Otros cobros</th><th>Precio</th></tr>
+      <tr><td>Cuota anual Brooklyn Kids Club</td><td class="precio">25,00 €</td></tr>
+      <tr><td>Reposición de pulsera</td><td class="precio">2,00 €</td></tr>
+    </table></div>
+    <p>En todas las entradas el <b>tiempo es ilimitado</b>.</p>
+    <div class="nota"><b>Precios de esta versión de la guía.</b> El administrador puede cambiarlos (<a href="#config">punto 16</a>). La app cobra siempre el precio actual, que ves en cada tarjeta al buscar al niño.</div>
+    <p>Al abrir «Nueva entrada», arriba aparece qué tarifa se cobra hoy. Los festivos cuentan como fin de semana.</p>
+    <a class="arriba" href="#inicio">↑ Volver al índice</a>
+  </section>
+
+  <!-- 3 -->
+  <section id="entrada">
+    <h2 class="titulo"><span class="n">3.</span> Cobrar una entrada</h2>
+    <ol class="pasos">
+      <li>En el inicio, pulsa <b>🎟️ Nueva entrada</b>.</li>
+      <li>Escribe en el buscador un trozo del <b>teléfono</b>, del <b>nombre del niño</b>, del <b>nombre del adulto</b> o el <b>número de pulsera</b>. Da igual poner o no tildes: «jose» encuentra a «José».</li>
+      <li>Toca la tarjeta de cada niño que entra. Se marca en rojo con un ✓. Para quitarlo, tócala otra vez.</li>
+      <li>Abajo aparece el botón <span class="boton rojo">Continuar con 2 niños (7,00 €)</span>. Púlsalo.</li>
+      <li>En <b>¿Quién los trae?</b>, marca al adulto que los ha dejado.</li>
+      <li>Debajo de cada niño sale la entrada <b>que le toca</b>. Si hace falta otra, cámbiala en su desplegable (<a href="#cobro-opciones">ver más abajo</a>).</li>
+      <li>Comprueba el total y pulsa <span class="boton verde">Efectivo</span> o <span class="boton mostaza">Tarjeta</span>. Si el total es 0 € (socio de lunes a jueves o invitación), sale un único botón <b>Registrar entrada gratis</b> o <b>Registrar invitación</b>.</li>
+      <li>Con <b>Efectivo</b> se abre el billetero para calcular el cambio (<a href="#cobro-opciones">ver más abajo</a>).</li>
+      <li>Aparece el ticket. Desde ahí puedes enviarlo por WhatsApp (<a href="#whatsapp">ver punto 7</a>).</li>
+    </ol>
+
+    <h3 id="cobro-opciones">Cambiar la entrada: invitación y otras</h3>
+    <p>La app pone sola la entrada que corresponde según el día y si el niño es socio. Para cobrar otra, toca el desplegable de ese niño y elige: cualquiera de las entradas, <b>Invitación</b> (gratis) u otras que haya creado el administrador, como «Media entrada». La que corresponde aparece marcada como «(la que toca)».</p>
+    <div class="ojo"><b>Invitaciones y descuentos con motivo.</b> Si el total queda por debajo de lo que tocaba, la app pide el <b>motivo</b> (por ejemplo «Invitación de la casa») y no deja cobrar sin él. El motivo sale en el ticket y en la caja.</div>
+    <h3>Calculadora de efectivo</h3>
+    <ol class="pasos">
+      <li>Al pulsar <span class="boton verde">Efectivo</span> se abre el billetero con el importe a cobrar.</li>
+      <li>Toca los billetes y monedas que te da el cliente. Si te equivocas, toca la ficha con ✕ para quitar uno, o <b>Borrar</b>.</li>
+      <li>La app dice el <b style="color:#1E7A3C">cambio</b> y qué devolver (por ejemplo «1 moneda de 2 €, 1 moneda de 1 €»). Si falta dinero, lo dice en rojo y no deja cobrar.</li>
+      <li>Pulsa <span class="boton verde">Cobrar</span>. Si te da el importe exacto, pulsa directamente Cobrar o <b>Le da justo</b>.</li>
+    </ol>
+    <p>Con <b>Cancelar</b> no se cobra nada y vuelves al cobro. El billetero también sale al cobrar en efectivo la cuota del club o la reposición de pulsera.</p>
+    <h3>Qué significa cada aviso de la tarjeta</h3>
+    <ul>
+      <li><span class="etiqueta e-socio">Socio hasta 03/10/2027</span> Es socio del Kids Club; ya se le aplica su precio.</li>
+      <li><span class="etiqueta e-caduca">Socio: caduca en 16 días</span> Le queda un mes o menos. Buen momento para ofrecer la renovación.</li>
+      <li><span class="etiqueta e-alerta">Socio sin pulsera</span> Es socio pero no tiene pulsera apuntada. Pónsela desde su ficha.</li>
+      <li><span class="etiqueta e-neutro">Pulsera P-002</span> Número de pulsera, para comprobar que es la suya.</li>
+      <li><span class="etiqueta e-ya">Ya entró hoy a las 17:32</span> Ya se le cobró hoy. Mira bien antes de cobrar otra vez: puede que haya salido y vuelto.</li>
+      <li><b style="color:var(--rojo)">⚠️ Texto en rojo</b> Alergias o avisos importantes (por ejemplo, quién no puede recogerlo). <b>Léelo siempre.</b></li>
+    </ul>
+    <div class="nota"><b>Hermanos con distinto apellido.</b> Los niños marcados se quedan arriba aunque busques otra cosa. Puedes buscar al primero, marcarlo, buscar al segundo y marcarlo también.</div>
+    <h3 id="representados">Trae a niños que no son suyos</h3>
+    <p>Un adulto puede traer a sus hijos y a otros niños: el amigo de su hijo, un primo, los invitados de un cumpleaños… La app distingue siempre <b>de quién es cada niño</b>:</p>
+    <ul>
+      <li><b>De su familia</b>: el niño está guardado con ese adulto (madre, padre, abuela…). Sale «De su familia (madre)».</li>
+      <li><b>Representado</b>: no es de su familia. Ese adulto se hace responsable de él <b>solo en esta visita</b>. Sale <span class="etiqueta" style="background:#DCE7F7">Lo representa María</span>. No pasa a ser familia del niño: otro día no aparecerá con él.</li>
+    </ul>
+    <ol class="pasos">
+      <li>Busca y marca a sus hijos. En el cobro, pulsa <b>+ Añadir un niño de otra familia</b>, busca al otro niño y márcalo (no se pierde lo que ya tenías marcado).</li>
+      <li>Si el otro niño no ha venido nunca, dale de alta y marca <b>No es su hijo/a: solo lo acompaña hoy</b> (<a href="#familia">punto 4</a>).</li>
+      <li>En <b>¿Quién los trae?</b> marca al adulto. Al lado de cada adulto pone a quién representa.</li>
+      <li>Si ese adulto no tiene apellidos guardados, la app pide <b>sus apellidos</b> y no deja cobrar sin ellos.</li>
+    </ol>
+    <div class="ojo"><b>Nombre y apellidos obligatorios.</b> Quien trae a niños que no son suyos tiene que estar identificado con nombre y apellidos. Una vez guardados, no se vuelven a pedir. En el ticket sale «Representado» en esos niños y «Representa a …» al pie, también en el WhatsApp.</div>
+    <div class="pendiente"><b>Socio sin la pulsera.</b> La pulsera es obligatoria para entrar. Qué hacer si un socio viene sin ella está pendiente de decidir; mientras tanto, consulta con el encargado.</div>
+    <a class="arriba" href="#inicio">↑ Volver al índice</a>
+  </section>
+
+  <!-- 4 -->
+  <section id="familia">
+    <h2 class="titulo"><span class="n">4.</span> Familia nueva</h2>
+    <p>Si el niño no aparece en el buscador, es su primera vez.</p>
+    <ol class="pasos">
+      <li>Pulsa <span class="boton">Dar de alta una familia nueva</span>. Si habías buscado un teléfono, ya aparece escrito.</li>
+      <li>Rellena los datos del <b>adulto que los trae</b>: nombre, teléfono y qué es del niño. La fecha de nacimiento y el email son opcionales.</li>
+      <li>Rellena cada <b>niño</b>: nombre, apellidos y fecha de nacimiento. En <b>Avisos</b> apunta alergias o cualquier cosa importante. Con <b>Añadir otro niño</b> metes a los hermanos.</li>
+      <li>Si algún niño <b>no es suyo</b> (un amigo que viene por primera vez), marca en ese niño <b>No es su hijo/a: solo lo acompaña hoy</b>. Se guarda el niño, pero no como familia de ese adulto. Entonces los <b>apellidos del adulto son obligatorios</b>.</li>
+      <li>Pregunta al adulto por los <b>consentimientos</b> y márcalos (<a href="#datos">ver punto 12</a>).</li>
+      <li>Pulsa <span class="boton rojo">Guardar y cobrar</span>. Pasas directamente al cobro con todo ya seleccionado.</li>
+    </ol>
+    <div class="nota"><b>«Ese teléfono ya es de…»</b> Si el teléfono ya estaba guardado, la app pregunta si quieres añadir estos niños a esa familia. Si es la misma persona, di que sí. Si no, revisa el número. Los niños marcados como «no es su hijo/a» no se añaden a su familia.</div>
+    <p>Los niños que ya tenías marcados en el buscador (por ejemplo, su hijo) siguen marcados al guardar: pasas al cobro con todos.</p>
+    <a class="arriba" href="#inicio">↑ Volver al índice</a>
+  </section>
+
+  <!-- 5 -->
+  <section id="adulto">
+    <h2 class="titulo"><span class="n">5.</span> Viene otro adulto</h2>
+    <p>Cuando trae a los niños alguien que no está guardado con ellos:</p>
+    <ol class="pasos">
+      <li>En la pantalla de cobro, pulsa <b>Viene otro adulto</b>.</li>
+      <li>Elige qué es:
+        <ul>
+          <li><b>Es de su familia</b> (la abuela, un tío…): queda guardado con los niños y podrá traerlos otro día.</li>
+          <li><b>Solo los acompaña hoy</b> (un amigo, un vecino…): los representa solo en esta visita. No se guarda como familia de los niños. <b>Nombre y apellidos obligatorios.</b></li>
+        </ul></li>
+      <li>Rellena nombre, apellidos, teléfono y los consentimientos (y, si es de la familia, qué es del niño).</li>
+      <li>Pulsa <span class="boton rojo">Guardar</span>. Queda seleccionado para el cobro.</li>
+    </ol>
+    <p>También se puede añadir desde la ficha del niño (<a href="#ficha">punto 10</a>).</p>
+    <a class="arriba" href="#inicio">↑ Volver al índice</a>
+  </section>
+
+  <!-- Enlace de registro -->
+  <section id="enlace">
+    <h2 class="titulo"><span class="n">6.</span> Alta del cliente: QR, cartel y enlace</h2>
+    <p>Cuando hay poco personal, el cliente puede darse de alta él mismo desde su móvil: sus datos, los de sus hijos y los permisos. Así no hay que rellenar nada en la app. Hay tres formas, y las tres llevan al mismo formulario y a la misma lista de <b>Llegadas</b>:</p>
+    <ul>
+      <li><b>📱 QR en tu pantalla</b>: el cliente está delante. Lo más rápido.</li>
+      <li><b>Cartel con QR</b>: en la puerta, las mesas o la barra. El cliente lo hace solo, sin que nadie del personal intervenga.</li>
+      <li><b>📲 Enlace por WhatsApp</b>: para un cliente concreto, aunque no esté delante (por ejemplo, el día antes).</li>
+    </ul>
+    <h3>QR en tu pantalla</h3>
+    <ol class="pasos">
+      <li>En el inicio, pulsa <b>📱 Mostrar QR de alta</b>.</li>
+      <li>Enseña la pantalla al cliente: lo escanea con la cámara de su móvil y se le abre el formulario.</li>
+      <li>El QR vale <b>10 minutos</b> y lo pueden usar varias familias, por ejemplo una mesa con dos familias. Si caduca, pulsa <b>Generar otro QR</b>.</li>
+    </ol>
+    <h3>Cartel con QR</h3>
+    <p>Un cartel impreso con «¿Quieres darte de alta en nuestra ludoteca?» y un QR. El cliente lo escanea y rellena el formulario. Lo crea e imprime el administrador (<a href="#config">ver punto 16</a>).</p>
+    <div class="ojo"><b>Comprueba el teléfono.</b> Como cualquiera puede escanear el cartel, esas altas salen en Llegadas con el aviso <span class="etiqueta e-caduca">Alta con el cartel: confirma que el teléfono es suyo</span>. Al cobrar, pregúntale si el número es el suyo; el ticket le llegará ahí.</div>
+    <h3>Enviar el enlace por WhatsApp</h3>
+    <ol class="pasos">
+      <li>En el inicio, pulsa <b>📲 Enviar enlace de registro</b>.</li>
+      <li>Escribe el <b>teléfono del cliente</b> y pulsa <span class="boton wa">Enviar por WhatsApp</span>.</li>
+      <li>Se abre WhatsApp con el mensaje ya escrito. Envíalo.</li>
+    </ol>
+    <p>El enlace es <b>personal</b>: vale <b>24 horas</b> y <b>una sola vez</b>. Si el cliente lo pierde o caduca, envíale otro.</p>
+    <h3>Lo que hace el cliente</h3>
+    <p>Abre el enlace y rellena sus datos, los de cada niño (nombre, fecha de nacimiento y alergias) y marca los permisos: el obligatorio para la ludoteca y, si quiere, el de promociones. Al enviarlo le sale «¡Listo! Avisa al personal».</p>
+    <p>En cada niño marca <b>Es mi hijo/a</b> o <b>No es mío: lo acompaño</b>. Si trae a niños que no son suyos:</p>
+    <ul>
+      <li>Sus <b>apellidos son obligatorios</b>, y el formulario le avisa de que se hace responsable de esos niños en la visita y confirma que su familia está de acuerdo.</li>
+      <li>Al escribir el nombre y la fecha de nacimiento, el formulario <b>busca si ese niño ya ha venido</b>: «✓ Ya ha venido a la ludoteca: usaremos su ficha» o «No lo encontramos: se registrará ahora». Así no se duplican niños. Al cliente nunca se le enseña ningún dato del otro niño, solo sí o no.</li>
+      <li>En Llegadas, esos niños salen con <span class="etiqueta" style="background:#DCE7F7">Lo representa Carmen</span>.</li>
+    </ul>
+    <div class="nota"><b>Si ya estaban registrados.</b> Si el teléfono ya existe, la app usa esa familia y no duplica a los niños que ya tenía; solo añade los nuevos. Los datos guardados no se cambian desde el enlace: para corregirlos, usa la ficha del niño.</div>
+    <h3>Clientes habituales: se apuntan solos (autocheck-in)</h3>
+    <p>Una familia que ya está registrada no tiene que volver a rellenar nada. Escanea el <b>cartel</b> o el <b>QR de tu pantalla</b>, pulsa <b>Sí, ya estamos registrados</b> y aparece directamente en <b>Llegadas</b>.</p>
+    <ol class="pasos">
+      <li><b>La primera vez</b> se identifica con su <b>teléfono</b> y la <b>fecha de nacimiento de uno de sus hijos</b>.</li>
+      <li>Marca qué niños vienen hoy (salen todos marcados) y pulsa <b>Ya estamos aquí</b>.</li>
+      <li>Si trae a algún niño que no es suyo, pulsa <b>+ Traigo a otro niño que no es mío</b> y escribe su nombre y fecha de nacimiento. Igual que en el alta, se busca su ficha, y si el cliente no tiene apellidos guardados se le piden.</li>
+      <li>Su móvil queda <b>recordado durante un año</b>: las siguientes veces, al escanear le sale «¡Hola, María!» con sus hijos, sin escribir nada.</li>
+    </ol>
+    <p>En Llegadas sale con el aviso <span class="etiqueta e-socio">Cliente habitual: se ha apuntado solo</span>. Se cobra igual que cualquier otra llegada.</p>
+    <div class="nota"><b>Solo funciona en el local.</b> El autocheck-in solo se abre con el cartel o el QR de tu pantalla, no con el enlace de WhatsApp. Las familias que se dan de alta con el cartel o el QR también quedan recordadas.</div>
+    <div class="ojo"><b>Por seguridad.</b> A quien se equivoca 5 veces con el teléfono o la fecha se le bloquea durante 15 minutos. Al cliente solo se le muestran los nombres de sus hijos, nunca otros datos. Si un niño nuevo viene por primera vez, se añade en la app como siempre. Si alguien usa un móvil que no es el suyo (por ejemplo, el de la abuela), puede pulsar <b>No soy yo / usar otros datos</b>.</div>
+    <h3>Cobrar desde Llegadas</h3>
+    <ol class="pasos">
+      <li>En el inicio, <b>🛎️ Llegadas</b> muestra un número rojo con las familias que esperan.</li>
+      <li>Ábrela: sale cada familia con sus niños, la edad, las alergias en rojo y el precio de hoy. La lista se actualiza sola.</li>
+      <li>Pulsa <span class="boton rojo">Cobrar</span>. Se abre el cobro con los niños y el adulto ya elegidos: <span class="boton verde">Efectivo</span> o <span class="boton mostaza">Tarjeta</span>, y envía el ticket como siempre.</li>
+    </ol>
+    <p>Si una familia al final no entra, pulsa <b>No viene / quitar de la lista</b>. Siguen registrados para la próxima vez.</p>
+    <a class="arriba" href="#inicio">↑ Volver al índice</a>
+  </section>
+
+  <!-- 6 -->
+  <section id="whatsapp">
+    <h2 class="titulo"><span class="n">7.</span> Ticket por WhatsApp y llamar</h2>
+    <h3>Enviar el ticket</h3>
+    <ol class="pasos">
+      <li>En la pantalla del ticket, pulsa <span class="boton wa">Enviar por WhatsApp</span>.</li>
+      <li>Se abre WhatsApp con el chat de ese adulto y el ticket ya escrito. <b>Funciona aunque el número no esté en los contactos.</b></li>
+      <li>Pulsa enviar en WhatsApp y vuelve a la app. El ticket queda marcado con <span class="enviado" style="color:#1E7A3C;font-weight:600">✓ Enviado por WhatsApp</span>.</li>
+    </ol>
+    <p>El mensaje pide al adulto que <b>guarde el número</b>: si hay que avisarle de algo, ya sabrá que es la ludoteca.</p>
+    <p>Si el adulto aceptó recibir promociones, el mensaje incluye además una línea sobre los cumpleaños en el restaurante. Si no, va sin publicidad.</p>
+    <h3>Compartir como imagen</h3>
+    <p>El enlace <b>Compartir como imagen</b> crea una imagen del ticket. Se comparte con el menú del móvil, y ahí <b>hay que buscar el contacto a mano</b>. Úsalo solo si lo piden; el WhatsApp normal es más rápido.</p>
+    <h3>Llamar a un adulto</h3>
+    <p>En <a href="#hoy">Entradas de hoy</a>, toca el ticket del niño y pulsa <span class="boton">Llamar a María</span>. También desde su ficha, botón <b>Llamar</b>.</p>
+    <a class="arriba" href="#inicio">↑ Volver al índice</a>
+  </section>
+
+  <!-- 7 -->
+  <section id="hoy">
+    <h2 class="titulo"><span class="n">8.</span> Entradas de hoy y anular</h2>
+    <p>En el inicio, <b>📋 Entradas de hoy</b> muestra todos los tickets del día y cuántos niños han entrado. Tocando un ticket ves el detalle y puedes reenviar el WhatsApp, llamar o anular.</p>
+    <h3>Anular un ticket</h3>
+    <ol class="pasos">
+      <li>Abre el ticket (desde la pantalla del ticket recién cobrado, enlace <b>Anular este ticket</b>, o desde Entradas de hoy).</li>
+      <li>Escribe el motivo, por ejemplo «cobrado dos veces» o «se equivocó de niño».</li>
+      <li>Pulsa <span class="boton rojo">Anular ticket</span>. Queda tachado y no cuenta en la caja.</li>
+    </ol>
+    <div class="ojo"><b>Solo tickets de hoy.</b> Una monitora solo puede anular tickets del día. Para uno de otro día, avisa al administrador. Si anulas la cuota de un socio, <b>deja de ser socio</b> por ese periodo.</div>
+    <a class="arriba" href="#inicio">↑ Volver al índice</a>
+  </section>
+
+  <!-- Caja -->
+  <section id="caja">
+    <h2 class="titulo"><span class="n">9.</span> Caja del día y cierre</h2>
+    <p>En el inicio, <b>💶 Caja de hoy</b>. Arriba indica si la caja está <b>abierta</b> o <b>🔒 cerrada</b>. Debajo ves lo cobrado en <span class="boton verde">Efectivo</span> y en <span class="boton mostaza">Tarjeta</span>, el total y cuántos niños han entrado. Los tickets anulados no cuentan.</p>
+    <h3>Desglose y tickets del día</h3>
+    <ul>
+      <li>En <b>Desglose</b> sale cada concepto, por ejemplo «3 × Entrada viernes a domingo». <b>Tócalo</b> y verás qué niños son, a qué hora entraron y si pagaron en efectivo o con tarjeta.</li>
+      <li>En <b>Tickets del día</b> está cada ticket con los nombres de los niños, el adulto, la forma de pago y quién cobró. Tocándolo se abre el ticket completo.</li>
+    </ul>
+    <h3>Cerrar la caja al final del día</h3>
+    <p>El <b>fondo de cambio es fijo</b> (lo pone el administrador, al principio 30 €) y ya aparece escrito. No hay que meterlo.</p>
+    <ol class="pasos">
+      <li>Cuenta <b>todo</b> el efectivo de la caja, fondo incluido, y escríbelo en <b>Efectivo contado en caja</b>.</li>
+      <li>Si quieres comprobar la tarjeta, escribe el total de la ludoteca que marque el datáfono en <b>Total del datáfono</b>.</li>
+      <li>Mira el recuadro de cálculo: dice <b style="color:#1E7A3C">Cuadra</b>, o <b style="color:var(--rojo)">Sobran</b> / <b style="color:var(--rojo)">Faltan</b> y cuánto.</li>
+      <li>Si no cuadra, explica el motivo en <b>Observaciones</b> si lo sabes.</li>
+      <li>Pulsa <span class="boton rojo">Cerrar caja</span> y confirma.</li>
+    </ol>
+    <div class="nota"><b>Ejemplo.</b> El fondo es de 30 € y has cobrado 43,50 € en efectivo. En la caja debería haber 73,50 €. Si cuentas 71,50 €, faltan 2 €.</div>
+    <div class="nota"><b>Abierta después de medianoche.</b> El día de la ludoteca dura hasta las <b>6:00 de la mañana</b>. Si un sábado se cierra a la 1:30, todo sigue contando como sábado: la tarifa, las entradas de hoy, los niños que están dentro, los teléfonos de los padres y la caja, que se puede cerrar con normalidad.</div>
+    <div class="ojo"><b>Cerrar es definitivo.</b> Con la caja cerrada <b>ya no se puede cobrar, anular ni cambiar nada</b> de ese día, ni volver a cerrarla. Ciérrala solo cuando hayas terminado. Si hay que corregir algo, avisa al administrador.</div>
+    <h3>Historial de la caja</h3>
+    <p>Debajo del cierre aparece todo lo que se ha hecho con la caja de ese día: quién la cerró y a qué hora, y cada corrección o reapertura del administrador con su motivo y lo que cambió (por ejemplo, «Efectivo contado: 41,50 € → 45,50 €»).</p>
+    <div class="admin"><b>Administrador.</b> En una caja cerrada tiene dos botones, y los dos piden un motivo que queda registrado:
+      <ul>
+        <li><b>Corregir cierre</b>: cambia el efectivo contado, el datáfono, el fondo o las observaciones de ese cierre.</li>
+        <li><b>Reabrir caja</b>: deja volver a cobrar y anular en ese día (por ejemplo, si llega una familia después de cerrar). Luego hay que cerrarla otra vez.</li>
+      </ul>
+      Además puede ver la caja de cualquier día con <b>Ver otro día</b>, y en <b>Últimos días</b> tiene los últimos 45 días con el total, si se cerró, si cuadró y si tuvo retoques.</div>
+    <a class="arriba" href="#inicio">↑ Volver al índice</a>
+  </section>
+
+  <!-- 8 -->
+  <section id="ficha">
+    <h2 class="titulo"><span class="n">10.</span> Ficha del niño</h2>
+    <p>En el buscador, cada niño tiene el botón <span class="boton">Ficha</span>. La ficha tiene cuatro partes:</p>
+    <ul>
+      <li><b>Brooklyn Kids Club</b>: si es socio, hasta cuándo, su pulsera y los botones para hacer socio, renovar o reponer pulsera (<a href="#club">punto 11</a>).</li>
+      <li><b>Datos del niño</b>: corrige nombre, apellidos, fecha de nacimiento, número de pulsera o avisos y pulsa <span class="boton">Guardar cambios</span>.</li>
+      <li><b>Adultos</b>: con <b>Editar</b> corriges sus datos o si acepta promociones; con <b>Llamar</b> le llamas. Dentro de Editar está <b>Quitar a este adulto de la ficha</b> (el niño siempre tiene que tener al menos uno). Con <b>Añadir otro adulto</b> sumas uno nuevo.</li>
+      <li><b>Últimas visitas</b>: las 8 más recientes.</li>
+    </ul>
+    <div class="nota"><b>Número de pulsera en la ficha.</b> Cámbialo ahí solo para corregir un error al escribirlo. Si el niño ha <b>perdido</b> la pulsera, usa <b>Reponer pulsera</b>, que cobra los 2 €.</div>
+    <a class="arriba" href="#inicio">↑ Volver al índice</a>
+  </section>
+
+  <!-- 9 -->
+  <section id="club">
+    <h2 class="titulo"><span class="n">11.</span> Brooklyn Kids Club</h2>
+    <p>Por <b>25 € al año</b>, el socio entra gratis de lunes a jueves y paga 1,50 € los fines de semana y festivos. Además tiene un 5 % de descuento en cumpleaños infantiles y promociones especiales. La pulsera es <b>personal, intransferible y obligatoria</b> para entrar.</p>
+
+    <h3>Hacer socio</h3>
+    <ol class="pasos">
+      <li>Abre la ficha del niño y pulsa <span class="boton rojo">Hacer socio (25,00 €)</span>.</li>
+      <li>Escribe el <b>número de la pulsera</b> que le entregas.</li>
+      <li>Marca quién paga y pulsa <span class="boton verde">Efectivo</span> o <span class="boton mostaza">Tarjeta</span>.</li>
+      <li>Aparece el ticket «¡Ya es socio del Kids Club!». Envíalo por WhatsApp: incluye hasta cuándo es socio y el número de pulsera.</li>
+    </ol>
+    <p>La cuota dura <b>un año desde el día que se paga</b>. Si paga el 5/10/2026, es socio hasta el 4/10/2027.</p>
+    <div class="nota"><b>¿Entra hoy también?</b> Después de hacerle socio, pulsa <b>Nueva entrada</b>: la entrada de hoy ya se le cobra a precio de socio.</div>
+
+    <h3>Renovar</h3>
+    <p>En la ficha, <b>Renovar cuota</b>. Si renueva <b>antes de que caduque</b>, la nueva cuota empieza al día siguiente de terminar la actual, así no pierde días. La pantalla muestra las fechas exactas antes de cobrar.</p>
+
+    <h3>Reponer pulsera (2 €)</h3>
+    <ol class="pasos">
+      <li>En la ficha, pulsa <b>Reponer pulsera</b>.</li>
+      <li>Escribe el número de la pulsera nueva. La antigua deja de valer.</li>
+      <li>Marca quién paga y cobra.</li>
+    </ol>
+    <a class="arriba" href="#inicio">↑ Volver al índice</a>
+  </section>
+
+  <!-- 10 -->
+  <section id="datos">
+    <h2 class="titulo"><span class="n">12.</span> Datos y consentimientos</h2>
+    <p>La app guarda datos de niños, así que hay que hacerlo bien. Al dar de alta a un adulto hay dos casillas:</p>
+    <ul>
+      <li><b>Guardar los datos para la ludoteca</b> (obligatoria). Sin ella no se puede dar de alta. Explica al adulto que es para gestionar la estancia y poder llamarle si hace falta.</li>
+      <li><b>Recibir promociones y felicitaciones de cumpleaños</b> (opcional). Pregúntaselo; <b>no la marques si no ha dicho que sí</b>.</li>
+    </ul>
+    <p>Si más adelante un adulto pide no recibir más promociones, entra en la ficha del niño, edita a ese adulto y desmarca la casilla.</p>
+    <div class="ojo"><b>El móvil de la ludoteca tiene datos de menores.</b> No lo dejes desbloqueado ni con la app abierta al alcance de otras personas, y no compartas tu PIN.</div>
+    <a class="arriba" href="#inicio">↑ Volver al índice</a>
+  </section>
+
+  <!-- Cumpleaños -->
+  <section id="fiestas">
+    <h2 class="titulo"><span class="n">13.</span> Fiestas de cumpleaños</h2>
+    <p>Para las fiestas que se celebran en el restaurante. El organizador apunta desde su móvil a los niños que vienen, y la monitora tiene la lista el día de la fiesta.</p>
+    <h3>Crear la fiesta</h3>
+    <ol class="pasos">
+      <li>En el inicio, <b>🎉 Fiestas de cumpleaños</b> y pulsa <span class="boton rojo">Nueva fiesta</span>.</li>
+      <li>Rellena el día, la hora, quién cumple años, el organizador (nombre y apellidos) y su teléfono. Los niños previstos y las notas son opcionales. Si no sabes los apellidos del organizador, se los pedirá el enlace.</li>
+      <li>Pulsa <b>Crear fiesta</b> y después <span class="boton wa">Enviar enlace por WhatsApp</span>.</li>
+    </ol>
+    <h3>Lo que hace el organizador</h3>
+    <p>Abre el enlace y apunta a cada niño: <b>nombre, edad y alergias</b>. Puede volver al enlace y cambiar la lista <b>las veces que quiera hasta el mismo día</b> de la fiesta. El niño que cumple ya sale el primero.</p>
+    <ul>
+      <li>En cada niño marca si es <b>Mi hijo/a</b> o <b>Invitado</b>. El cumpleañero sale ya como su hijo.</li>
+      <li>El organizador es el <b>responsable de los invitados</b> que no son sus hijos: tiene que poner sus <b>apellidos</b> para guardar la lista.</li>
+      <li>Si un invitado ya ha venido a la ludoteca, puede poner su <b>fecha de nacimiento</b> y queda enlazado con su ficha («✓ Enlazado con su ficha de la ludoteca»). La fecha solo sirve para buscarlo; no se guarda en la lista.</li>
+    </ul>
+    <div class="nota"><b>Solo lo necesario.</b> De los invitados se guarda nombre, edad y alergias, sin teléfonos ni datos de sus familias, porque el organizador no puede dar permiso por otras familias. Las listas se borran solas un mes después de la fiesta.</div>
+    <h3>El día de la fiesta</h3>
+    <ul>
+      <li>Abre la fiesta: arriba salen en rojo <b>todas las alergias y avisos</b>.</li>
+      <li>Cuando llega cada niño, toca su cuadro y se pone en verde ✓. Arriba se ve cuántos han llegado.</li>
+      <li>Si llega un niño que no está apuntado, pulsa <b>Añadir un niño</b> y elige si es hijo del organizador o invitado.</li>
+      <li>Debajo de cada niño pone <b>Hijo/a de Rosa</b> o <b>Lo representa Rosa</b>. Si está mal, tócalo y cambia.</li>
+      <li>Con <b>Buscar su ficha</b> enlazas a un invitado con su ficha de la ludoteca. Sus alergias de la ficha salen también en el aviso rojo de arriba. Con <b>Ver</b> abres su ficha; con <b>Quitar</b> deshaces el enlace.</li>
+      <li>Si faltan los apellidos del organizador, sale un aviso en rojo: pídeselos o ponlos en <b>Editar datos</b>.</li>
+    </ul>
+    <p>Con <b>Editar datos</b> cambias la fecha, la hora o el teléfono, y desde ahí también puedes <b>anular la fiesta</b>. Si cambias la fecha, o envías el enlace otra vez, el enlace anterior deja de valer: manda el nuevo.</p>
+    <a class="arriba" href="#inicio">↑ Volver al índice</a>
+  </section>
+
+  <section id="cumple">
+    <h2 class="titulo"><span class="n">14.</span> Felicitar cumpleaños</h2>
+    <p>En el inicio, <b>🎂 Felicitar cumpleaños</b> (solo monitora y administrador). Sirve para invitar a las familias a celebrar el cumpleaños en el restaurante. <b>Solo salen los niños y adultos que aceptaron recibir promociones</b>; los demás no aparecen nunca.</p>
+    <ol class="pasos">
+      <li>Elige las fechas: <b>Próximos 30 días</b>, <b>Este mes</b>, <b>Mes que viene</b> o <b>Esta semana</b>.</li>
+      <li>Cada tarjeta muestra quién cumple, cuántos años, el día y a quién escribir. Los socios del club llevan su etiqueta.</li>
+      <li>Pulsa <span class="boton wa">Invitar por WhatsApp</span>. Se abre el chat con el mensaje ya escrito; solo hay que enviarlo.</li>
+      <li>La tarjeta queda marcada <b style="color:#1E7A3C">✓ Invitado</b> para no repetir. Si al final no lo enviaste, pulsa <b style="color:var(--rojo)">Desmarcar</b>.</li>
+    </ol>
+    <div class="nota"><b>Socios.</b> Si el niño es socio del Kids Club, el mensaje añade solo que tiene un 5 % de descuento en su cumpleaños.</div>
+    <p>Con <b>Ocultar los ya invitados</b> ves solo los que faltan. La marca de invitado vale para ese año: el año siguiente vuelve a salir pendiente.</p>
+    <div class="admin"><b>Administrador.</b> Con <b>Editar los mensajes</b> cambias el texto de las invitaciones. Las palabras entre llaves, como <code>{nino}</code> o <code>{fecha}</code>, se rellenan solas. Con <b>Descargar este listado</b> obtienes un fichero que se abre en Excel.</div>
+    <div class="ojo"><b>Si alguien pide no recibir más mensajes</b>, quita su permiso de promociones en la ficha del niño (editar adulto). Desaparecerá del listado.</div>
+    <a class="arriba" href="#inicio">↑ Volver al índice</a>
+  </section>
+
+  <!-- 11 -->
+  <section id="usuarios">
+    <h2 class="titulo"><span class="n">15.</span> Usuarios <span class="etiqueta e-admin">Solo administrador</span></h2>
+    <p>En el inicio, <b>👥 Usuarios</b>.</p>
+    <ul>
+      <li><b>Añadir usuario</b>: nombre, permisos y PIN. «Camarero» puede enviar enlaces de registro, ver Llegadas, cobrar entradas y llevar las fiestas de cumpleaños; no ve la caja ni el listado de felicitaciones. «Monitora» puede además ver y cerrar la caja de hoy y felicitar cumpleaños. «Administrador» puede además gestionar usuarios, precios, fondo de caja y festivos, ver la caja de cualquier día, corregir o reabrir una caja cerrada y ver las estadísticas.</li>
+      <li>Tocando un usuario puedes cambiarle el nombre, los permisos o el PIN (déjalo vacío para no cambiarlo).</li>
+      <li>Para que alguien deje de entrar, desmarca <b>Puede entrar en la app</b>. Los usuarios no se borran, porque sus cobros tienen que seguir a su nombre.</li>
+    </ul>
+    <div class="admin"><b>Normas de seguridad.</b> Dos personas no pueden tener el mismo PIN. Siempre tiene que quedar al menos un administrador, y nadie puede quitarse el acceso a sí mismo. Mejor PIN de 6 números.</div>
+    <a class="arriba" href="#inicio">↑ Volver al índice</a>
+  </section>
+
+  <!-- Precios y festivos -->
+  <section id="config">
+    <h2 class="titulo"><span class="n">16.</span> Precios, cartel QR, fondo de caja y festivos <span class="etiqueta e-admin">Solo administrador</span></h2>
+    <p>En el inicio, <b>⚙️ Precios y festivos</b>. Arriba indica qué tarifa se está cobrando hoy.</p>
+    <h3>Fondo de caja</h3>
+    <p>Es el dinero de cambio con el que empieza la caja cada día (al principio, <b>30 €</b>). Toca <b>Fondo de cambio</b>, escribe el importe nuevo y guarda. Se aplica desde el siguiente cierre; los días ya cerrados no cambian.</p>
+    <h3>Otras entradas (invitación, media entrada…)</h3>
+    <p>Además de las 4 entradas de siempre, puedes crear otras para elegirlas al cobrar: pulsa <b>Añadir otra entrada</b>, escribe el nombre (sale en el ticket) y el precio. Ya viene creada <b>Invitación</b>, a 0 €.</p>
+    <p>Para dejar de usar una, tócala y desmarca <b>Se puede elegir al cobrar</b>; queda como «No disponible» y no se borra de los tickets antiguos. Las 6 tarifas de siempre no se pueden desactivar.</p>
+    <h3>Cambiar un precio</h3>
+    <ol class="pasos">
+      <li>Toca la tarifa que quieres cambiar (entradas, cuota del club o reposición de pulsera).</li>
+      <li>Escribe el precio nuevo con coma, por ejemplo <b>4,00</b>. Un 0 la deja gratis. También puedes cambiar el nombre que sale en el ticket.</li>
+      <li>Pulsa <span class="boton rojo">Guardar</span> y confirma.</li>
+    </ol>
+    <div class="nota"><b>Desde el próximo cobro.</b> Los tickets ya cobrados mantienen el precio que tenían, y la caja de días anteriores no cambia.</div>
+    <h3>Festivos</h3>
+    <p>Un festivo de <b>lunes a jueves</b> se cobra con la tarifa de fin de semana. Si cae en viernes, sábado o domingo no cambia nada, pero puede apuntarse igual.</p>
+    <p>Ya están cargados los festivos oficiales de Andalucía de lo que queda de 2026 y de todo 2027. <b>Faltan las dos fiestas locales de cada año</b>, que fija el ayuntamiento: añádelas tú.</p>
+    <ol class="pasos">
+      <li>Elige la <b>fecha</b> y escribe <b>qué fiesta es</b>.</li>
+      <li>Pulsa <span class="boton">Añadir festivo</span>.</li>
+      <li>Para quitar uno, pulsa <b style="color:var(--rojo)">Quitar</b> a su lado.</li>
+    </ol>
+    <h3>Cartel de alta con QR</h3>
+    <ol class="pasos">
+      <li>En <b>Cartel de alta con QR</b>, pulsa <span class="boton rojo">Crear el cartel</span> (solo la primera vez).</li>
+      <li>Pulsa <span class="boton rojo">Abrir cartel de alta para imprimir</span> y después <b>Imprimir</b>. Elige <b>A4</b>, <b>sin márgenes</b> y activa <b>gráficos de fondo</b> para que salga con color.</li>
+      <li>Puedes imprimir varias copias: todas llevan el mismo QR.</li>
+    </ol>
+    <p>Ahí mismo ves cuántas altas se han hecho con el cartel.</p>
+    <h3>Cartel de la puerta</h3>
+    <p>Con <b>Abrir cartel de la puerta (precios, horarios y QR)</b> sale el cartel completo para la entrada de la ludoteca: precios con y sin monitor@, horarios de invierno y verano, familia numerosa, el Kids Club y el <b>mismo QR</b> del cartel de alta. Con ese QR, los clientes nuevos se dan de alta y los que ya están registrados se apuntan solos en Llegadas.</p>
+    <p>Los <b>precios salen solos</b> de los que tengas puestos en la app. Si cambias un precio, vuelve a abrir el cartel e imprímelo otra vez. Los horarios y la promoción de familia numerosa son texto fijo del cartel: para cambiarlos hay que modificar el archivo <code>cartel-puerta.html</code>.</p>
+    <div class="nota"><b>Protecciones.</b> Desde un mismo móvil solo se pueden hacer unas pocas altas seguidas, y hay un máximo de altas al día por el cartel. Así nadie puede llenar la app de familias falsas.</div>
+    <div class="ojo"><b>Cambiar el QR.</b> Si el cartel se usa mal, pulsa <b>Cambiar el QR</b>. El cartel impreso deja de funcionar al momento y hay que imprimir y poner el nuevo.</div>
+    <div class="admin"><b>Cada año.</b> La Junta publica en primavera los festivos del año siguiente y el ayuntamiento sus dos fiestas locales. Conviene añadirlos antes de que empiece el año.</div>
+    <a class="arriba" href="#inicio">↑ Volver al índice</a>
+  </section>
+
+  <!-- Estadísticas -->
+  <section id="stats">
+    <h2 class="titulo"><span class="n">17.</span> Estadísticas <span class="etiqueta e-admin">Solo administrador</span></h2>
+    <p>En el inicio, <b>📊 Estadísticas</b>. Elige el periodo con los botones (<b>Este mes</b>, <b>Mes pasado</b>, <b>Últimos 30 días</b>, <b>Este año</b>) o pon dos fechas y pulsa <b>Ver</b>.</p>
+    <ul>
+      <li><b>Cifras del periodo</b>: visitas, niños distintos, niños nuevos (los que vinieron por primera vez), media de niños por día abierto, ingresos en efectivo y tarjeta, familias nuevas, cuotas de socio cobradas y socios activos hoy.</li>
+      <li><b>Visitas por día</b> (o por mes si el periodo es largo).</li>
+      <li><b>Media de niños por día de la semana</b>: para ver qué días hay más gente.</li>
+      <li><b>Niños por edad</b>.</li>
+      <li><b>Por concepto</b>: cuántas entradas de cada tipo, cuotas y pulseras, y cuánto dinero.</li>
+      <li><b>Los que más vienen</b>: los 10 niños con más visitas. Tocando uno se abre su ficha.</li>
+    </ul>
+    <p>En los gráficos, <b>toca una barra</b> para ver el dato exacto debajo. Los tickets anulados no cuentan.</p>
+    <a class="arriba" href="#inicio">↑ Volver al índice</a>
+  </section>
+
+  <!-- 12 -->
+  <section id="problemas">
+    <h2 class="titulo"><span class="n">18.</span> Problemas y dudas</h2>
+    <details><summary>«La sesión ha caducado. Vuelve a entrar con tu PIN.»</summary>
+      <div><p>Es normal al empezar una nueva jornada. Escribe tu PIN otra vez.</p></div></details>
+    <details><summary>«Demasiados intentos. Espera 15 minutos.»</summary>
+      <div><p>Se ha escrito mal el PIN 5 veces. Espera 15 minutos. Si no recuerdas tu PIN, pide al administrador que te ponga uno nuevo.</p></div></details>
+    <details><summary>«Este usuario está desactivado.»</summary>
+      <div><p>El administrador le ha quitado el acceso. Habla con él.</p></div></details>
+    <details><summary>Me he equivocado al cobrar</summary>
+      <div><p>Anula el ticket con su motivo (<a href="#hoy">punto 8</a>) y vuelve a cobrar bien.</p></div></details>
+    <details><summary>He escrito mal un nombre, una fecha o una alergia</summary>
+      <div><p>Abre la ficha del niño y corrígelo (<a href="#ficha">punto 10</a>).</p></div></details>
+    <details><summary>Al pulsar WhatsApp no pasa nada</summary>
+      <div><p>Comprueba que WhatsApp está instalado en el móvil y que el teléfono del adulto es correcto en su ficha. Vuelve a pulsar el botón.</p></div></details>
+    <details><summary>La caja no cuadra</summary>
+      <div><p>Vuelve a contar el efectivo. Revisa en <a href="#hoy">Entradas de hoy</a> si algún ticket se cobró con el método equivocado (efectivo en vez de tarjeta o al revés): anúlalo y vuelve a cobrarlo bien <b>antes de cerrar</b>. Si sigue sin cuadrar, apunta el motivo en Observaciones. Si ya está cerrada, avisa al administrador para que corrija el cierre.</p></div></details>
+    <details><summary>No me deja cobrar: «La caja de hoy ya está cerrada»</summary>
+      <div><p>Alguien ya cerró la caja de hoy. Con la caja cerrada no se puede cobrar ni anular. Pide al administrador que la <b>reabra</b>; cuando termines, vuelve a cerrarla.</p></div></details>
+    <details><summary>«Esa pulsera ya está asignada a otro niño.»</summary>
+      <div><p>Cada pulsera solo puede ser de un niño. Revisa el número; si es correcto, busca ese número en el buscador para ver de quién es.</p></div></details>
+    <details><summary>La app no carga o dice «No hay conexión con el servidor»</summary>
+      <div><p>Comprueba que el móvil tiene internet (wifi o datos). Si sigue igual, avisa al administrador y apunta los cobros en papel para meterlos después.</p></div></details>
+    <a class="arriba" href="#inicio">↑ Volver al índice</a>
+  </section>
+
+  <!-- 13 -->
+  <section id="proximamente">
+    <h2 class="titulo"><span class="n">19.</span> Pendiente de decidir</h2>
+    <ul>
+      <li>Qué hacer si un <b>socio viene sin la pulsera</b>. Mientras tanto, consulta con el encargado.</li>
+    </ul>
+    <a class="arriba" href="#inicio">↑ Volver al índice</a>
+  </section>
+
+  <!-- 14 -->
+  <section id="cambios">
+    <h2 class="titulo"><span class="n">20.</span> Historial de cambios</h2>
+    <div class="cambios">
+      <div class="cambio">
+        <p class="fecha">Versión 16 <span>· 25 de noviembre de 2026</span></p>
+        <ul>
+          <li><b>Cartel de la puerta</b> para imprimir, con precios, horarios, familia numerosa, Kids Club y el QR de alta y autocheck-in. Se abre en Precios y festivos.</li>
+        </ul>
+      </div>
+      <div class="cambio">
+        <p class="fecha">Versión 15 <span>· 24 de noviembre de 2026</span></p>
+        <ul>
+          <li><b>Hijos y niños representados</b>: si un adulto trae a niños que no son suyos, la app lo deja claro en el cobro, en Llegadas, en el ticket y en las fiestas. Los representa solo en esa visita.</li>
+          <li>Quien trae a niños que no son suyos tiene que dar <b>nombre y apellidos</b>.</li>
+          <li>En el cobro, <b>+ Añadir un niño de otra familia</b>. En «Viene otro adulto», la opción <b>Solo los acompaña hoy</b>.</li>
+          <li>El cliente, en el formulario, el autocheck-in y la lista de la fiesta, puede marcar a niños que no son suyos y <b>buscar si ya son clientes</b> con su nombre y fecha de nacimiento.</li>
+          <li>Fiestas: hijo o invitado, apellidos del organizador y enlace de invitados con su ficha.</li>
+        </ul>
+      </div>
+      <div class="cambio">
+        <p class="fecha">Versión 14 <span>· 24 de noviembre de 2026</span></p>
+        <ul>
+          <li><b>Autocheck-in</b>: los clientes ya registrados escanean el cartel o el QR y se apuntan solos en Llegadas. La primera vez se identifican con el teléfono y la fecha de nacimiento de un hijo; después su móvil queda recordado.</li>
+          <li>El número de Llegadas del inicio se actualiza solo cada 30 segundos.</li>
+        </ul>
+      </div>
+      <div class="cambio">
+        <p class="fecha">Versión 13 <span>· 24 de noviembre de 2026</span></p>
+        <ul>
+          <li>Al cobrar se puede cambiar la entrada de cada niño: otra tarifa, <b>Invitación</b> u otras entradas. Si se cobra menos de lo que toca, hay que poner el motivo.</li>
+          <li><b>Calculadora de efectivo</b>: billetes y monedas para marcar lo que da el cliente, con el cambio y qué devolver.</li>
+          <li>El administrador puede crear otras entradas en Precios y festivos.</li>
+        </ul>
+      </div>
+      <div class="cambio">
+        <p class="fecha">Versión 12 <span>· 24 de noviembre de 2026</span></p>
+        <ul>
+          <li><b>📱 Mostrar QR de alta</b>: el cliente escanea la pantalla del personal y se da de alta. El QR vale 10 minutos.</li>
+          <li><b>Cartel de alta con QR</b> para imprimir, con protecciones contra abusos y opción de cambiar el QR.</li>
+          <li>Llegadas indica si el alta vino del cartel o de la pantalla.</li>
+        </ul>
+      </div>
+      <div class="cambio">
+        <p class="fecha">Versión 11 <span>· 24 de noviembre de 2026</span></p>
+        <ul>
+          <li>Enlace de registro por WhatsApp: el cliente da de alta a su familia desde su móvil y aparece en <b>Llegadas</b> para cobrarle.</li>
+          <li>Fiestas de cumpleaños: el organizador apunta a los niños con su enlace y la monitora marca quién llega.</li>
+          <li>Nuevo usuario «Camarero»: enlaces, llegadas, cobros y fiestas, sin caja.</li>
+          <li>«Cumpleaños» pasa a llamarse «Felicitar cumpleaños».</li>
+        </ul>
+      </div>
+      <div class="cambio">
+        <p class="fecha">Versión 10 <span>· 23 de octubre de 2026</span></p>
+        <ul>
+          <li>El día de la ludoteca dura hasta las 6:00 de la mañana. Después de medianoche se puede seguir cobrando, ver los niños, llamar a los padres y cerrar la caja del día.</li>
+          <li>La sesión dura hasta las 6:00, así no caduca a mitad de una noche de fin de semana.</li>
+        </ul>
+      </div>
+      <div class="cambio">
+        <p class="fecha">Versión 9 <span>· 13 de octubre de 2026</span></p>
+        <ul>
+          <li>Fondo de cambio fijo (30 €), que el administrador puede cambiar. Ya no hay que escribirlo al cerrar.</li>
+          <li>Caja con el desglose de niños por concepto y la lista de tickets del día con nombres.</li>
+          <li>Caja cerrada = bloqueada: no se puede cobrar, anular ni volver a cerrar. Solo el administrador corrige o reabre, con motivo, y todo queda en el historial de la caja.</li>
+          <li>Nueva pantalla de estadísticas: visitas, niños nuevos, días de la semana, edades, conceptos y los que más vienen.</li>
+        </ul>
+      </div>
+      <div class="cambio">
+        <p class="fecha">Versión 8 <span>· 7 de octubre de 2026</span></p>
+        <ul>
+          <li>Cumpleaños: listado de niños y adultos con permiso de promociones, invitación por WhatsApp con mensaje automático y marca de invitado.</li>
+          <li>Administrador: editar los mensajes y descargar el listado para Excel.</li>
+        </ul>
+      </div>
+      <div class="cambio">
+        <p class="fecha">Versión 7 <span>· 5 de octubre de 2026</span></p>
+        <ul>
+          <li>Precios y festivos editables por el administrador desde la app.</li>
+          <li>Festivos oficiales de Andalucía cargados (resto de 2026 y 2027).</li>
+        </ul>
+      </div>
+      <div class="cambio">
+        <p class="fecha">Versión 6 <span>· 5 de octubre de 2026</span></p>
+        <ul>
+          <li>Caja del día: efectivo, tarjeta, desglose por concepto y número de niños.</li>
+          <li>Cierre de caja con fondo de cambio, efectivo contado y datáfono, y aviso si se cobra después de cerrar.</li>
+          <li>Administrador: caja de cualquier día e historial de los últimos 45 días.</li>
+        </ul>
+      </div>
+      <div class="cambio">
+        <p class="fecha">Versión 5 <span>· 5 de octubre de 2026</span></p>
+        <ul>
+          <li>Brooklyn Kids Club: hacer socio, renovar sin perder días y reponer pulsera.</li>
+          <li>Ficha del niño: corregir datos, editar, llamar, añadir o quitar adultos y ver las últimas visitas.</li>
+          <li>Búsqueda por número de pulsera y avisos de socio que caduca pronto o sin pulsera.</li>
+          <li>Esta guía, accesible desde el menú de la app.</li>
+        </ul>
+      </div>
+      <div class="cambio">
+        <p class="fecha">Versión 4 <span>· 4 de octubre de 2026</span></p>
+        <ul>
+          <li>Envío del ticket por WhatsApp desde el móvil de la ludoteca.</li>
+          <li>Ticket como imagen y botón para llamar al adulto.</li>
+        </ul>
+      </div>
+      <div class="cambio">
+        <p class="fecha">Versión 3 <span>· 4 de octubre de 2026</span></p>
+        <ul>
+          <li>Búsqueda de niños, alta de familias, cobro en efectivo o tarjeta con precio automático.</li>
+          <li>Entradas de hoy y anulación de tickets.</li>
+        </ul>
+      </div>
+      <div class="cambio">
+        <p class="fecha">Versiones 1 y 2 <span>· 3 de octubre de 2026</span></p>
+        <ul>
+          <li>Base de datos y entrada con PIN personal. Gestión de usuarios.</li>
+        </ul>
+      </div>
+    </div>
+    <a class="arriba" href="#inicio">↑ Volver al índice</a>
+  </section>
+</main>
+
+<footer>Restaurante Brooklyn · Juega más, paga menos</footer>
+</body>
+</html>

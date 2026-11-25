@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Cartel de alta · Ludoteca Brooklyn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Barlow+Condensed:wght@600;700&family=Barlow:wght@500;600&display=swap" rel="stylesheet">
+<script src="qrcode.js"></script>
+<style>
+  :root {
+    --papel: #F3E6CC; --carton: #E9CD95; --tinta: #1F1A17; --tinta-suave: #6B5E52;
+    --rojo: #C4262E; --mostaza: #EFA91B; --verde: #6BBE45;
+    --slab: 'Alfa Slab One', 'Rockwell', Georgia, serif;
+    --cond: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    --texto: 'Barlow', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #d9cdb4; font-family: var(--texto); color: var(--tinta);
+    -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .barra { max-width: 210mm; margin: 16px auto; padding: 0 12px; display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+  .barra p { font-size: 15px; color: var(--tinta); }
+  .barra button { font: 700 19px var(--cond); padding: 10px 22px; border-radius: 10px; border: 2px solid var(--tinta);
+    background: var(--rojo); color: #fff; box-shadow: 0 3px 0 var(--tinta); cursor: pointer; }
+
+  /* Hoja A4 */
+  .hoja { width: 210mm; height: 297mm; margin: 0 auto 24px; background: var(--papel); padding: 10mm; position: relative; overflow: hidden; }
+  .marco { height: 100%; border: 2.2mm solid var(--tinta); outline: .6mm solid var(--tinta); outline-offset: -4.5mm;
+    padding: 10mm 14mm 8mm; display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .estrellas { font-size: 9mm; letter-spacing: 6mm; color: var(--mostaza); line-height: 1; }
+  .estrellas .r { color: var(--rojo); } .estrellas .v { color: var(--verde); }
+  h1 { font: 400 22mm/0.9 var(--slab); letter-spacing: 1mm; margin-top: 2mm; }
+  .sub { font: 400 12mm/1 var(--slab); margin-top: 1mm; }
+  .sub .k { color: var(--rojo); } .sub .c { color: var(--mostaza); }
+  .banda { margin: 5mm 0 5mm; background: var(--tinta); color: var(--papel); padding: 3mm 10mm; font: 700 9.5mm/1.05 var(--cond); letter-spacing: .3mm;
+    clip-path: polygon(0 0, 100% 0, 97% 50%, 100% 100%, 0 100%, 3% 50%); }
+  .qr-caja { background: var(--carton); border: .9mm dashed var(--tinta); border-radius: 3mm; padding: 6mm; position: relative; }
+  .qr-caja::before, .qr-caja::after { content: ''; position: absolute; top: 50%; width: 9mm; height: 9mm; background: var(--papel); border-radius: 50%; transform: translateY(-50%); }
+  .qr-caja::before { left: -5mm; } .qr-caja::after { right: -5mm; }
+  .qr { width: 76mm; height: 76mm; background: #fff; padding: 4mm; border-radius: 2mm; }
+  .qr svg { width: 100%; height: 100%; display: block; }
+  .pasos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5mm; margin: 6mm 0 5mm; width: 100%; }
+  .paso { display: flex; flex-direction: column; align-items: center; gap: 2mm; font: 600 4.8mm/1.25 var(--texto); }
+  .paso b { display: grid; place-items: center; width: 11mm; height: 11mm; border-radius: 50%; background: var(--rojo); color: #fff; font: 700 7mm var(--cond); }
+  .paso:nth-child(2) b { background: var(--mostaza); color: var(--tinta); }
+  .paso:nth-child(3) b { background: var(--verde); color: var(--tinta); }
+  .pie { margin-top: auto; width: 100%; }
+  .aviso { background: var(--rojo); color: #fff; font: 700 7mm/1.1 var(--cond); padding: 3mm 6mm; border: .8mm solid var(--tinta); }
+  .lema { font: 700 6mm var(--cond); margin-top: 2.5mm; letter-spacing: .3mm; }
+  .url { font: 500 3mm var(--texto); color: var(--tinta-suave); margin-top: 1.5mm; word-break: break-all; }
+  .error { max-width: 520px; margin: 60px auto; padding: 20px; background: var(--papel); border: 2px solid var(--tinta); border-radius: 12px; font-size: 18px; }
+
+  /* Pantalla de móvil: la hoja se reduce para verla entera */
+  @media screen and (max-width: 800px) {
+    .hoja { transform-origin: top left; }
+  }
+  @media print {
+    @page { size: A4 portrait; margin: 0; }
+    body { background: none; }
+    .barra { display: none; }
+    .hoja { margin: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="barra">
+  <p>Cartel para imprimir en A4. En la impresión, elige <b>tamaño A4</b> y <b>sin márgenes</b>; activa «gráficos de fondo» si sale sin color.</p>
+  <button onclick="window.print()">Imprimir</button>
+</div>
+
+<div class="hoja" id="hoja">
+  <div class="marco">
+    <div class="estrellas"><span class="r">★</span>★<span class="v">★</span></div>
+    <h1>BROOKLYN</h1>
+    <div class="sub"><span class="k">LUDOTECA</span></div>
+    <div class="banda">¿Quieres darte de alta en nuestra ludoteca?</div>
+    <div class="qr-caja"><div class="qr" id="qr"></div></div>
+    <div class="pasos">
+      <div class="paso"><b>1</b>Abre la cámara de tu móvil</div>
+      <div class="paso"><b>2</b>Escanea este código</div>
+      <div class="paso"><b>3</b>Rellena vuestros datos y avisa al personal</div>
+    </div>
+    <div class="pie">
+      <div class="aviso">Solo se hace una vez y entráis más rápido</div>
+      <p class="lema">★ Juega más, paga menos ★</p>
+      <p class="url" id="url"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+const t = new URLSearchParams(location.search).get('t') || '';
+if (!/^[A-Za-z0-9_-]{20,40}$/.test(t)) {
+  document.body.innerHTML = '<div class="error">Este cartel no tiene un código válido. Ábrelo desde la app: <b>Precios y festivos → Cartel de alta con QR</b>.</div>';
+} else {
+  const url = `${location.origin}/registro.html?t=${t}`;
+  const qr = qrcode(0, 'M');
+  qr.addData(url);
+  qr.make();
+  document.getElementById('qr').innerHTML = qr.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
+  document.getElementById('url').textContent = url;
+  // En el móvil, reducir la hoja para que se vea entera
+  const ajustar = () => {
+    const hoja = document.getElementById('hoja');
+    const escala = Math.min(1, (window.innerWidth - 16) / hoja.offsetWidth);
+    hoja.style.transform = escala < 1 ? `scale(${escala})` : '';
+    hoja.style.marginBottom = escala < 1 ? `${-hoja.offsetHeight * (1 - escala) + 16}px` : '';
+    hoja.style.marginLeft = escala < 1 ? '8px' : '';
+  };
+  window.addEventListener('resize', ajustar); ajustar();
+  window.addEventListener('beforeprint', () => { const h = document.getElementById('hoja'); h.style.transform = ''; h.style.margin = ''; });
+  window.addEventListener('afterprint', ajustar);
+}
+</script>
+</body>
+</html>

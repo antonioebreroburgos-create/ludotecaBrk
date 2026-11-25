@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Cartel de la puerta · Ludoteca Brooklyn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="qrcode.js"></script>
+<style>
+  :root {
+    --papel: #F3E6CC; --carton: #E9CD95; --tinta: #1F1A17; --tinta-suave: #6B5E52;
+    --rojo: #C4262E; --mostaza: #EFA91B; --verde: #6BBE45;
+    --slab: 'Alfa Slab One', 'Rockwell', Georgia, serif;
+    --cond: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    --texto: 'Barlow', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #d9cdb4; font-family: var(--texto); color: var(--tinta);
+    -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .barra { max-width: 210mm; margin: 16px auto; padding: 0 12px; display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+  .barra p { font-size: 15px; }
+  .barra button { font: 700 19px var(--cond); padding: 10px 22px; border-radius: 10px; border: 2px solid var(--tinta);
+    background: var(--rojo); color: #fff; box-shadow: 0 3px 0 var(--tinta); cursor: pointer; }
+
+  /* ---------- Hoja A4 ---------- */
+  .hoja { width: 210mm; height: 297mm; margin: 0 auto 24px; padding: 8mm; position: relative; overflow: hidden;
+    background: var(--papel) radial-gradient(circle at 30% 20%, rgba(255,255,255,.35), transparent 60%); }
+  .marco { height: 100%; border: 2mm solid var(--tinta); outline: .5mm solid var(--tinta); outline-offset: -4mm;
+    padding: 8mm 11mm 6mm; display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .marco > * { flex-shrink: 0; }
+
+  /* Cabecera */
+  .cabecera { position: relative; width: 100%; }
+  .estrella { position: absolute; font-size: 8mm; line-height: 1; }
+  .e1 { left: 4mm; top: 3mm; color: var(--mostaza); } .e2 { left: 13mm; top: 13mm; color: var(--rojo); font-size: 6mm; }
+  .e3 { right: 4mm; top: 3mm; color: var(--verde); } .e4 { right: 13mm; top: 13mm; color: var(--mostaza); font-size: 6mm; }
+  h1 { font: 400 18mm/0.9 var(--slab); letter-spacing: .8mm; }
+  .puente { display: block; width: 118mm; height: 12.5mm; margin: -.5mm auto 0; }
+  .ludoteca { font: 400 14.5mm/1 var(--slab); letter-spacing: 1mm; margin-top: .5mm; }
+  .ludoteca span:nth-child(3n+1) { color: var(--rojo); }
+  .ludoteca span:nth-child(3n+2) { color: var(--mostaza); }
+  .ludoteca span:nth-child(3n) { color: var(--verde); }
+  .banda { margin: 2.5mm 0 3.5mm; background: var(--tinta); color: var(--papel); padding: 2mm 13mm; font: 700 7.5mm/1.05 var(--cond); letter-spacing: .4mm;
+    clip-path: polygon(0 0, 100% 0, 96% 50%, 100% 100%, 0 100%, 4% 50%); }
+  .banda .s { color: var(--mostaza); }
+
+  /* Precios: dos entradas con forma de ticket */
+  .precios { display: grid; grid-template-columns: 1.15fr 1fr; gap: 6mm; width: 100%; }
+  .ticket { background: var(--carton); border: .7mm dashed var(--tinta); border-radius: 2.5mm; padding: 3mm 4mm; position: relative;
+    display: flex; flex-direction: column; justify-content: center; }
+  .ticket::before, .ticket::after { content: ''; position: absolute; top: 50%; width: 7mm; height: 7mm; background: var(--papel); border-radius: 50%; transform: translateY(-50%); }
+  .ticket::before { left: -4mm; } .ticket::after { right: -4mm; }
+  .ticket .euros { font: 400 15mm/1 var(--slab); }
+  .ticket .euros small { font-size: 7.5mm; }
+  .ticket .que { font: 800 6.2mm/1 var(--cond); letter-spacing: .3mm; margin-top: 1mm; }
+  .ticket .cuando { font: 600 4.2mm/1.2 var(--texto); color: var(--tinta-suave); margin-top: .8mm; }
+  .ticket.monitor { background: var(--mostaza); }
+  .ticket.monitor .cuando { color: var(--tinta); }
+
+  /* Horarios con monitor */
+  .horarios { width: 100%; margin-top: 3.5mm; border: .7mm solid var(--tinta); border-radius: 2.5mm; overflow: hidden; background: #FBF4E4; }
+  .horarios .tit { background: var(--tinta); color: var(--papel); font: 700 5.6mm/1 var(--cond); letter-spacing: .4mm; padding: 2mm; }
+  .horarios .tit b { color: var(--mostaza); }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; }
+  .col { padding: 2.6mm 4mm 3mm; text-align: left; }
+  .col + .col { border-left: .5mm dashed var(--tinta); }
+  .col h3 { font: 400 5.6mm/1 var(--slab); margin-bottom: 1.8mm; display: flex; align-items: center; gap: 2mm; }
+  .col h3 .ico { font-size: 6mm; }
+  .fila { display: flex; justify-content: space-between; gap: 2mm; font: 600 4.6mm/1.45 var(--texto); border-bottom: .3mm dotted var(--tinta-suave); }
+  .fila:last-of-type { border-bottom: 0; }
+  .fila span:last-child { font-weight: 700; white-space: nowrap; }
+  .cierre { font: 600 3.7mm/1.3 var(--texto); color: var(--tinta-suave); margin-top: 1.2mm; }
+
+  /* Familia numerosa */
+  .numerosa { width: 100%; margin-top: 3.5mm; background: var(--rojo); color: #fff; border: .7mm solid var(--tinta); padding: 2mm 4mm;
+    display: flex; align-items: center; justify-content: center; gap: 3mm; font: 700 6mm/1.05 var(--cond); letter-spacing: .3mm; white-space: nowrap; }
+  .numerosa b { font: 400 5.6mm/1 var(--slab); letter-spacing: 0; color: var(--mostaza); }
+  .numerosa .flecha { font-size: 7mm; }
+
+  /* QR: apúntate sin esperar */
+  .qr-zona { width: 100%; margin-top: 4.5mm; display: grid; grid-template-columns: 54mm 1fr; gap: 6mm; align-items: center; text-align: left; }
+  .qr-caja { background: var(--carton); border: .8mm dashed var(--tinta); border-radius: 3mm; padding: 4mm; position: relative; }
+  .qr-caja::before, .qr-caja::after { content: ''; position: absolute; top: 50%; width: 7mm; height: 7mm; background: var(--papel); border-radius: 50%; transform: translateY(-50%); }
+  .qr-caja::before { left: -4mm; } .qr-caja::after { right: -4mm; }
+  .qr { width: 100%; aspect-ratio: 1; background: #fff; padding: 3mm; border-radius: 1.5mm; }
+  .qr svg { width: 100%; height: 100%; display: block; }
+  .qr-texto h2 { font: 400 8.6mm/1 var(--slab); }
+  .qr-texto h2 span { color: var(--rojo); }
+  .qr-texto .lead { font: 700 4.8mm/1.25 var(--cond); letter-spacing: .2mm; margin: 1.5mm 0 3mm; color: var(--tinta-suave); }
+  .opcion { display: flex; gap: 3mm; align-items: flex-start; margin-bottom: 2.6mm; }
+  .opcion .n { flex: none; display: grid; place-items: center; width: 9mm; height: 9mm; border-radius: 50%; font: 800 5.4mm var(--cond); border: .5mm solid var(--tinta); }
+  .opcion:nth-of-type(1) .n { background: var(--verde); }
+  .opcion:nth-of-type(2) .n { background: var(--mostaza); }
+  .opcion:nth-of-type(3) .n { background: var(--rojo); color: #fff; }
+  .opcion b { display: block; font: 800 5.4mm/1.1 var(--cond); letter-spacing: .2mm; }
+  .opcion p { font: 500 4mm/1.3 var(--texto); }
+
+  /* Kids Club y pie */
+  .club { width: 100%; margin-top: auto; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 4mm;
+    border: .7mm solid var(--tinta); border-radius: 2.5mm; background: #FBF4E4; padding: 2.4mm 4mm; text-align: left; }
+  .club .nombre { font: 400 6mm/0.95 var(--slab); }
+  .club .nombre .k { color: var(--rojo); } .club .nombre .c { color: var(--mostaza); }
+  .club ul { list-style: none; font: 600 4mm/1.35 var(--texto); }
+  .club ul li::before { content: '✓ '; color: var(--verde); font-weight: 800; }
+  .club ul b { color: var(--rojo); }
+  .club .cuota { background: var(--verde); border: .6mm solid var(--tinta); border-radius: 2mm; padding: 1.5mm 3mm; text-align: center; font: 800 4mm/1.1 var(--cond); }
+  .club .cuota b { display: block; font: 400 7mm/1 var(--slab); }
+  .lema { font: 700 5mm var(--cond); margin-top: 2mm; white-space: nowrap; letter-spacing: .4mm; }
+  .lema .s { color: var(--mostaza); }
+  .url { font: 500 2.6mm var(--texto); color: var(--tinta-suave); margin-top: 1mm; word-break: break-all; }
+
+  .error { max-width: 520px; margin: 60px auto; padding: 20px; background: var(--papel); border: 2px solid var(--tinta); border-radius: 12px; font-size: 18px; }
+  @media screen and (max-width: 800px) { .hoja { transform-origin: top left; } }
+  @media print {
+    @page { size: A4 portrait; margin: 0; }
+    body { background: none; }
+    .barra { display: none; }
+    .hoja { margin: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="barra">
+  <p>Cartel de la puerta para imprimir en A4. Al imprimir, elige <b>tamaño A4</b> y <b>sin márgenes</b>; activa «gráficos de fondo» si sale sin color.</p>
+  <button onclick="window.print()">Imprimir</button>
+</div>
+
+<div class="hoja" id="hoja">
+  <div class="marco">
+    <div class="cabecera">
+      <span class="estrella e1">★</span><span class="estrella e2">★</span><span class="estrella e3">★</span><span class="estrella e4">★</span>
+      <h1>BROOKLYN</h1>
+      <!-- Silueta de puente colgante -->
+      <svg class="puente" viewBox="0 0 400 48" aria-hidden="true">
+        <g fill="none" stroke="#1F1A17" stroke-linecap="round">
+          <path d="M8 34 H392" stroke-width="3"/>
+          <path d="M8 30 Q70 30 110 6 Q200 40 290 6 Q330 30 392 30" stroke-width="1.6"/>
+          <path d="M8 33 Q70 33 110 10 Q200 44 290 10 Q330 33 392 33" stroke-width="1"/>
+          <g stroke-width=".8">
+            <path d="M40 30 V34 M60 28 V34 M80 22 V34 M95 15 V34 M128 13 V34 M146 19 V34 M164 23 V34 M182 25.5 V34 M200 26 V34 M218 25.5 V34 M236 23 V34 M254 19 V34 M272 13 V34 M305 15 V34 M320 22 V34 M340 28 V34 M360 30 V34"/>
+          </g>
+        </g>
+        <g fill="#1F1A17">
+          <path d="M103 4 h14 v32 h-3 v-12 a4 4 0 0 0 -8 0 v12 h-3z"/>
+          <path d="M283 4 h14 v32 h-3 v-12 a4 4 0 0 0 -8 0 v12 h-3z"/>
+          <path d="M0 40 h400 v8 h-400z" opacity=".12"/>
+          <path d="M14 40 v-5 h8 v5z M30 40 v-3 h6 v3z M352 40 v-4 h7 v4z M368 40 v-6 h9 v6z" opacity=".55"/>
+        </g>
+      </svg>
+      <div class="ludoteca" aria-label="Ludoteca"><span>L</span><span>U</span><span>D</span><span>O</span><span>T</span><span>E</span><span>C</span><span>A</span></div>
+    </div>
+
+    <div class="banda"><span class="s">★</span> Juega sin límite de tiempo <span class="s">★</span></div>
+
+    <div class="precios">
+      <div class="ticket monitor">
+        <div class="euros" id="p-monitor">3,50 €</div>
+        <div class="que">CON MONITOR@ INFANTIL</div>
+        <div class="cuando">En el horario de abajo</div>
+      </div>
+      <div class="ticket">
+        <div class="euros" id="p-sin">2 €</div>
+        <div class="que">SIN MONITOR@</div>
+        <div class="cuando">De lunes a domingo</div>
+      </div>
+    </div>
+
+    <div class="horarios">
+      <div class="tit">HORARIO CON <b>MONITOR@ INFANTIL</b></div>
+      <div class="cols">
+        <div class="col">
+          <h3><span class="ico">❄️</span>Invierno</h3>
+          <div class="fila"><span>Viernes</span><span>17:00 al cierre</span></div>
+          <div class="fila"><span>Sábado</span><span>14:00 al cierre</span></div>
+          <div class="fila"><span>Domingo</span><span>14:00 a 21:00</span></div>
+          <p class="cierre">Cierre aprox. 00:00</p>
+        </div>
+        <div class="col">
+          <h3><span class="ico">☀️</span>Verano</h3>
+          <div class="fila"><span>Lunes a domingo</span><span>19:00 al cierre</span></div>
+          <p class="cierre">Cierre aprox. 00:30</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="numerosa">FAMILIA NUMEROSA <span class="flecha">➜</span> <span>3 niñ@s o más: <b>1 ENTRA GRATIS</b></span></div>
+
+    <div class="qr-zona">
+      <div class="qr-caja"><div class="qr" id="qr"></div></div>
+      <div class="qr-texto">
+        <h2>Apúntate <span>sin esperar</span></h2>
+        <p class="lead">Escanea el código con la cámara del móvil</p>
+        <div class="opcion"><span class="n">1</span><div><b>¿Ya sois clientes?</b><p>Marca quién viene hoy y ya estáis en la lista.</p></div></div>
+        <div class="opcion"><span class="n">2</span><div><b>¿Primera vez?</b><p>Daos de alta en un minuto. Solo se hace una vez.</p></div></div>
+        <div class="opcion"><span class="n">3</span><div><b>Avisa al personal y paga</b><p>Y a jugar.</p></div></div>
+      </div>
+    </div>
+
+    <div class="club">
+      <div class="nombre">BROOKLYN<br><span class="k">KIDS</span> <span class="c">CLUB</span></div>
+      <ul>
+        <li>Entrada <b id="c-lj">GRATIS</b> de lunes a jueves</li>
+        <li>Entrada a <b id="c-finde">1,50 €</b> fines de semana y festivos</li>
+      </ul>
+      <div class="cuota"><b id="c-cuota">25 €</b>al año</div>
+    </div>
+    <p class="lema"><span class="s">★</span> Juega más, paga menos <span class="s">★</span> Pregunta a nuestro personal <span class="s">★</span></p>
+    <p class="url" id="url"></p>
+  </div>
+</div>
+
+<script>
+const q = new URLSearchParams(location.search);
+const t = q.get('t') || '';
+if (!/^[A-Za-z0-9_-]{20,40}$/.test(t)) {
+  document.body.innerHTML = '<div class="error">Este cartel no tiene un código válido. Ábrelo desde la app: <b>Precios y festivos → Cartel de la puerta</b>.</div>';
+} else {
+  // Precios: llegan de la app (Precios y festivos), así el cartel sale siempre con los precios vigentes
+  const precio = (clave, porDefecto) => { const n = Number(q.get(clave)); return Number.isFinite(n) && q.get(clave) !== null ? n : porDefecto; };
+  const euros = n => (Number.isInteger(n) ? String(n) : n.toFixed(2).replace('.', ',')) + ' €';
+  const gratis = n => n === 0 ? 'GRATIS' : euros(n);
+  document.getElementById('p-monitor').innerHTML = euros(precio('finde', 3.5)).replace(' €', '<small> €</small>');
+  document.getElementById('p-sin').innerHTML = euros(precio('lj', 2)).replace(' €', '<small> €</small>');
+  document.getElementById('c-lj').textContent = gratis(precio('socio_lj', 0));
+  document.getElementById('c-finde').textContent = gratis(precio('socio_finde', 1.5));
+  document.getElementById('c-cuota').textContent = euros(precio('cuota', 25));
+
+  // El mismo QR que el cartel de alta: sirve para darse de alta y para el autocheck-in
+  const url = `${location.origin}/registro.html?t=${t}`;
+  const qr = qrcode(0, 'M');
+  qr.addData(url);
+  qr.make();
+  document.getElementById('qr').innerHTML = qr.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
+  document.getElementById('url').textContent = url;
+
+  // En el móvil, reducir la hoja para que se vea entera
+  const ajustar = () => {
+    const hoja = document.getElementById('hoja');
+    const escala = Math.min(1, (window.innerWidth - 16) / hoja.offsetWidth);
+    hoja.style.transform = escala < 1 ? `scale(${escala})` : '';
+    hoja.style.marginBottom = escala < 1 ? `${-hoja.offsetHeight * (1 - escala) + 16}px` : '';
+    hoja.style.marginLeft = escala < 1 ? '8px' : '';
+  };
+  window.addEventListener('resize', ajustar); ajustar();
+  window.addEventListener('beforeprint', () => { const h = document.getElementById('hoja'); h.style.transform = ''; h.style.margin = ''; });
+  window.addEventListener('afterprint', ajustar);
+}
+</script>
+</body>
+</html>
