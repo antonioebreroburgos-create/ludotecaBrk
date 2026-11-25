@@ -3156,6 +3156,14 @@ async function cargarCartel() {
     pintarCartel();
   } catch (e) { $('cf-cartel').innerHTML = `<p class="mensaje">${esc(e.message)}</p>`; }
 }
+// Cartel de la puerta: mismo QR, con los precios vigentes de la configuración
+function urlCartelPuerta(t) {
+  const precio = cod => configActual?.tarifas?.find(x => x.codigo === cod)?.precio;
+  const p = new URLSearchParams({ t });
+  [['lj', 'ENTRADA_LJ'], ['finde', 'ENTRADA_FINDE'], ['socio_lj', 'SOCIO_LJ'], ['socio_finde', 'SOCIO_FINDE'], ['cuota', 'CUOTA_SOCIO']]
+    .forEach(([clave, cod]) => { const v = precio(cod); if (v !== undefined && v !== null) p.set(clave, v); });
+  return 'cartel-puerta.html?' + p.toString();
+}
 function pintarCartel() {
   if (!cartelDatos) {
     $('cf-cartel').innerHTML = `<p class="intro">Un cartel con un QR para que los clientes se den de alta solos («¿Quieres darte de alta en nuestra ludoteca?»). Ponlo en la puerta, en las mesas o en la barra.</p>
@@ -3167,7 +3175,8 @@ function pintarCartel() {
       <div class="cartel-qr">${svgQR(cartelDatos.url)}</div>
       <div><b>Cartel activo</b><small>Creado el ${fechaDMY(cartelDatos.creado.slice(0, 10))}. ${cartelDatos.altas} ${cartelDatos.altas === 1 ? 'alta hecha' : 'altas hechas'} con él.</small></div>
     </div>
-    <a class="btn" href="cartel.html?t=${encodeURIComponent(t)}" target="_blank" rel="noopener" style="margin-top:12px">Abrir cartel para imprimir</a>
+    <a class="btn" href="cartel.html?t=${encodeURIComponent(t)}" target="_blank" rel="noopener" style="margin-top:12px">Abrir cartel de alta para imprimir</a>
+    <a class="btn secundario" href="${urlCartelPuerta(t)}" target="_blank" rel="noopener" style="margin-top:10px">Abrir cartel de la puerta (precios, horarios y QR)</a>
     <button class="enlace" data-cartel="cambiar">Cambiar el QR (el cartel impreso dejará de funcionar)</button>`;
 }
 $('cf-cartel').onclick = async e => {
